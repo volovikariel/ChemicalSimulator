@@ -40,76 +40,76 @@ public class Controller implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
     }
 
-    public void initializeInputs() {
-        System.out.println("Initialize Inputs: " + this);
-        paneSimulation.setOnMouseMoved(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if(mouseEvent.getY() <= 15f) {
-                    initializeInputs();
-                    menuBar.setVisible(true);
-                }
-                else {
-                    menuBar.setVisible(false);
-                }
-            }
-        });
+//    public void initializeInputs() {
+//        System.out.println("Initialize Inputs: " + this);
+//        paneSimulation.setOnMouseMoved(new EventHandler<MouseEvent>() {
+//            @Override
+//            public void handle(MouseEvent mouseEvent) {
+//                if(mouseEvent.getY() <= 15f) {
+//                    initializeInputs();
+//                    menuBar.setVisible(true);
+//                }
+//                else {
+//                    menuBar.setVisible(false);
+//                }
+//            }
+//        });
 
-        selectionScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent keyEvent) {
-                System.out.println("Key Typed: " + keyEvent.getCode());
-                if(keyEvent.getCode() == KeyCode.ESCAPE) {
-                    primaryStage.close();
-                }
-                if(keyEvent.getCode() == KeyCode.SPACE) {
-                    if(primaryStage.getScene() == selectionScene) {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("ResultsScene.fxml"));
-                        try {
-                            Parent root = loader.load();
-                            Group group = new Group();
-                            Rectangle rectangle = new Rectangle(280, 250, 80, 30);
-                            group.getChildren().addAll(root, rectangle);
-                            resultScene = new Scene(group, 600, 550);
-                            resultScene.setOnKeyPressed(selectionScene.getOnKeyPressed());
-                            primaryStage.setScene(resultScene);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    else {
-                        primaryStage.setScene(selectionScene);
-                    }
-                }
-                if(keyEvent.getCode().isLetterKey()) {
-                    txtManual.setVisible(true);
-                    txtManual.setText(keyEvent.getCode().getChar());
-                    txtManual.requestFocus();
-                }
-            }
-        });
-
-        txtManual.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent keyEvent) {
-                if(keyEvent.getCode() == KeyCode.ENTER) {
-                    System.out.println("Text Entered: " + txtManual.getText());
-                    txtManual.setVisible(false);
-                }
-            }
-        });
-    }
-    public void passData(Stage stage, Scene selectionScene, AnchorPane paneSimulation, AnchorPane panePeriodic, MenuBar menuBar, TextField txtManual) {
-        System.out.println("Passing Data");
-        this.primaryStage = stage;
-        this.selectionScene = selectionScene;
-        this.panePeriodic = panePeriodic;
-        this.paneSimulation = paneSimulation;
-        this.menuBar = menuBar;
-        this.txtManual = txtManual;
-        System.out.println("Controller after passing data " + this);
-        initializeInputs();
-    }
+//        selectionScene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+//            @Override
+//            public void handle(KeyEvent keyEvent) {
+//                System.out.println("Key Typed: " + keyEvent.getCode());
+//                if(keyEvent.getCode() == KeyCode.ESCAPE) {
+//                    primaryStage.close();
+//                }
+//                if(keyEvent.getCode() == KeyCode.SPACE) {
+//                    if(primaryStage.getScene() == selectionScene) {
+//                        FXMLLoader loader = new FXMLLoader(getClass().getResource("ResultsScene.fxml"));
+//                        try {
+//                            Parent root = loader.load();
+//                            Group group = new Group();
+//                            Rectangle rectangle = new Rectangle(280, 250, 80, 30);
+//                            group.getChildren().addAll(root, rectangle);
+//                            resultScene = new Scene(group, 600, 550);
+//                            resultScene.setOnKeyPressed(selectionScene.getOnKeyPressed());
+//                            primaryStage.setScene(resultScene);
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                    else {
+//                        primaryStage.setScene(selectionScene);
+//                    }
+//                }
+//                if(keyEvent.getCode().isLetterKey()) {
+//                    txtManual.setVisible(true);
+//                    txtManual.setText(keyEvent.getCode().getChar());
+//                    txtManual.requestFocus();
+//                }
+//            }
+//        });
+//
+//        txtManual.setOnKeyPressed(new EventHandler<KeyEvent>() {
+//            @Override
+//            public void handle(KeyEvent keyEvent) {
+//                if(keyEvent.getCode() == KeyCode.ENTER) {
+//                    System.out.println("Text Entered: " + txtManual.getText());
+//                    txtManual.setVisible(false);
+//                }
+//            }
+//        });
+//    }
+//    public void passData(Stage stage, Scene selectionScene, AnchorPane paneSimulation, AnchorPane panePeriodic, MenuBar menuBar, TextField txtManual) {
+//        System.out.println("Passing Data");
+//        this.primaryStage = stage;
+//        this.selectionScene = selectionScene;
+//        this.panePeriodic = panePeriodic;
+//        this.paneSimulation = paneSimulation;
+//        this.menuBar = menuBar;
+//        this.txtManual = txtManual;
+//        System.out.println("Controller after passing data " + this);
+//        initializeInputs();
+//    }
 
     @Override
     public String toString() {
