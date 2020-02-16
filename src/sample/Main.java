@@ -1,5 +1,7 @@
 package sample;
 
+import Database.Atom;
+import Database.JsonToDatabase;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -15,8 +17,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Main extends Application {
     @FXML
@@ -47,6 +53,26 @@ public class Main extends Application {
         primaryStage.show();
 
         initializeInputs();
+
+        // Storing all the Atoms' info in Utils.getAtomList
+        new JsonToDatabase().jsonToDatabase("src/Database/PeriodicTableJSON.json");
+
+        // Creates CSV file form JSON Database
+        try (CSVPrinter printer = new CSVPrinter(new FileWriter("elements.csv"), CSVFormat.DEFAULT)) {
+            ArrayList<Atom> lst = Utils.getAtomList();
+            printer.printRecord("Symbol", "#Shells", "Electronegativity");
+            for(Atom a : lst) {
+                printer.printRecord(a.getSymbol(), a.getShells(), a.getElectronegativity_pauling());
+            }
+        }
+
+
+        // Running a .exe file
+//        try {
+//            Process p = Runtime.getRuntime().exec("/home/pshychozpath/Desktop/program.exe");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void initializeInputs() {
