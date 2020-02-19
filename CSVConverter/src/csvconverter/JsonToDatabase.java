@@ -1,9 +1,7 @@
-package Database;
+package csvconverter;
 
 
 import org.json.JSONObject;
-import sample.Utils;
-
 import java.util.ArrayList;
 
 public class JsonToDatabase {
@@ -17,9 +15,9 @@ public class JsonToDatabase {
             for(int i = 0; i < jsonParentObject.getJSONArray("elements").length(); i++) {
                 JSONObject atomI = jsonParentObject.getJSONArray("elements").getJSONObject(i);
                 if(atomI.isNull("electronegativity_pauling")) {
-                    atom = new Atom(atomI.getString("name"), atomI.getString("symbol"), (float) atomI.getDouble("atomic_mass"), atomI.getJSONArray("shells").toString(), Float.NaN);
+                    atom = new Atom(atomI.getString("name"), atomI.getString("symbol"), (double) atomI.getDouble("atomic_mass"), atomI.getJSONArray("shells").getInt(atomI.getJSONArray("shells").length() - 1), -1);
                 } else {
-                    atom = new Atom(atomI.getString("name"), atomI.getString("symbol"), (float) atomI.getDouble("atomic_mass"), atomI.getJSONArray("shells").toString(), (float) atomI.getDouble("electronegativity_pauling"));
+                    atom = new Atom(atomI.getString("name"), atomI.getString("symbol"), (double) atomI.getDouble("atomic_mass"), atomI.getJSONArray("shells").getInt(atomI.getJSONArray("shells").length() - 1), (double) atomI.getDouble("electronegativity_pauling"));
                 }
                 atomList.add(atom);
             }

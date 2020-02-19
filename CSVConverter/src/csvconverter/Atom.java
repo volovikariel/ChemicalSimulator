@@ -1,14 +1,14 @@
-package Database;
+package csvconverter;
 
 public class Atom {
 
     private String name;
     private String symbol;
-    private float atomicMass;
-    private String shells;
-    private float electronegativity_pauling;
+    private double atomicMass;
+    private int shells;
+    private double electronegativity_pauling;
 
-    public Atom(String name, String symbol, float atomicMass, String shells, float electronegativity_pauling) {
+    public Atom(String name, String symbol, double atomicMass, int shells, double electronegativity_pauling) {
         this.name = name;
         this.symbol = symbol;
         this.atomicMass = atomicMass;
@@ -24,15 +24,15 @@ public class Atom {
         return symbol;
     }
 
-    public float getAtomicMass() {
+    public double getAtomicMass() {
         return atomicMass;
     }
 
-    public String getShells() {
+    public int getShells() {
         return shells;
     }
 
-    public float getElectronegativity_pauling() {
+    public double getElectronegativity_pauling() {
         return electronegativity_pauling;
     }
 

@@ -60,7 +60,7 @@ public class Main extends Application {
         // Creates CSV file form JSON Database
         try (CSVPrinter printer = new CSVPrinter(new FileWriter("elements.csv"), CSVFormat.DEFAULT)) {
             ArrayList<Atom> lst = Utils.getAtomList();
-            printer.printRecord("Symbol", "#Shells", "Electronegativity");
+            printer.printRecord("Symbol", "Shells", "Electronegativity");
             for(Atom a : lst) {
                 printer.printRecord(a.getSymbol(), a.getShells(), a.getElectronegativity_pauling());
             }
