@@ -38,7 +38,7 @@ public class MainAppCtrl implements Initializable {
     
     private Scene scene;
     
-    private FXMLLoader loader;
+    private SubSceneController controller;
     
     @FXML
     private void handleMouse(MouseEvent event) {
@@ -58,39 +58,40 @@ public class MainAppCtrl implements Initializable {
         else if(keyEvent.getCode() == KeyCode.SPACE) {
             if(isSelecting) {
                 isSelecting = false;
-                loader = new FXMLLoader(getClass().getResource("ResultsScene.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("ResultsScene.fxml"));
                 try {
                     Parent root = loader.load();
                     subScene.setRoot(root);
-                    
+                    controller = (SubSceneController) loader.getController();                    
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
             else {
                 isSelecting = true;
-                loader = new FXMLLoader(getClass().getResource("SelectionScene.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("SelectionScene.fxml"));
                 try {
                     Parent root = loader.load();
                     subScene.setRoot(root);
-                    
+                    controller = (SubSceneController) loader.getController();                    
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
         else if(Character.isLetterOrDigit(keyEvent.getCharacter().charAt(0)) && isSelecting) {
-            ((SelectionSceneCtrl) loader.getController()).appendInput(keyEvent.getCharacter());
+            ((SelectionSceneCtrl) controller).appendInput(keyEvent.getCharacter());
         }
     }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        loader = new FXMLLoader(getClass().getResource("SelectionScene.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("SelectionScene.fxml"));
         Parent root;
         
         try {
             root = loader.load();
+            controller = (SubSceneController) loader.getController();
         } catch (IOException ex) {
             ex.printStackTrace();
             return;

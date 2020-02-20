@@ -15,7 +15,7 @@ import javafx.scene.control.TextField;
  *
  * @author cstuser
  */
-public class SelectionSceneCtrl implements Initializable {
+public class SelectionSceneCtrl implements Initializable, SubSceneController {
     
     @FXML
     TextField txtManual;
