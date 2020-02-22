@@ -35,30 +35,31 @@ int solCount = 0;
 int main(int argc, char *argv[])
 {
 	//example input "---.exe H 2 O 1"
-    
-    char names[][2] = {"H\0", "C\0", "N\0", "O\0"}; 
-    int HCNO[] = {0, 0, 0, 0};
-	int maxElement = 4;
-    /*//read input
-    printf("Enter the atom composition\n");
-    for (int i = 0; i < 4; i++)
-    {
-        printf("%s: ", names[i]);
-        scanf_s("%d", &(HONC[i]));
-    }*/
-	
+
+  char names[][2] = {"H\0", "C\0", "N\0", "O\0"};
+  int HCNO[4];
+  int maxElement = 4;
+  /*//read input
+  printf("Enter the atom composition\n");
+  for (int i = 0; i < 4; i++)
+  {
+      printf("%s: ", names[i]);
+      scanf_s("%d", &(HONC[i]));
+  }*/
+
+
 	int currIndx = 0;
 	int size = 0;
 	for (int i = 1; i < argc; i+=2) {
 		while (!compareString(names[currIndx], argv[i])) {
 			currIndx++;
-			
+
 			if (currIndx == maxElement) {
 				printf("bad input\n");
 				return 7;
 			}
 		}
-		
+
 		HCNO[currIndx] += atoi(argv[i+1]);
 		size += atoi(argv[i+1]);
 	}
@@ -129,7 +130,7 @@ void loadAtom(int bondCount, char name[2], double electroneg, int listIndex, Ato
 Atom* createAtom(int bondCount, char name[2], double electroneg, int listIndex)
 {
     Atom* returnAtom = malloc(sizeof(Atom));
-    
+
     loadAtom(bondCount, name, electroneg, listIndex, returnAtom);
 
     return returnAtom;
@@ -217,7 +218,7 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
             else
                 continue;
         }
-        
+
         /*printf(currAtom->name);
         printf("\t");
         printf(atomList[i].name);
@@ -294,7 +295,7 @@ void printMol(Atom* atomList, int atomListSize)
         {
             currAtom = (Atom*) currLink->valuePtr;
             printf(" %c%d", currAtom->name[0], currAtom->listIndex);
-            
+
             currLink = currLink->nextLink;
         }
         printf("\n");
@@ -309,11 +310,11 @@ bool compareString(char* a, char* b)
 	for (i = 0; a[i] != '\0' && b[i] != '\0'; i++)
 		if (a[i] != b[i])
 			return 0;
-		
+
 	//one must have caught and been equal to '\0'
 	//thus if they both are equal to '\0', they are equal
 	if (a[i] == b[i])
 		return 1;
-	
+
 	return 0;
 }
