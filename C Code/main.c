@@ -28,6 +28,8 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
 
 void printMol(Atom* atomList, int atomListSize);
 
+bool compareString(char* a, char* b);
+
 int solCount = 0;
 
 int main(int argc, char *argv[])
@@ -35,7 +37,7 @@ int main(int argc, char *argv[])
 	//example input "---.exe H 2 O 1"
     
     char names[][2] = {"H\0", "C\0", "N\0", "O\0"}; 
-    int HCNO[4];
+    int HCNO[] = {0, 0, 0, 0};
 	int maxElement = 4;
     /*//read input
     printf("Enter the atom composition\n");
@@ -46,8 +48,9 @@ int main(int argc, char *argv[])
     }*/
 	
 	int currIndx = 0;
+	int size = 0;
 	for (int i = 1; i < argc; i+=2) {
-		while (names[currIndx] != argv[i]) {
+		while (!compareString(names[currIndx], argv[i])) {
 			currIndx++;
 			
 			if (currIndx == maxElement) {
@@ -57,11 +60,8 @@ int main(int argc, char *argv[])
 		}
 		
 		HCNO[currIndx] += atoi(argv[i+1]);
+		size += atoi(argv[i+1]);
 	}
-
-    int size = 0;
-    for (int i = 0; i < 4; i++)
-        size += HCNO[i];
 
     Atom* atomList = malloc(size * sizeof(Atom));
 
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     printf("%d solutions found", solCount);
 
     free(atomList);
-	scanf_s("%s", NULL);
+	scanf("%s", NULL);
     return 0;
 }
 
@@ -300,4 +300,20 @@ void printMol(Atom* atomList, int atomListSize)
         printf("\n");
     }
     printf("-----End of Solution-----\n");
+}
+
+// Must be null terminated
+bool compareString(char* a, char* b)
+{
+	int i;
+	for (i = 0; a[i] != '\0' && b[i] != '\0'; i++)
+		if (a[i] != b[i])
+			return 0;
+		
+	//one must have caught and been equal to '\0'
+	//thus if they both are equal to '\0', they are equal
+	if (a[i] == b[i])
+		return 1;
+	
+	return 0;
 }

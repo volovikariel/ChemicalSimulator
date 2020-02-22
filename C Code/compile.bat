@@ -1,0 +1,1 @@
+gcc main.c -o ..\MainApplication\src\mainapplication\b.exe
