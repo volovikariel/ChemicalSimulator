@@ -5,6 +5,7 @@
  */
 package mainapplication;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -92,6 +93,10 @@ public class MainAppCtrl implements Initializable {
                     Parent root = loader.load();
                     subScene.setRoot(root);
                     controller = (SubSceneController) loader.getController();
+                    
+                    // [WIP] Running .exe
+//                    Runtime.getRuntime().exec("C:\\Users\\Ariel Volovik\\Desktop\\ChemicalSimulator\\C Code\\b.exe", null, new File("C:\\Users\\Ariel Volovik\\Desktop\\ChemicalSimulator\\C code"));
+                    
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -131,7 +136,7 @@ public class MainAppCtrl implements Initializable {
     public void loadScene() {
         scene = subScene.getScene();
         // Makes the subscene resize with its parent scene
-        subScene.heightProperty().bind(scene.heightProperty());
+        subScene.heightProperty().bind(scene.heightProperty().subtract(35));
         subScene.widthProperty().bind(scene.widthProperty());
         
         scene.setOnKeyTyped(new EventHandler<KeyEvent>() {
