@@ -1,1 +1,1 @@
-gcc main.c -o ..\MainApplication\src\mainapplication\b.exe
+gcc main.c -o ..\MainApplication\b.exe

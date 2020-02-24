@@ -29,5 +29,4 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         txtManual.setVisible(true);
         txtManual.setText(txtManual.getText() + text);
     }
-    
 }

@@ -5,9 +5,13 @@
  */
 package mainapplication;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -21,9 +25,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import javafx.scene.control.MenuBar;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -42,12 +47,19 @@ public class MainAppCtrl implements Initializable {
     boolean isSelecting = true;
     
     private Scene scene;
+    private StackPane mainSubPane;
     
     private SubSceneController controller;
     
     private boolean isDown = true;
     
     private boolean isAnimating = false;
+    
+    //subscene locations
+    private final String RESULTS_STR = "ResultsScene.fxml";
+    private final String SELECTION_STR = "SelectionScene.fxml";
+    private final String LOADING_STR = "LoadingScene.fxml";
+
     
     // Keys
     private final char ESCAPE = 27;
@@ -87,32 +99,27 @@ public class MainAppCtrl implements Initializable {
         } 
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
             if (isSelecting) {
-                isSelecting = false;
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("ResultsScene.fxml"));
+                loadSubscene(LOADING_STR);
                 try {
-                    Parent root = loader.load();
-                    subScene.setRoot(root);
-                    controller = (SubSceneController) loader.getController();
-                    
-                    // [WIP] Running .exe
-//                    Runtime.getRuntime().exec("C:\\Users\\Ariel Volovik\\Desktop\\ChemicalSimulator\\C Code\\b.exe", null, new File("C:\\Users\\Ariel Volovik\\Desktop\\ChemicalSimulator\\C code"));
-                    
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    String filepath = getClass().getResource("b.exe").toString();
+                    Path currentRelativePath = Paths.get("");
+                    String s = currentRelativePath.toAbsolutePath().toString();
+                    File dir = new File(s);
+                    Runtime run = Runtime.getRuntime();
+                    Process proc = run.exec("b.exe C 1 O 2", null, dir);
+                    BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+                    String line = null;
+                    while ((s = stdInput.readLine()) != null) {
+                        System.out.println(s);
+                    }
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
-        } 
-        else {
-            isSelecting = true;
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("SelectionScene.fxml"));
-            try {
-                Parent root = loader.load();
-                subScene.setRoot(root);
-                controller = (SubSceneController) loader.getController();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            } 
+            else {
+                loadSubscene(SELECTION_STR);
+            } 
         }
-        } 
         else if (Character.isLetterOrDigit(keyEvent.getCharacter().charAt(0)) && isSelecting) {
             ((SelectionSceneCtrl) controller).appendInput(keyEvent.getCharacter());
         }
@@ -120,17 +127,9 @@ public class MainAppCtrl implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("SelectionScene.fxml"));
-        Parent root;
-        try {
-            root = loader.load();
-            controller = (SubSceneController) loader.getController();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return;
-        }
-        
-        subScene.setRoot(root);
+        mainSubPane = new StackPane();
+        subScene.setRoot(mainSubPane);
+        loadSubscene(SELECTION_STR);
     }
     
     public void loadScene() {
@@ -154,4 +153,17 @@ public class MainAppCtrl implements Initializable {
         });
     }
     
+    private void loadSubscene(String subsceneFile) {
+        isSelecting = subsceneFile.equals(SELECTION_STR);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(subsceneFile));
+        try {
+            Parent root = loader.load();
+            //subScene.setRoot(root);
+            mainSubPane.getChildren().clear();
+            mainSubPane.getChildren().add(root);
+            controller = (SubSceneController) loader.getController();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -40,7 +40,7 @@ public class MainApplication extends Application {
         primaryStage.show();
         
         ((MainAppCtrl) loader.getController()).loadScene();
-
+       
        
         // Running a .exe file
 //        try {

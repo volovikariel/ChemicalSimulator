@@ -37,17 +37,8 @@ int main(int argc, char *argv[])
 	//example input "---.exe H 2 O 1"
 
   char names[][2] = {"H\0", "C\0", "N\0", "O\0"};
-  int HCNO[4];
+  int HCNO[] = {0, 0, 0, 0};
   int maxElement = 4;
-  /*//read input
-  printf("Enter the atom composition\n");
-  for (int i = 0; i < 4; i++)
-  {
-      printf("%s: ", names[i]);
-      scanf_s("%d", &(HONC[i]));
-  }*/
-
-
 	int currIndx = 0;
 	int size = 0;
 	for (int i = 1; i < argc; i+=2) {
@@ -63,6 +54,12 @@ int main(int argc, char *argv[])
 		HCNO[currIndx] += atoi(argv[i+1]);
 		size += atoi(argv[i+1]);
 	}
+	
+	/*for (int i = 0; i < 4; i++)
+	  {
+		  printf("%s: %d\n", names[i], HCNO[i]);
+		  //scanf_s("%d", &(HONC[i]));
+	  }*/
 
     Atom* atomList = malloc(size * sizeof(Atom));
 
@@ -107,7 +104,7 @@ int main(int argc, char *argv[])
     printf("%d solutions found", solCount);
 
     free(atomList);
-	scanf("%s", NULL);
+	//scanf("%s", NULL);
     return 0;
 }
 
