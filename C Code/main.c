@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef int bool;
 
@@ -27,7 +28,12 @@ void loadAtom(int bondCount, char name[2], double electroneg, int listIndex, Ato
 void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList);
 
 void printMol(Atom* atomList, int atomListSize);
+void printMolMatrix(Atom* atomList, int atomListSize);
+void printSolMatrix(int* solution, int atomListSize);
 
+int* saveSolution(Atom* atomList, int atomListSize);
+
+bool compareSolMatrix(int* a, int* b, int atomListSize);
 bool compareString(char* a, char* b);
 
 int solCount = 0;
@@ -37,6 +43,7 @@ int main(int argc, char *argv[])
 	//example input "---.exe H 2 O 1"
 
   char names[][2] = {"H\0", "C\0", "N\0", "O\0"};
+  int bonds[] = {1, 4, 3, 2};
   int HCNO[] = {0, 0, 0, 0};
   int maxElement = 4;
 	int currIndx = 0;
@@ -54,7 +61,7 @@ int main(int argc, char *argv[])
 		HCNO[currIndx] += atoi(argv[i+1]);
 		size += atoi(argv[i+1]);
 	}
-	
+
 	/*for (int i = 0; i < 4; i++)
 	  {
 		  printf("%s: %d\n", names[i], HCNO[i]);
@@ -67,7 +74,7 @@ int main(int argc, char *argv[])
     for (int k = 0; k < 4; k++)
     {
         for (int i = currOffset; i < currOffset + HCNO[k]; i++)
-            loadAtom(k+1, names[k], 0, i, &(atomList[i]));
+            loadAtom(bonds[k], names[k], 0, i, &(atomList[i]));
         currOffset += HCNO[k];
     }
 
@@ -96,12 +103,15 @@ int main(int argc, char *argv[])
     currLink = solLink;
     while (currLink != NULL)
     {
+        if (currLink->valuePtr != NULL)
+            free(currLink->valuePtr);
         startLink = currLink; //used here as a temp
         currLink = currLink->nextLink;
         free(startLink);
     }
 
-    printf("%d solutions found", solCount);
+    printf("END\n");
+    printf("%d solutions found\n", solCount);
 
     free(atomList);
 	//scanf("%s", NULL);
@@ -160,14 +170,36 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
             return;
         }
 
-        //compare with previous solutions
+        //keep total solutions (before comparing)
+        //solCount++;
+        /*if (solCount % 1000000 == 0)
+            printf("%d million\n", solCount / 1000000);*/
 
-        //add to solution list
-        //printf("Found a solution\n");
-        //printMol(atomList, atomListSize);
-        solCount++;
-        if (solCount % 1000000 == 0)
-            printf("%d million\n", solCount / 1000000);
+        //save the solution
+        int* temp = saveSolution(atomList, atomListSize);
+        //compare with previous solutions
+        //skip first empty link
+        Link* tempStartLink = solutionList->nextLink;
+        Link* saveBeforeLast = solutionList;
+        bool isEqual = 0;
+        while (tempStartLink != NULL && !isEqual)
+        {
+            isEqual = compareSolMatrix(temp, (int*) tempStartLink->valuePtr, atomListSize);
+            saveBeforeLast = tempStartLink;
+            tempStartLink = tempStartLink->nextLink;
+        }
+        //if no similar solution was found
+        if (!isEqual)
+        {
+            printSolMatrix(temp, atomListSize);
+            Link* newSolLink = malloc(sizeof(Link));
+            newSolLink->prevLink = tempStartLink;
+            newSolLink->valuePtr = (void*) temp;
+            newSolLink->nextLink = NULL;
+            saveBeforeLast->nextLink = newSolLink;
+
+            solCount++;
+        }
 
         return;
     }
@@ -280,10 +312,10 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
 
 void printMol(Atom* atomList, int atomListSize)
 {
-    printf("----Start of Solution----\n");
+    printf(">----Start of Solution----<\n");
     for (int i = 0; i < atomListSize; i++)
     {
-        printf("%c%d => ", atomList[i].name[0], atomList[i].listIndex);
+        printf("%s%d =>", atomList[i].name, atomList[i].listIndex);
         Link* currLink = atomList[i].bondList;
         Atom* currAtom;
 
@@ -291,13 +323,94 @@ void printMol(Atom* atomList, int atomListSize)
         while(currLink->nextLink != NULL)
         {
             currAtom = (Atom*) currLink->valuePtr;
-            printf(" %c%d", currAtom->name[0], currAtom->listIndex);
+            printf(" %s%d", currAtom->name, currAtom->listIndex);
 
             currLink = currLink->nextLink;
         }
         printf("\n");
     }
-    printf("-----End of Solution-----\n");
+    printf("<-----End of Solution----->\n");
+}
+
+void printMolMatrix(Atom* atomList, int atomListSize)
+{
+    int* tempArray;
+    tempArray = malloc(sizeof(int)*atomListSize);
+
+    printf(">>>>\n");
+
+    for (int i = 0; i < atomListSize; i++)
+    {
+        printf("%s%d :", atomList[i].name, atomList[i].listIndex);
+
+        memset(tempArray, 0, sizeof(int)*atomListSize);
+
+        Link* currLink = atomList[i].bondList;
+        Atom* currAtom;
+
+        //currLink->nextLink is used since the last one is empty and thus should be ignored
+        while(currLink->nextLink != NULL)
+        {
+            currAtom = (Atom*) currLink->valuePtr;
+            //printf(" %s%d", currAtom->name, currAtom->listIndex);
+            tempArray[currAtom->listIndex] += 1;
+
+            currLink = currLink->nextLink;
+        }
+
+        for (int j = 0; j < atomListSize; j++)
+        {
+            printf(" %d", tempArray[j]);
+        }
+        printf("\n");
+    }
+
+    printf("<<<<\n");
+
+    free(tempArray);
+}
+
+void printSolMatrix(int* solution, int atomListSize)
+{
+    printf(">>>>\n");
+    for (int i = 0; i < atomListSize; i++)
+    {
+        for (int j = 0; j < atomListSize; j++)
+            printf("%d ", solution[i * atomListSize + j]);
+
+        printf("\n");
+    }
+    printf("<<<<\n");
+}
+
+int* saveSolution(Atom* atomList, int atomListSize)
+{
+    int* tempArray;
+    tempArray = calloc(atomListSize*atomListSize, sizeof(int));
+
+    for (int i = 0; i < atomListSize; i++)
+    {
+        Link* currLink = atomList[i].bondList;
+
+        //currLink->nextLink is used since the last one is empty and thus should be ignored
+        while(currLink->nextLink != NULL)
+        {
+            tempArray[atomList[i].listIndex * atomListSize + ((Atom*) currLink->valuePtr)->listIndex] += 1;
+            currLink = currLink->nextLink;
+        }
+    }
+
+    return tempArray;
+}
+
+bool compareSolMatrix(int* a, int* b, int atomListSize)
+{
+    //check if they are the same, without permutations
+    for (int i = 0; i < atomListSize*atomListSize; i++)
+        if (a[i] != b[i])
+            return 0;
+
+    return 1;
 }
 
 // Must be null terminated
