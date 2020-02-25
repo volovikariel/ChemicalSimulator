@@ -40,14 +40,6 @@ public class MainApplication extends Application {
         primaryStage.show();
         
         ((MainAppCtrl) loader.getController()).loadScene();
-       
-       
-        // Running a .exe file
-//        try {
-//            Process p = Runtime.getRuntime().exec("/home/pshychozpath/Desktop/program.exe");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
     
     public static void main(String[] args) {

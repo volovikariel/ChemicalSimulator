@@ -101,7 +101,6 @@ public class MainAppCtrl implements Initializable {
             if (isSelecting) {
                 loadSubscene(LOADING_STR);
                 try {
-                    String filepath = getClass().getResource("b.exe").toString();
                     Path currentRelativePath = Paths.get("");
                     String s = currentRelativePath.toAbsolutePath().toString();
                     File dir = new File(s);
@@ -110,6 +109,10 @@ public class MainAppCtrl implements Initializable {
                     BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
                     String line = null;
                     while ((s = stdInput.readLine()) != null) {
+                        // Reached the end of the file
+                        if(s.contains("END")) {
+                            loadSubscene(RESULTS_STR);
+                        }
                         System.out.println(s);
                     }
                 } catch (IOException ex) {
