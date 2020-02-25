@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedList;
 import java.util.ResourceBundle;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -101,8 +102,8 @@ public class MainAppCtrl implements Initializable {
         } 
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
             if (isSelecting) {
-                loadSubscene(LOADING_STR);
                 callAlgorithm();
+                loadSubscene(LOADING_STR);
             } 
             else {
                 loadSubscene(SELECTION_STR);
@@ -231,6 +232,23 @@ public class MainAppCtrl implements Initializable {
     }
 
     private String parseInput() {
+        String text = ((SelectionSceneCtrl) controller).txtManual.getText();
+        char[] llInput = new char[text.length()];
+        // Converting input to a linked list
+        for(int i = 0; i < text.length(); i++) {
+            llInput[i] = text.charAt(i);
+        }
+        LinkedList<String> llSymbol = new LinkedList<>();
+        // Converting linked list array of character
+        for(int j = 0; j < llInput.length; j++) {
+            if(j == llInput.length - 2) {
+                // Check if the next character is a letter 
+                if(Character.isLetter(llInput[j]) && Character.isLetter(llInput[j+1])) {
 
+                }
+            }
+        }
+        System.out.println(llInput);
+        return text;
     }
 }
