@@ -193,13 +193,15 @@ public class MainAppCtrl implements Initializable {
         // Converting linked list array of character
         for(int j = 0; j < llInput.length; j++) {
             if(j == llInput.length - 2) {
+                System.out.println("input at j: " + llInput[j] + " is a character?: " + Character.isLetter(llInput[j]));
                 // Check if the next character is a letter 
                 if(Character.isLetter(llInput[j]) && Character.isLetter(llInput[j+1])) {
-
+//                    llSymbol.add(llInput[j] + llInput[j+1] + "");
                 }
             }
         }
         System.out.println(llInput);
+        System.out.println(llSymbol);
         return text;
     }
 }
