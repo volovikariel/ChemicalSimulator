@@ -169,11 +169,60 @@ public class MainAppCtrl implements Initializable {
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String line = null;
+            boolean isReading = false;
+            LinkedList<int[][]> solutionSet = new LinkedList<>();
+            int[][] tempArray;
+            int currMatrixLine = 0;
+            int matrixSize = 1;
             while ((s = stdInput.readLine()) != null) {
                 // Reached the end of the file
-                if(s.contains("END")) {
+                if(s.equals("END")) {
                     loadSubscene(RESULTS_STR);
+                    return;
                 }
+
+                if (s.equals(">>>>")) {
+                	if (isReading) {
+                		System.out.println("ERROR, new matrix started without ending last one");
+                		return;
+                	}
+
+                	isReading = true;
+                	currMatrixLine = 0;
+                	maxtrixSize = 1;
+                }
+                else if (isReading) {
+                	if (s.equals("<<<<")) {
+                		if (currMatrixLine != matrixSize) {
+                			System.out.println("ERROR, matrix ended before size reached");
+                			return;
+                		}
+
+                		isReading = false;
+                	}
+                	else {
+	                	String[] valuesStr = s.split(" ");
+
+	                	if (currMatrixLine == 0) {
+	                		matrixSize = valuesStr.length();
+	                		tempArray = new int[matrixSize][matrixSize];
+	                	}
+	                	else if (currMatrixLine > matrixSize) {
+	                		System.out.println("ERROR, matrix size mismatch");
+	                		return;
+	                	}
+	                	else if (currMatrixLine == matrixSize - 1) {
+	                		solutionSet.add(temp);
+	                	}
+
+	                	for (int i = 0; i < matrixSize; i++) {
+	                		tempArray[currMatrixLine][i] = Integer.parseInt(valuesStr[i]);
+	                	}
+
+	                	currMatrixLine++;
+                	}
+                }
+
                 System.out.println(s);
             }
 
