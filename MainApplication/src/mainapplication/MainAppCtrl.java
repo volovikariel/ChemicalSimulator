@@ -59,7 +59,7 @@ public class MainAppCtrl implements Initializable {
     private boolean isAnimating = false;
     
     //subscene locations
-    private final String RESULTS_STR = "ResultsScene.fxml";
+    private final String RESULTS_STR = "ResultScene.fxml";
     private final String SELECTION_STR = "SelectionScene.fxml";
     private final String LOADING_STR = "LoadingScene.fxml";
 
@@ -102,8 +102,10 @@ public class MainAppCtrl implements Initializable {
         } 
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
             if (isSelecting) {
-                callAlgorithm();
-                loadSubscene(LOADING_STR);
+                LinkedList<int[][]> solutions = callAlgorithm();
+                loadSubscene(RESULTS_STR);
+                ((ResultSceneCtrl) controller).resultList(solutions);
+                //loadSubscene(LOADING_STR);
             } 
             else {
                 loadSubscene(SELECTION_STR);
@@ -156,46 +158,46 @@ public class MainAppCtrl implements Initializable {
         }
     }
 
-    private void callAlgorithm() {
+    private LinkedList<int[][]> callAlgorithm() {
     	try {
             Path currentRelativePath = Paths.get("");
             String s = currentRelativePath.toAbsolutePath().toString();
             File dir = new File(s);
             Runtime run = Runtime.getRuntime();
 
-            String input = parseInput();
-
+            //String input = parseInput();
+            String input = "H 4 C 2";
             Process proc = run.exec(String.format("b.exe %s", input), null, dir);
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String line = null;
             boolean isReading = false;
             LinkedList<int[][]> solutionSet = new LinkedList<>();
-            int[][] tempArray;
+            int[][] tempArray = null;
             int currMatrixLine = 0;
             int matrixSize = 1;
             while ((s = stdInput.readLine()) != null) {
                 // Reached the end of the file
                 if(s.equals("END")) {
                     loadSubscene(RESULTS_STR);
-                    return;
+                    return solutionSet;
                 }
 
                 if (s.equals(">>>>")) {
                 	if (isReading) {
                 		System.out.println("ERROR, new matrix started without ending last one");
-                		return;
+                		return null;
                 	}
 
                 	isReading = true;
                 	currMatrixLine = 0;
-                	maxtrixSize = 1;
+                	matrixSize = 1;
                 }
                 else if (isReading) {
                 	if (s.equals("<<<<")) {
                 		if (currMatrixLine != matrixSize) {
                 			System.out.println("ERROR, matrix ended before size reached");
-                			return;
+                			return null;
                 		}
 
                 		isReading = false;
@@ -204,15 +206,15 @@ public class MainAppCtrl implements Initializable {
 	                	String[] valuesStr = s.split(" ");
 
 	                	if (currMatrixLine == 0) {
-	                		matrixSize = valuesStr.length();
+	                		matrixSize = valuesStr.length;
 	                		tempArray = new int[matrixSize][matrixSize];
 	                	}
 	                	else if (currMatrixLine > matrixSize) {
 	                		System.out.println("ERROR, matrix size mismatch");
-	                		return;
+	                		return null;
 	                	}
 	                	else if (currMatrixLine == matrixSize - 1) {
-	                		solutionSet.add(temp);
+	                		solutionSet.add(tempArray);
 	                	}
 
 	                	for (int i = 0; i < matrixSize; i++) {
@@ -229,6 +231,8 @@ public class MainAppCtrl implements Initializable {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        
+        return null;
     }
 
     private String parseInput() {
