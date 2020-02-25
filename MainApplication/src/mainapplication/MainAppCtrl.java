@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -96,7 +98,7 @@ public class MainAppCtrl implements Initializable {
     }
     
     @FXML
-    private void handleKeyTyped(KeyEvent keyEvent) {
+    private void handleKeyTyped(KeyEvent keyEvent) throws IOException {
         if (keyEvent.getCharacter().charAt(0) == ESCAPE) {
             ((Stage) (parentScene.getWindow())).close();
         } 
@@ -130,7 +132,11 @@ public class MainAppCtrl implements Initializable {
         parentScene.setOnKeyTyped(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                handleKeyTyped(event);
+                try {
+                    handleKeyTyped(event);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
         
@@ -156,78 +162,68 @@ public class MainAppCtrl implements Initializable {
         }
     }
 
-    private void callAlgorithm() {
-    	try {
-            Path currentRelativePath = Paths.get("");
-            String s = currentRelativePath.toAbsolutePath().toString();
-            File dir = new File(s);
-            Runtime run = Runtime.getRuntime();
+    private void callAlgorithm() throws IOException {
+        Path currentRelativePath = Paths.get("");
+        String s = currentRelativePath.toAbsolutePath().toString();
+        File dir = new File(s);
+        Runtime run = Runtime.getRuntime();
 
-            String input = parseInput();
+        String input = parseInput();
 
-            Process proc = run.exec(String.format("b.exe %s", input), null, dir);
+        Process proc = run.exec(String.format("b.exe %s", input), null, dir);
 
-            BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            String line = null;
-            boolean isReading = false;
-            LinkedList<int[][]> solutionSet = new LinkedList<>();
-            int[][] tempArray;
-            int currMatrixLine = 0;
-            int matrixSize = 1;
-            while ((s = stdInput.readLine()) != null) {
-                // Reached the end of the file
-                if(s.equals("END")) {
-                    loadSubscene(RESULTS_STR);
-                    return;
-                }
-
-                if (s.equals(">>>>")) {
-                	if (isReading) {
-                		System.out.println("ERROR, new matrix started without ending last one");
-                		return;
-                	}
-
-                	isReading = true;
-                	currMatrixLine = 0;
-                	maxtrixSize = 1;
-                }
-                else if (isReading) {
-                	if (s.equals("<<<<")) {
-                		if (currMatrixLine != matrixSize) {
-                			System.out.println("ERROR, matrix ended before size reached");
-                			return;
-                		}
-
-                		isReading = false;
-                	}
-                	else {
-	                	String[] valuesStr = s.split(" ");
-
-	                	if (currMatrixLine == 0) {
-	                		matrixSize = valuesStr.length();
-	                		tempArray = new int[matrixSize][matrixSize];
-	                	}
-	                	else if (currMatrixLine > matrixSize) {
-	                		System.out.println("ERROR, matrix size mismatch");
-	                		return;
-	                	}
-	                	else if (currMatrixLine == matrixSize - 1) {
-	                		solutionSet.add(temp);
-	                	}
-
-	                	for (int i = 0; i < matrixSize; i++) {
-	                		tempArray[currMatrixLine][i] = Integer.parseInt(valuesStr[i]);
-	                	}
-
-	                	currMatrixLine++;
-                	}
-                }
-
-                System.out.println(s);
+        BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+        String line = null;
+        boolean isReading = false;
+        LinkedList<int[][]> solutionSet = new LinkedList<>();
+        int[][] tempArray = null;
+        int currMatrixLine = 0;
+        int matrixSize = 1;
+        while ((s = stdInput.readLine()) != null) {
+            // Reached the end of the file
+            if(s.equals("END")) {
+                loadSubscene(RESULTS_STR);
+                return;
             }
+            
+            if (s.equals(">>>>")) {
+                if (isReading) {
+                        System.out.println("ERROR, new matrix started without ending last one");
+                        return;
+                }
+                isReading = true;
+                currMatrixLine = 0;
+                matrixSize = 1;
+            }
+            else if (isReading) {
+                if (s.equals("<<<<")) {
+                    if (currMatrixLine != matrixSize) {
+                        System.out.println("ERROR, matrix ended before size reached");
+                        return;
+                    }
+                    isReading = false;
+                }
+                else {
+                    String[] valuesStr = s.split(" ");
 
-        } catch (IOException ex) {
-            ex.printStackTrace();
+                    if (currMatrixLine == 0) {
+                        matrixSize = valuesStr.length;
+                        tempArray = new int[matrixSize][matrixSize];
+                    }
+                    else if (currMatrixLine > matrixSize) {
+                        System.out.println("ERROR, matrix size mismatch");
+                        return;
+                    }
+                    else if (currMatrixLine == matrixSize - 1) {
+                        solutionSet.add(tempArray);
+                    }
+                    for (int i = 0; i < matrixSize; i++) {
+                        tempArray[currMatrixLine][i] = Integer.parseInt(valuesStr[i]);
+                    }
+                    currMatrixLine++;
+                }
+            }
+            System.out.println(s);
         }
     }
 
@@ -238,19 +234,53 @@ public class MainAppCtrl implements Initializable {
         for(int i = 0; i < text.length(); i++) {
             llInput[i] = text.charAt(i);
         }
-        LinkedList<String> llSymbol = new LinkedList<>();
+        LinkedList<String> llSymbols = new LinkedList<>();
+        
+        // Getting ready for parsing
+        boolean started = false;
+        boolean startedNumber = false;
+        String symbol = "";
         // Converting linked list array of character
         for(int j = 0; j < llInput.length; j++) {
-            if(j == llInput.length - 2) {
-                System.out.println("input at j: " + llInput[j] + " is a character?: " + Character.isLetter(llInput[j]));
-                // Check if the next character is a letter 
-                if(Character.isLetter(llInput[j]) && Character.isLetter(llInput[j+1])) {
-//                    llSymbol.add(llInput[j] + llInput[j+1] + "");
+            // >>H<<Co2C4, H>>C<<o2C4, HCo>>2<<C4, HCo2>>C<<4, HCo2C>>4<<
+            if(!started) {
+                if(Character.isDigit(llInput[j])) {
+                    startedNumber = true;
+                    llSymbols.add(symbol);
+                    symbol = Character.toString(llInput[j]);  
+                }
+                else {
+                    started = true;
+                    symbol += llInput[j];
+                    startedNumber = false;
+                }
+            }
+            // HC>>o<<2C4
+            else if(Character.isLowerCase(llInput[j])) {
+                symbol += llInput[j];
+                if (startedNumber) {
+                    System.out.println("error");
+                }
+            }
+            // H>>C<<o2C4
+            else if(Character.isUpperCase(llInput[j])) {
+                llSymbols.add(symbol);
+                startedNumber = false;
+                symbol = Character.toString(llInput[j]);
+            }
+            // HCo>>2<<C4, HCo2C>>4<<
+            else if(Character.isDigit(llInput[j])) {
+                if (startedNumber)
+                    symbol += llInput[j];
+                else {
+                    startedNumber = true;
+                    llSymbols.add(symbol);
+                    symbol = Character.toString(llInput[j]); 
                 }
             }
         }
-        System.out.println(llInput);
-        System.out.println(llSymbol);
+        llSymbols.add(symbol);
+        System.out.println(llSymbols);
         return text;
     }
 }
