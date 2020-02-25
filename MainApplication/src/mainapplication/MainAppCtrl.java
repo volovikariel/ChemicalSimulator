@@ -102,24 +102,7 @@ public class MainAppCtrl implements Initializable {
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
             if (isSelecting) {
                 loadSubscene(LOADING_STR);
-                try {
-                    Path currentRelativePath = Paths.get("");
-                    String s = currentRelativePath.toAbsolutePath().toString();
-                    File dir = new File(s);
-                    Runtime run = Runtime.getRuntime();
-                    Process proc = run.exec("b.exe C 1 O 2", null, dir);
-                    BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-                    String line = null;
-                    while ((s = stdInput.readLine()) != null) {
-                        // Reached the end of the file
-                        if(s.contains("END")) {
-                            loadSubscene(RESULTS_STR);
-                        }
-                        System.out.println(s);
-                    }
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                callAlgorithm();
             } 
             else {
                 loadSubscene(SELECTION_STR);
@@ -170,5 +153,35 @@ public class MainAppCtrl implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void callAlgorithm() {
+    	try {
+            Path currentRelativePath = Paths.get("");
+            String s = currentRelativePath.toAbsolutePath().toString();
+            File dir = new File(s);
+            Runtime run = Runtime.getRuntime();
+
+            String input = parseInput();
+
+            Process proc = run.exec(String.format("b.exe %s", input), null, dir);
+
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String line = null;
+            while ((s = stdInput.readLine()) != null) {
+                // Reached the end of the file
+                if(s.contains("END")) {
+                    loadSubscene(RESULTS_STR);
+                }
+                System.out.println(s);
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private String parseInput() {
+
     }
 }
