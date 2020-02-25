@@ -27,6 +27,7 @@ import javafx.scene.SubScene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -46,8 +47,9 @@ public class MainAppCtrl implements Initializable {
     
     boolean isSelecting = true;
     
-    private Scene scene;
-    private StackPane mainSubPane;
+    // ParentScene -> ((AnchorPane -> SplitPane -> (SelectionPane & PeriodicPane)) & MenuBar)
+    private Scene parentScene;
+    private AnchorPane subPane;
     
     private SubSceneController controller;
     
@@ -95,7 +97,7 @@ public class MainAppCtrl implements Initializable {
     @FXML
     private void handleKeyTyped(KeyEvent keyEvent) {
         if (keyEvent.getCharacter().charAt(0) == ESCAPE) {
-            ((Stage) (scene.getWindow())).close();
+            ((Stage) (parentScene.getWindow())).close();
         } 
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
             if (isSelecting) {
@@ -130,25 +132,25 @@ public class MainAppCtrl implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        mainSubPane = new StackPane();
-        subScene.setRoot(mainSubPane);
+        subPane = new AnchorPane();
+        subScene.setRoot(subPane);
         loadSubscene(SELECTION_STR);
     }
     
     public void loadScene() {
-        scene = subScene.getScene();
+        parentScene = subScene.getScene();
         // Makes the subscene resize with its parent scene
-        subScene.heightProperty().bind(scene.heightProperty().subtract(35));
-        subScene.widthProperty().bind(scene.widthProperty());
+        subScene.heightProperty().bind(parentScene.heightProperty().subtract(35));
+        subScene.widthProperty().bind(parentScene.widthProperty());
         
-        scene.setOnKeyTyped(new EventHandler<KeyEvent>() {
+        parentScene.setOnKeyTyped(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
                 handleKeyTyped(event);
             }
         });
         
-        scene.setOnMouseMoved(new EventHandler<MouseEvent>() {
+        parentScene.setOnMouseMoved(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 handleMouse(event);
@@ -162,8 +164,8 @@ public class MainAppCtrl implements Initializable {
         try {
             Parent root = loader.load();
             //subScene.setRoot(root);
-            mainSubPane.getChildren().clear();
-            mainSubPane.getChildren().add(root);
+            subPane.getChildren().clear();
+            subPane.getChildren().add(root);
             controller = (SubSceneController) loader.getController();
         } catch (IOException e) {
             e.printStackTrace();
