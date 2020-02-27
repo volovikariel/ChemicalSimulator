@@ -29,6 +29,7 @@ public class CSVConverter {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(Utils.getAtomList().get(0));
     }
     
 }

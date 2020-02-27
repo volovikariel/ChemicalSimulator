@@ -7,15 +7,20 @@ package mainapplication;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -31,10 +36,13 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.util.Pair;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 
 /**
  * FXML Controller class
@@ -64,12 +72,12 @@ public class MainAppCtrl implements Initializable {
     private final String RESULTS_STR = "ResultScene.fxml";
     private final String SELECTION_STR = "SelectionScene.fxml";
     private final String LOADING_STR = "LoadingScene.fxml";
-
     
     // Keys
     private final char ESCAPE = 27;
     private final char ENTER = 13;
     
+    private Atom[] atoms;
     
     @FXML
     private void handleMouse(MouseEvent event) {
@@ -121,6 +129,19 @@ public class MainAppCtrl implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        // Parsing CSV
+        atoms = new Atom[110];
+        Path currentRelativePath = Paths.get("res/elements.csv");
+        String s = currentRelativePath.toAbsolutePath().toString();
+        try (CSVParser csvParser = new CSVParser(new FileReader(s), CSVFormat.DEFAULT.withHeader());) {
+            int index = 0;
+            for (CSVRecord csvRecord : csvParser) {
+                atoms[index] = new Atom(csvRecord.get(0), csvRecord.get(1), csvRecord.get(2));
+                index++;
+            }
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
         subPane = new AnchorPane();
         subScene.setRoot(subPane);
         loadSubscene(SELECTION_STR);
@@ -241,7 +262,7 @@ public class MainAppCtrl implements Initializable {
         return null;
     }
 
-    private String parseInput() {
+    private String[] parseInput() {
         String text = ((SelectionSceneCtrl) controller).txtManual.getText();
         char[] llInput = new char[text.length()];
         // Converting input to a linked list
@@ -295,7 +316,7 @@ public class MainAppCtrl implements Initializable {
         }
         llSymbols.add(symbol);
         
-        String formatted = "";
+        ArrayList<String> alFormatted = new ArrayList<>();
         // Formatting the output and checking if the total number of atoms exceeds the limit (20)
         for(int i = 0; i <= llSymbols.size() - 1; i++) {
             //TODO: Check if it's a valid atom - if not - error and return
@@ -303,23 +324,26 @@ public class MainAppCtrl implements Initializable {
             //TODO: Order in the order of the atoms after the fact
             // If it's the last - must be letter
             if(i == llSymbols.size() - 1) {
-                formatted += " " + llSymbols.getLast() + " 1";
+                alFormatted.add(llSymbols.getLast());
+                alFormatted.add(""+1);
             }
             // If it doesn't contain a number
             else if(!llSymbols.get(i).matches(".*\\d+.*")) {
                 // If the next value is a number, add the symbol and the number to the list
                 if(llSymbols.get(i + 1).matches(".*\\d+.*")) {
-                    formatted += " " + llSymbols.get(i) + " " + llSymbols.get(i + 1);
+                    alFormatted.add(llSymbols.get(i));
+                    alFormatted.add(llSymbols.get(i + 1));
                     i++;
                 }
                 // If it doesn't contain a number after the symbol, add a 1 to the list 
                 else if(!llSymbols.get(i + 1).matches(".*\\d+.*")) {
-                    formatted += " " + llSymbols.get(i) + " 1";
+                    alFormatted.add(llSymbols.get(i));
+                    alFormatted.add(""+1);
                 }
             }
         }
-//        System.out.println(llSymbols);
-        System.out.println(formatted.trim());
-        return text;
+        System.out.println(alFormatted);
+        System.out.println("Atoms: " + Arrays.toString(atoms));
+        return (String[]) alFormatted.toArray();
     }
 }    
