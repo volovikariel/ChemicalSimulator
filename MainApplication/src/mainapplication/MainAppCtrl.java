@@ -111,8 +111,8 @@ public class MainAppCtrl implements Initializable {
         } 
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
             if (isSelecting) {
-                //String input = parseInput();
-                String[] input = {"H", "6", "C", "3"};
+                String[] input = parseInput();
+                //String[] input = {"H", "6", "C", "3"};
                 String inputStr = getInputStr(input);
                 loadSubscene(LOADING_STR);
                 LinkedList<int[][]> solutions = callAlgorithm(inputStr);
@@ -371,6 +371,6 @@ public class MainAppCtrl implements Initializable {
         }
         System.out.println(alFormatted);
         System.out.println("Atoms: " + Arrays.toString(atoms));
-        return (String[]) alFormatted.toArray();
+        return alFormatted.toArray(new String[alFormatted.size()]);
     }
 }    

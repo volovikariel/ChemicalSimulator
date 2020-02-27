@@ -48,11 +48,7 @@ public class TabTemplateCtrl implements Initializable {
             lewisAncPaneID.setTopAnchor(tempLbl, 20.0*row);
             
             for (int col = 0; col < matrix[0].length; col++) {
-                Label numLbl = new Label("" + matrix[row][col]);
-
-                lewisAncPaneID.getChildren().add(numLbl);
-                lewisAncPaneID.setTopAnchor(numLbl, 20.0*row);
-                lewisAncPaneID.setLeftAnchor(numLbl, 20.0*(col+1));
+                
 
                 if (matrix[row][col] != 0) {
                     //matrix[row][col] = bondCount;
@@ -61,7 +57,11 @@ public class TabTemplateCtrl implements Initializable {
                     //row -> element x, col -> element y // (x,y) -> bond
                     //print elements in the lewis pane
                     
-                    
+                    Label numLbl = new Label("" + matrix[row][col]);
+
+                lewisAncPaneID.getChildren().add(numLbl);
+                lewisAncPaneID.setTopAnchor(numLbl, 20.0*row);
+                lewisAncPaneID.setLeftAnchor(numLbl, 20.0*(col+1));
                 }
             }
         }
