@@ -19,7 +19,7 @@ import javafx.scene.layout.Pane;
  */
 public class TabTemplateCtrl implements Initializable {
 
-    int[][] matrix = new int[3][3]; //assuming the matrix is 3x3 for testing
+    int[][] matrix;
     
     @FXML
     Label hydrogen = new Label("H");
@@ -30,7 +30,7 @@ public class TabTemplateCtrl implements Initializable {
     
     @FXML
     public void sendSolution(int [][] solution) {
-        //matrix = solution;
+        matrix = solution;
         
         int elementCount = matrix.length; //rows
         int bondCount = 0;
