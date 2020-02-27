@@ -7,7 +7,10 @@ package mainapplication;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Pane;
 
 /**
  * FXML Controller class
@@ -16,11 +19,35 @@ import javafx.fxml.Initializable;
  */
 public class TabTemplateCtrl implements Initializable {
 
-    int[][] matrix;
+    int[][] matrix = new int[3][3]; //assuming the matrix is 3x3 for testing
     
+    @FXML
+    Label hydrogen = new Label("H");
+    @FXML
+    Label oxygen = new Label("O");
+    @FXML
+    Pane lewisPaneID;
+    
+    @FXML
     public void sendSolution(int [][] solution) {
-        matrix = solution;
+        //matrix = solution;
         
+        int elementCount = matrix.length; //rows
+        int bondCount = 0;
+        
+        for (int row = 0; row < matrix.length; row++) {
+            for (int col = 0; col < matrix[0].length; col++) {
+                if (matrix[row][col] != 0) {
+                    matrix[row][col] = bondCount;
+                    
+                    //need the elements corresponding to the index of each matrix
+                    //row -> element x, col -> element y
+                    //print elements in the lewis pane
+                    
+                    lewisPaneID.getChildren().addAll(oxygen, hydrogen);
+                }
+            }
+        }
     }
     
     
@@ -30,5 +57,5 @@ public class TabTemplateCtrl implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-    }    
+    }
 }
