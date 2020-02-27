@@ -104,10 +104,11 @@ public class MainAppCtrl implements Initializable {
         } 
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
             if (isSelecting) {
+                parseInput();
                 LinkedList<int[][]> solutions = callAlgorithm();
                 loadSubscene(RESULTS_STR);
                 ((ResultSceneCtrl) controller).resultList(solutions);
-                //loadSubscene(LOADING_STR);
+//                loadSubscene(LOADING_STR);
             } 
             else {
                 loadSubscene(SELECTION_STR);
@@ -293,7 +294,32 @@ public class MainAppCtrl implements Initializable {
             }
         }
         llSymbols.add(symbol);
-        System.out.println(llSymbols);
+        
+        String formatted = "";
+        // Formatting the output and checking if the total number of atoms exceeds the limit (20)
+        for(int i = 0; i <= llSymbols.size() - 1; i++) {
+            //TODO: Check if it's a valid atom - if not - error and return
+            //TODO: Check for repetitions COOH -> CO2H 
+            //TODO: Order in the order of the atoms after the fact
+            // If it's the last - must be letter
+            if(i == llSymbols.size() - 1) {
+                formatted += " " + llSymbols.getLast() + " 1";
+            }
+            // If it doesn't contain a number
+            else if(!llSymbols.get(i).matches(".*\\d+.*")) {
+                // If the next value is a number, add the symbol and the number to the list
+                if(llSymbols.get(i + 1).matches(".*\\d+.*")) {
+                    formatted += " " + llSymbols.get(i) + " " + llSymbols.get(i + 1);
+                    i++;
+                }
+                // If it doesn't contain a number after the symbol, add a 1 to the list 
+                else if(!llSymbols.get(i + 1).matches(".*\\d+.*")) {
+                    formatted += " " + llSymbols.get(i) + " 1";
+                }
+            }
+        }
+//        System.out.println(llSymbols);
+        System.out.println(formatted.trim());
         return text;
     }
-}
+}    
