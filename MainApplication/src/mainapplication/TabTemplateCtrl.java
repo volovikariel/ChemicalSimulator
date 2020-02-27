@@ -30,7 +30,7 @@ public class TabTemplateCtrl implements Initializable {
     @FXML
     AnchorPane lewisAncPaneID;
     
-    public void sendSolution(int [][] solution, String[] elements) {
+    public void sendSolution(int [][] solution, String[] atomList) {
         matrix = solution;
         Line line = new Line(162, 8, 168, 8);
         int elementCount = matrix.length; //rows
@@ -42,7 +42,7 @@ public class TabTemplateCtrl implements Initializable {
         //lewisAncPaneID.setRightAnchor(hydrogen, 40.0);
         
         for (int row = 0; row < matrix.length; row++) {
-            Label tempLbl = new Label(elements[row]);
+            Label tempLbl = new Label(atomList[row]);
 
             lewisAncPaneID.getChildren().add(tempLbl);
             lewisAncPaneID.setTopAnchor(tempLbl, 20.0*row);
