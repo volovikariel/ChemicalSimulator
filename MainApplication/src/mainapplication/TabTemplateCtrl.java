@@ -21,19 +21,18 @@ public class TabTemplateCtrl implements Initializable {
 
     int[][] matrix;
     
-    @FXML
     Label hydrogen = new Label("H");
-    @FXML
     Label oxygen = new Label("O");
+    
     @FXML
     Pane lewisPaneID;
     
-    @FXML
     public void sendSolution(int [][] solution) {
         matrix = solution;
         
         int elementCount = matrix.length; //rows
         int bondCount = 0;
+        lewisPaneID.getChildren().addAll(oxygen, hydrogen);
         
         for (int row = 0; row < matrix.length; row++) {
             for (int col = 0; col < matrix[0].length; col++) {
@@ -44,7 +43,7 @@ public class TabTemplateCtrl implements Initializable {
                     //row -> element x, col -> element y
                     //print elements in the lewis pane
                     
-                    lewisPaneID.getChildren().addAll(oxygen, hydrogen);
+                    //lewisPaneID.getChildren().addAll(oxygen, hydrogen);
                 }
             }
         }
