@@ -5,6 +5,8 @@ public class Atom {
     private int shells;
     private double electroneg;
     
+    private int number;
+    
     public Atom() {}
     
     public Atom(String symbol, int shells, double electroneg) {
@@ -13,10 +15,11 @@ public class Atom {
         this.electroneg = electroneg;
     }
     
-    public Atom(String symbol, String shells, String electroneg) {
+    public Atom(String symbol, String shells, String electroneg, int number) {
         this.symbol = symbol;
         this.shells = Integer.parseInt(shells);
         this.electroneg = Double.parseDouble(electroneg);
+        this.number = number;
     }
     
     public String getSymbol() {
