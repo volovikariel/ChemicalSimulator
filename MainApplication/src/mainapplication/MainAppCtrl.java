@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -104,10 +105,15 @@ public class MainAppCtrl implements Initializable {
         } 
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
             if (isSelecting) {
-                parseInput();
-                LinkedList<int[][]> solutions = callAlgorithm();
+                //String input = parseInput();
+                String[] input = {"H", "6", "C", "3"};
+                String inputStr = getInputStr(input);
+                loadSubscene(LOADING_STR);
+                LinkedList<int[][]> solutions = callAlgorithm(inputStr);
                 loadSubscene(RESULTS_STR);
-                ((ResultSceneCtrl) controller).resultList(solutions);
+                String[] atomList = getAtoms(input, solutions.get(0).length);
+                //System.out.println(Arrays.toString(atomList));
+                ((ResultSceneCtrl) controller).resultList(solutions, atomList);
 //                loadSubscene(LOADING_STR);
             } 
             else {
@@ -166,16 +172,14 @@ public class MainAppCtrl implements Initializable {
     }
 
 
-    private LinkedList<int[][]> callAlgorithm() {
+    private LinkedList<int[][]> callAlgorithm(String input) {
     	try {
             Path currentRelativePath = Paths.get("");
             String s = currentRelativePath.toAbsolutePath().toString();
             File dir = new File(s);
             Runtime run = Runtime.getRuntime();
 
-            //String input = parseInput();
-            String input = "H 4 C 2";
-            Process proc = run.exec(String.format("b.exe %s", input), null, dir);
+            Process proc = run.exec(String.format("b.exe%s", input), null, dir);
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String line = null;
@@ -187,7 +191,6 @@ public class MainAppCtrl implements Initializable {
             while ((s = stdInput.readLine()) != null) {
                 // Reached the end of the file
                 if(s.equals("END")) {
-                    loadSubscene(RESULTS_STR);
                     return solutionSet;
                 }
 
@@ -232,13 +235,39 @@ public class MainAppCtrl implements Initializable {
 	                	currMatrixLine++;
                 	}
                 }
+                //System.out.println(s);
             }
-            System.out.println(s);
         }
         catch (IOException e) {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    private String[] getAtoms(String[] input, int size) {
+        String[] returnStr = new String[size];
+        
+        int offset = 0;
+        int prevOffset = 0;
+        for (int i = 0; i < input.length - 1; i+=2) {
+            prevOffset = offset;
+            for (; offset < prevOffset + Integer.parseInt(input[i+1]); offset++)
+            {
+                returnStr[offset] = input[i];
+            }
+        }
+        
+        return returnStr;
+    }
+    
+    private String getInputStr(String[] input) {
+        String returnStr = "";
+        
+        for (String element : input) {
+            returnStr +=  " " + element;
+        }
+        
+        return returnStr;
     }
 
     private String parseInput() {
