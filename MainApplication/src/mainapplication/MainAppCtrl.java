@@ -75,6 +75,7 @@ public class MainAppCtrl implements Initializable {
     // Keys
     private final char ESCAPE = 27;
     private final char ENTER = 13;
+    private final char BACKSPACE = 8;
     
     private Atom[] atoms;
     
@@ -128,6 +129,10 @@ public class MainAppCtrl implements Initializable {
         }
         else if (Character.isLetterOrDigit(keyEvent.getCharacter().charAt(0)) && isSelecting) {
             ((SelectionSceneCtrl) controller).appendInput(keyEvent.getCharacter());
+        }
+        else if (keyEvent.getCharacter().charAt(0) == BACKSPACE) {
+            // Removes a character at a time
+            ((SelectionSceneCtrl) controller).removeChar();
         }
     }
     
@@ -285,7 +290,6 @@ public class MainAppCtrl implements Initializable {
         for (String element : input) {
             returnStr +=  " " + element;
         }
-        
         return returnStr;
     }
 
@@ -343,7 +347,7 @@ public class MainAppCtrl implements Initializable {
         }
         llSymbols.add(symbol);
         
-        ArrayList<String> alFormatted = new ArrayList<>();
+        ArrayList<String> alFormatted = new ArrayList<>();        
         // Formatting the output and checking if the total number of atoms exceeds the limit (20)
         for(int i = 0; i <= llSymbols.size() - 1; i++) {
             //TODO: Check if it's a valid atom - if not - error and return

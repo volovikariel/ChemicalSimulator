@@ -29,4 +29,10 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         txtManual.setVisible(true);
         txtManual.setText(txtManual.getText() + text);
     }
+    
+    public void removeChar() {
+        if(txtManual.getLength() >= 1) {
+            txtManual.setText(txtManual.getText().substring(0, txtManual.getLength() - 1));   
+        }
+    }
 }
