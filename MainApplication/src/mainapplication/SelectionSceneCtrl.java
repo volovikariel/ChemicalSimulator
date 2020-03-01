@@ -7,9 +7,12 @@ package mainapplication;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 
 /**
  *
@@ -19,10 +22,19 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     
     @FXML
     TextField txtManual;
+    @FXML
+    SplitPane splitPane;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        txtManual.setText("");
+        splitPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                txtManual.getParent().requestFocus();
+                txtManual.setText("");
+                txtManual.setVisible(false);
+            }
+        });
     }
 
     public void appendInput(String text) {
@@ -35,4 +47,6 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
             txtManual.setText(txtManual.getText().substring(0, txtManual.getLength() - 1));   
         }
     }
+
+    
 }
