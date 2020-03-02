@@ -395,8 +395,45 @@ public class MainAppCtrl implements Initializable {
         }
         // Sorting numbers
         int[] arrayDoneSorting = bubbleSort(arrayToSortNumbers);
-        System.out.println(Arrays.toString(arrayDoneSorting));
-        return alFormatted.toArray(new String[alFormatted.size()]);
+        // Converting back to [H, 2, O] kinda thing
+        ArrayList<String> alFinished = new ArrayList<>();
+        
+        boolean firstTime = true;
+        int indexOfSymbol = -1;
+        int numTimesFound = 0;
+        
+        // Input 
+//        System.out.println("Input: " + Arrays.toString(arrayDoneSorting));
+        for(int i = 0; i < arrayDoneSorting.length; i++) {
+            if(firstTime == true) {
+                indexOfSymbol = arrayDoneSorting[i];
+                for(int j = 0; j < atoms.length - 1 ; j++) {
+                   if(arrayDoneSorting[i] == atoms[j].getNumber()) {
+                       alFinished.add(atoms[j].getSymbol());
+                   }
+                }
+                // First one done
+//                System.out.println("First Element of a type: " + alFinished);
+                numTimesFound++;
+                firstTime = false;
+            }
+            // It's a number now
+            else {
+                if(arrayDoneSorting[i] == indexOfSymbol) {
+                    numTimesFound++;
+                } 
+                else {
+                    alFinished.add(numTimesFound + "");
+                    numTimesFound = 0;
+                    firstTime = true;
+                    i--;
+                }
+            }
+        }
+        alFinished.add(numTimesFound + "");
+        // Uncomment if want to see the array returned
+//        System.out.println("alFinished: " + alFinished);
+        return alFinished.toArray(new String[alFinished.size()]);
     }
     
     private int[] bubbleSort(int arr[]) {
