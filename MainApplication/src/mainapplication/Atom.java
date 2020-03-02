@@ -46,6 +46,10 @@ public class Atom {
         this.electroneg = electroneg;
     }
 
+    public int getNumber() {
+        return number;
+    }
+
     @Override
     public String toString() {
         return "Atom{"  + symbol + "," + shells + "," + electroneg + '}';

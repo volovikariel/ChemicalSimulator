@@ -139,7 +139,7 @@ public class MainAppCtrl implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Parsing CSV
-        atoms = new Atom[110];
+        atoms = new Atom[118];
         Path currentRelativePath = Paths.get("res/elements.csv");
         String s = currentRelativePath.toAbsolutePath().toString();
         try (CSVParser csvParser = new CSVParser(new FileReader(s), CSVFormat.DEFAULT.withHeader());) {
@@ -203,7 +203,7 @@ public class MainAppCtrl implements Initializable {
             File dir = new File(s);
             Runtime run = Runtime.getRuntime();
 
-            Process proc = run.exec(String.format("b.exe%s", input), null, dir);
+            Process proc = run.exec(String.format("res/b.exe%s", input), null, dir);
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String line = null;
@@ -373,9 +373,44 @@ public class MainAppCtrl implements Initializable {
                 }
             }
         }
-        System.out.println(alFormatted);
-        System.out.println("Atoms: " + Arrays.toString(atoms));        
-        //TODO: Sorting algorithm
+        //** Sorting section **
+        // Checking size of list of atoms
+        int size = 0;
+        for(int i = 1; i < alFormatted.size(); i+=2) {
+            size += Integer.parseInt(alFormatted.get(i));
+        }
+        String[] arrayToSortSymbols = getAtoms(alFormatted.toArray(new String[alFormatted.size()]), size);
+        // Create an array to bubble sort
+        int[] arrayToSortNumbers = new int[arrayToSortSymbols.length];
+        for(int i = 0; i < arrayToSortNumbers.length; i++) {
+            for(int j = 0; j < atoms.length - 1; j++) {
+                if(arrayToSortSymbols[i].equals(atoms[j].getSymbol())) {
+                    arrayToSortNumbers[i] = atoms[j].getNumber();
+                }
+            }
+            if(arrayToSortNumbers[i] == 0) {
+                System.out.println("Element: " + arrayToSortSymbols[i] + " not found.");
+                arrayToSortNumbers[i] = -1;
+            }
+        }
+        // Sorting numbers
+        int[] arrayDoneSorting = bubbleSort(arrayToSortNumbers);
+        System.out.println(Arrays.toString(arrayDoneSorting));
         return alFormatted.toArray(new String[alFormatted.size()]);
     }
+    
+    private int[] bubbleSort(int arr[]) {
+        int n = arr.length;
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    // swap arr[j+1] and arr[i] 
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
+            }
+        }
+        return arr;
+    } 
 }    
