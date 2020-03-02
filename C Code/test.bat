@@ -1,5 +1,5 @@
 @echo off
-cd ../MainApplication/res
+cd ../MainApplication
 echo Trying H2O
 echo vvvvvvvvvvv
 b.exe H 2 O 1

@@ -117,13 +117,21 @@ public class MainAppCtrl implements Initializable {
                 String inputStr = getInputStr(input);
                 loadSubscene(LOADING_STR);
                 LinkedList<int[][]> solutions = callAlgorithm(inputStr);
+                if (solutions.isEmpty()) {
+                    System.out.println("No solutions found!!");
+                    
+                    loadSubscene(SELECTION_STR);
+                    
+                    return;
+                }
                 loadSubscene(RESULTS_STR);
                 String[] atomList = getAtoms(input, solutions.get(0).length);
                 //System.out.println(Arrays.toString(atomList));
                 ((ResultSceneCtrl) controller).resultList(solutions, atomList);
-//                loadSubscene(LOADING_STR);
+                isSelecting = false;
             } 
             else {
+                isSelecting = true;
                 loadSubscene(SELECTION_STR);
             } 
         }
@@ -202,8 +210,8 @@ public class MainAppCtrl implements Initializable {
             String s = currentRelativePath.toAbsolutePath().toString();
             File dir = new File(s);
             Runtime run = Runtime.getRuntime();
-
-            Process proc = run.exec(String.format("res/b.exe%s", input), null, dir);
+            
+            Process proc = run.exec(String.format("b.exe%s", input), null, dir);
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String line = null;
@@ -265,7 +273,8 @@ public class MainAppCtrl implements Initializable {
         catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        System.out.println("Did not find \"END\"");
+        return new LinkedList<>();
     }
     
     private String[] getAtoms(String[] input, int size) {

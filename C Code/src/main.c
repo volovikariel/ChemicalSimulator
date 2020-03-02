@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 {
 	//example input "---.exe H 2 O 1"
 
-  Element* table = loadTable("elements.csv");
+  Element* table = loadTable("res/elements.csv");
 
 	int currIndx = 0;
 	int size = 0;
