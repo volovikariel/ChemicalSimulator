@@ -4,6 +4,8 @@
 #include "../inc/atoms.h"
 #include "../inc/comparator.h"
 
+#include "../inc/memory.h"
+
 bool compareSolMatrix(Atom* atomList, int* a, int* b, int atomListSize)
 {
     /*//check if they are the same, without permutations
@@ -13,9 +15,16 @@ bool compareSolMatrix(Atom* atomList, int* a, int* b, int atomListSize)
     */
 
     bool* isDisabled = calloc(atomListSize, sizeof(bool));
+#ifdef MEMDEBUG
+    printMalloc((void*) isDisabled, atomListSize * sizeof(bool), 14);
+#endif
 
     Pair* aPairList = malloc(atomListSize * sizeof(Pair));
     Pair* bPairList = malloc(atomListSize * sizeof(Pair));
+#ifdef MEMDEBUG
+    printMalloc((void*) aPairList, atomListSize * sizeof(Pair), 15);
+    printMalloc((void*) bPairList, atomListSize * sizeof(Pair), 16);
+#endif
 
     bool foundSimRow = 0;
 
@@ -63,6 +72,11 @@ bool compareSolMatrix(Atom* atomList, int* a, int* b, int atomListSize)
         free(isDisabled);
         free(aPairList);
         free(bPairList);
+#ifdef MEMDEBUG
+        printFree((void*) isDisabled, 12);
+        printFree((void*) aPairList, 13);
+        printFree((void*) bPairList, 14);
+#endif
         return 0;
       }
     }
@@ -70,6 +84,11 @@ bool compareSolMatrix(Atom* atomList, int* a, int* b, int atomListSize)
     free(isDisabled);
     free(aPairList);
     free(bPairList);
+#ifdef MEMDEBUG
+    printFree((void*) isDisabled, 15);
+    printFree((void*) aPairList, 16);
+    printFree((void*) bPairList, 17);
+#endif
 
     return 1;
 }
@@ -79,8 +98,10 @@ bool compareString(char* a, char* b)
 {
 	int i;
 	for (i = 0; a[i] != '\0' && b[i] != '\0'; i++)
+  {
 		if (a[i] != b[i])
 			return 0;
+  }
 
 	//one must have caught and been equal to '\0'
 	//thus if they both are equal to '\0', they are equal
@@ -93,6 +114,9 @@ bool compareString(char* a, char* b)
 char* appendString(char* a, char* b, int sizeA, int sizeB)
 {
     char* returnStr = calloc(sizeA + sizeB, sizeof(char));
+#ifdef MEMDEBUG
+    printMalloc((void*) returnStr, (sizeA + sizeB) * sizeof(bool), 17);
+#endif
     int offset = 0;
     for (int i = 0; i < sizeA; i++)
     {

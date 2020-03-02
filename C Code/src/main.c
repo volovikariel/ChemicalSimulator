@@ -4,6 +4,9 @@
 #include "../inc/atoms.h"
 #include "../inc/prints.h"
 #include "../inc/comparator.h"
+#include "../inc/csvParser.h"
+
+#include "../inc/memory.h"
 
 void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList);
 
@@ -15,24 +18,21 @@ int main(int argc, char *argv[])
 {
 	//example input "---.exe H 2 O 1"
 
-  char names[][2] = {"H\0", "C\0", "N\0", "O\0"};
-  int bonds[] = {1, 4, 3, 2};
-  int HCNO[] = {0, 0, 0, 0};
-  int maxElement = 4;
+  Element* table = loadTable("elements.csv");
+
 	int currIndx = 0;
 	int size = 0;
 	for (int i = 1; i < argc; i+=2) {
-		while (!compareString(names[currIndx], argv[i])) {
+		while (!compareString(table[currIndx].name, argv[i])) {
 			currIndx++;
 
-			if (currIndx == maxElement) {
-				printf("bad input\n");
+			if (currIndx == TABLESIZE) {
+				printf("bad input: %s\n", argv[i]);
 				return 7;
 			}
 		}
-
-		HCNO[currIndx] += atoi(argv[i+1]);
-		size += atoi(argv[i+1]);
+		table[currIndx].count += atoi(argv[i+1]);
+		size += table[currIndx].count;
 	}
 
 	/*for (int i = 0; i < 4; i++)
@@ -42,51 +42,104 @@ int main(int argc, char *argv[])
 	  }*/
 
     Atom* atomList = malloc(size * sizeof(Atom));
+#ifdef MEMDEBUG
+    printMalloc((void*) atomList, size * sizeof(Atom), 0);
+#endif
 
     int currOffset = 0;
-    for (int k = 0; k < 4; k++)
+    for (int k = 0; k < TABLESIZE; k++)
     {
-        for (int i = currOffset; i < currOffset + HCNO[k]; i++)
-            loadAtom(bonds[k], names[k], 0, i, &(atomList[i]));
-        currOffset += HCNO[k];
+        for (int i = currOffset; i < currOffset + table[k].count; i++)
+            loadAtom(table[k].bond, table[k].name, table[k].elecNeg, i, &(atomList[i]));
+        currOffset += table[k].count;
     }
+
+    clearTable(table);
 
     //make linked list for currIdx
     Link* startLink = malloc(sizeof(Link));
     startLink->prevLink = NULL;
     startLink->valuePtr = (void*) atomList;
     startLink->nextLink = NULL;
+#ifdef MEMDEBUG
+    printMalloc((void*) startLink, sizeof(Link), 1);
+#endif
 
     //make linked list for solutions
     Link* solLink = malloc(sizeof(Link));
     solLink->prevLink = NULL;
     solLink->valuePtr = NULL;
     solLink->nextLink = NULL;
+#ifdef MEMDEBUG
+    printMalloc((void*) solLink, sizeof(Link), 2);
+#endif
 
     iterator(atomList, size, startLink, solLink);
 
-    Link* currLink = startLink;
+    Link* currLink;
+
+    currLink = startLink;
     while (currLink != NULL)
     {
         startLink = currLink; //used here as a temp
         currLink = currLink->nextLink;
+#ifdef MEMDEBUG
+        printFree((void*) startLink, 1);
+#endif
         free(startLink);
+    }
+
+    for (int i = 0; i < size; i++)
+    {
+        currLink = atomList[i].bondList;
+        while (currLink != NULL)
+        {
+            if (currLink->valuePtr != NULL)
+            {
+#ifdef MEMDEBUG
+                printFree(currLink->valuePtr, 2);
+#endif
+                free(currLink->valuePtr);
+            }
+            startLink = currLink; //used here as a temp
+            currLink = currLink->nextLink;
+#ifdef MEMDEBUG
+            printFree((void*) startLink, 3);
+#endif
+            free(startLink);
+        }
     }
 
     currLink = solLink;
     while (currLink != NULL)
     {
         if (currLink->valuePtr != NULL)
+        {
+#ifdef MEMDEBUG
+            printFree(currLink->valuePtr, 4);
+#endif
             free(currLink->valuePtr);
+        }
         startLink = currLink; //used here as a temp
         currLink = currLink->nextLink;
+#ifdef MEMDEBUG
+        printFree((void*) startLink, 5);
+#endif
         free(startLink);
     }
 
     printf("END\n");
     printf("%d solutions found\n", solCount);
 
+#ifdef MEMDEBUG
+    printFree((void*) atomList, 6);
+#endif
     free(atomList);
+
+#ifdef MEMDEBUG
+    cleanup();
+#endif
+
 	//scanf("%s", NULL);
     return 0;
 }
@@ -145,8 +198,18 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
             newSolLink->valuePtr = (void*) temp;
             newSolLink->nextLink = NULL;
             saveBeforeLast->nextLink = newSolLink;
+#ifdef MEMDEBUG
+            printMalloc((void*) newSolLink, sizeof(Link), 4);
+#endif
 
             solCount++;
+        }
+        else
+        {
+#ifdef MEMDEBUG
+          printFree(temp, 18);
+#endif
+          free(temp);
         }
 
         return;
@@ -157,6 +220,9 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
     triedAtomsStart->prevLink = NULL;
     triedAtomsStart->nextLink = NULL;
     triedAtomsStart->valuePtr = NULL;
+#ifdef MEMDEBUG
+    printMalloc((void*) triedAtomsStart, sizeof(Link), 5);
+#endif
 
     //for every other atom, save current state, try, then reload current state
     //if not solitary, then try it,
@@ -191,6 +257,9 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
                 triedAtomsStart->prevLink = newTry;
                 newTry->valuePtr = (void*) &(atomList[i]);
                 triedAtomsStart = newTry;
+#ifdef MEMDEBUG
+                printMalloc((void*) newTry, sizeof(Link), 6);
+#endif
             }
             else
                 continue;
@@ -209,6 +278,9 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
         newCurrStart->valuePtr = &(atomList[i]);
         currAtom->bondList->prevLink = newCurrStart;
         currAtom->bondList = newCurrStart;
+#ifdef MEMDEBUG
+        printMalloc((void*) newCurrStart, sizeof(Link), 7);
+#endif
 
         atomList[i].bondCount--;
         atomList[i].isSolitary = 0;
@@ -218,6 +290,9 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
         newCurrStart->valuePtr = currAtom;
         atomList[i].bondList->prevLink = newCurrStart;
         atomList[i].bondList = newCurrStart;
+#ifdef MEMDEBUG
+        printMalloc((void*) newCurrStart, sizeof(Link), 8);
+#endif
 
         //add this location to beggining of the currAtomVisit
         Link* newStart = malloc(sizeof(Link));
@@ -225,16 +300,25 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
         newStart->valuePtr = (void*) &(atomList[i]);
         newStart->nextLink = currAtomVisit;
         currAtomVisit->prevLink = newStart;
+#ifdef MEMDEBUG
+        printMalloc((void*) newStart, sizeof(Link), 9);
+#endif
 
 
         iterator(atomList, atomListSize, newStart, solutionList);
 
 
         //remove this atom from the beginning of the currAtomVisit
+#ifdef MEMDEBUG
+        printFree((void*) currAtomVisit->prevLink, 7);
+#endif
         free(currAtomVisit->prevLink);
         currAtomVisit->prevLink = NULL;
 
         atomList[i].bondList = atomList[i].bondList->nextLink;
+#ifdef MEMDEBUG
+        printFree((void*) atomList[i].bondList->prevLink, 8);
+#endif
         free(atomList[i].bondList->prevLink);
         atomList[i].bondList->prevLink = NULL;
         atomList[i].bondCount++;
@@ -242,6 +326,9 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
             atomList[i].isSolitary = 1;
 
         currAtom->bondList = currAtom->bondList->nextLink;
+#ifdef MEMDEBUG
+        printFree((void*) currAtom->bondList->prevLink, 9);
+#endif
         free(currAtom->bondList->prevLink);
         currAtom->bondList->prevLink = NULL;
         currAtom->bondCount++;
@@ -249,19 +336,26 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
             currAtom->isSolitary = 1;
     }
 
-    Link* currItem = triedAtomsStart->nextLink;
+    Link* currItem = triedAtomsStart;
+    Link* tempLink;
     while (currItem != NULL)
     {
-        free(currItem->prevLink);
+        tempLink = currItem;
         currItem = currItem->nextLink;
+#ifdef MEMDEBUG
+        printFree((void*) tempLink, 10);
+#endif
+        free(tempLink);
     }
-
 }
 
 int* saveSolution(Atom* atomList, int atomListSize)
 {
     int* tempArray;
     tempArray = calloc(atomListSize*atomListSize, sizeof(int));
+#ifdef MEMDEBUG
+    printMalloc((void*) tempArray, atomListSize*atomListSize * sizeof(int), 10);
+#endif
 
     for (int i = 0; i < atomListSize; i++)
     {

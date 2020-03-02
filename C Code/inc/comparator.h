@@ -1,12 +1,6 @@
 #ifndef COMPARATOR
 #define COMPARATOR
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "atoms.h"
-#include "prints.h"
-
 typedef struct Pair
 {
     char* name;

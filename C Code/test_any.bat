@@ -1,6 +1,5 @@
 @echo off
-cd ..
-cd MainApplication
+cd ../MainApplication/res
 :loop
 set /p atomList="Enter Atoms: "
 echo Trying %atomList%

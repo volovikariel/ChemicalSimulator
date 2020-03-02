@@ -1,3 +1,3 @@
 cd src
-gcc main.c atoms.c comparator.c prints.c -o ..\..\MainApplication\b.exe -Wall
+gcc main.c atoms.c comparator.c prints.c memory.c csvParser.c -o ..\..\MainApplication\res\b.exe -Wall
 pause

@@ -4,6 +4,8 @@
 #include "../inc/atoms.h"
 #include "../inc/prints.h"
 
+#include "../inc/memory.h"
+
 void printMol(Atom* atomList, int atomListSize)
 {
     printf(">----Start of Solution----<\n");
@@ -30,6 +32,9 @@ void printMolMatrix(Atom* atomList, int atomListSize)
 {
     int* tempArray;
     tempArray = malloc(sizeof(int)*atomListSize);
+#ifdef MEMDEBUG
+    printMalloc((void*) tempArray, sizeof(int)*atomListSize, 11);
+#endif
 
     printf(">>>>\n");
 
@@ -62,6 +67,9 @@ void printMolMatrix(Atom* atomList, int atomListSize)
     printf("<<<<\n");
 
     free(tempArray);
+#ifdef MEMDEBUG
+    printFree((void*) tempArray, 11);
+#endif
 }
 
 void printSolMatrix(int* solution, int atomListSize)
