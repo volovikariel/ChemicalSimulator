@@ -196,6 +196,10 @@ public class MainAppCtrl implements Initializable {
             subPane.getChildren().clear();
             subPane.getChildren().add(root);
             controller = (SubSceneController) loader.getController();
+            
+            if (isSelecting)
+                ((SelectionSceneCtrl) controller).loadTable(atoms);
+            
         } catch (IOException e) {
             e.printStackTrace();
         }

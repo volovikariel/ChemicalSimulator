@@ -21,10 +21,12 @@ public class MainApplication extends Application {
     public void start(Stage primaryStage) throws Exception {
         // Load the first scene onto the stage
         this.primaryStage  = primaryStage;
+        primaryStage.setMinHeight(800);
+        primaryStage.setMinWidth(800);
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainApp.fxml"));
         Parent root = loader.load();
         primaryStage.setTitle("Chemistry Simulator");
-        this.scene = new Scene(root, 600, 550);
+        this.scene = new Scene(root, 1280, 960);
         primaryStage.setScene(scene);
         primaryStage.show();
         
