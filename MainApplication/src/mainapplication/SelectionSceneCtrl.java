@@ -5,9 +5,14 @@
  */
 package mainapplication;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.ResourceBundle;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -17,6 +22,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
@@ -31,6 +37,9 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.transform.Transform;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -51,7 +60,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        /*splitPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        splitPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 txtManual.getParent().requestFocus();
@@ -71,15 +80,23 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         paneSimulation.setOnDragDropped(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent event) {
-                ImageView newImageView = new ImageView(event.getDragboard().getImage());
-                newImageView.setLayoutX(event.getX() - newImageView.getImage().getWidth()/2);
-                newImageView.setLayoutY(event.getY() - newImageView.getImage().getHeight()/2);
-                //VBox newImageView = new VBox((VBox) event.getDragboard().getContent(data));
+                ImageView newImageView = new ImageView();
+                //Image image = new Image(event.getDragboard().getFiles().get(0).toURI().toString());
+                newImageView.setImage(event.getDragboard().getImage());
+                //newImageView.setLayoutX(event.getX() - newImageView.getImage().getWidth()/2);
+                //newImageView.setLayoutY(event.getY() - newImageView.getImage().getHeight()/2);
+                System.out.println("" + (paneSimulation.widthProperty().multiply(event.getX() / paneSimulation.widthProperty().getValue())));
+                newImageView.layoutXProperty().bind(paneSimulation.widthProperty().multiply(event.getX() / paneSimulation.widthProperty().getValue()));
+                newImageView.layoutYProperty().bind(paneSimulation.heightProperty().multiply(event.getY() / paneSimulation.heightProperty().getValue()));
+                newImageView.fitHeightProperty().bind(paneSimulation.heightProperty().divide(10.0));
+                newImageView.fitWidthProperty().bind(paneSimulation.widthProperty().divide(20.0));
+                //newImageView.fitHeightProperty().set(50);
+                //newImageView.fitWidthProperty().set(50 * newImageView.getImage().getWidth() / newImageView.getImage().getHeight());
                 paneSimulation.getChildren().add(newImageView);
-                
+                //System.out.println("Done");
                 event.consume();
             }
-        });*/
+        });
     }
 
     public void appendInput(String text) {
@@ -154,7 +171,18 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 public void handle(MouseEvent event) {
                     Dragboard db = ((VBox) event.getSource()).startDragAndDrop(TransferMode.COPY);
                     ClipboardContent content = new ClipboardContent();
-                    content.putImage(((VBox) event.getSource()).snapshot(null, null));
+                    SnapshotParameters params = new SnapshotParameters();
+                    params.setFill(Color.TRANSPARENT);
+                    WritableImage image = ((VBox) event.getSource()).snapshot(params, null);
+                    File tempFile = new File("temp.png");
+                    try {
+                        ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", tempFile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Image dbImage = new Image(tempFile.toURI().toString());
+                    tempFile.delete();
+                    content.putImage(dbImage);
                     db.setContent(content);
                     event.consume();
                 }

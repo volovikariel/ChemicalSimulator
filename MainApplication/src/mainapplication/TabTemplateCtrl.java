@@ -49,13 +49,13 @@ public class TabTemplateCtrl implements Initializable {
                 
 
                 if (matrix[row][col] != 0) {
-//                    matrix[row][col] = bondCount;
-                    
-//                    Label numLbl = new Label("" + matrix[row][col]);
-
-//                    lewisCanvasID.getChildren().add(numLbl);
-//                    lewisCanvasID.setTopAnchor(numLbl, 20.0 * row);
-//                    lewisCanvasID.setLeftAnchor(numLbl, 20.0 * (col + 1));
+////                    matrix[row][col] = bondCount;
+//                    
+////                    Label numLbl = new Label("" + matrix[row][col]);
+//
+////                    lewisCanvasID.getChildren().add(numLbl);
+////                    lewisCanvasID.setTopAnchor(numLbl, 20.0 * row);
+////                    lewisCanvasID.setLeftAnchor(numLbl, 20.0 * (col + 1));
                     
                 }
             }
