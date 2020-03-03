@@ -40,7 +40,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        splitPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        /*splitPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 txtManual.getParent().requestFocus();
@@ -80,7 +80,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 paneSimulation.getChildren().add(newImageView);
                 event.consume();
             }
-        });
+        });*/
     }
 
     public void appendInput(String text) {

@@ -41,7 +41,7 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
             }
             
             controller = (TabTemplateCtrl) loader.getController();
-            Tab newTab = new Tab("" + i);
+            Tab newTab = new Tab("" + (i + 1));
             newTab.setContent(root);
             
             //controller.sendSolution(list.get(i));
