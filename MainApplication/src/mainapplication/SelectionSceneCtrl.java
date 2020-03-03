@@ -5,6 +5,7 @@
  */
 package mainapplication;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.EventHandler;
@@ -12,7 +13,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.TilePane;
 
 /**
  *
@@ -24,6 +33,10 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     TextField txtManual;
     @FXML
     SplitPane splitPane;
+    @FXML
+    TilePane tilePane;
+    @FXML
+    AnchorPane paneSimulation;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -33,6 +46,39 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 txtManual.getParent().requestFocus();
                 txtManual.setText("");
                 txtManual.setVisible(false);
+            }
+        });
+        // [In Progress]
+        Image tstImage = new Image(getClass().getResourceAsStream("tstImage.png"), 100, 100, true, true);
+        ImageView tstImageView = new ImageView(tstImage);
+        tilePane.getChildren().add(0, tstImageView);
+        tstImageView.setOnDragDetected(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                Dragboard db = tstImageView.startDragAndDrop(TransferMode.COPY);
+                ClipboardContent content = new ClipboardContent();
+                content.putImage(tstImageView.getImage());
+                db.setContent(content);
+                event.consume();
+            }
+        });
+        paneSimulation.setOnDragOver(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                if(event.getDragboard().hasImage()) {
+                    event.acceptTransferModes(TransferMode.COPY);
+                }
+                event.consume();
+            }
+        });
+        paneSimulation.setOnDragDropped(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                ImageView newImageView = new ImageView(event.getDragboard().getImage());
+                newImageView.setLayoutX(event.getX() - newImageView.getImage().getWidth()/2);
+                newImageView.setLayoutY(event.getY() - newImageView.getImage().getHeight()/2);
+                paneSimulation.getChildren().add(newImageView);
+                event.consume();
             }
         });
     }
