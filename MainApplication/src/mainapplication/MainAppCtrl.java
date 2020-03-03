@@ -112,6 +112,7 @@ public class MainAppCtrl implements Initializable {
         } 
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
             if (isSelecting) {
+                
                 String[] input = parseInput();
                 //String[] input = {"H", "6", "C", "3"};
                 String inputStr = getInputStr(input);
@@ -128,6 +129,7 @@ public class MainAppCtrl implements Initializable {
                 String[] atomList = getAtoms(input, solutions.get(0).length);
                 //System.out.println(Arrays.toString(atomList));
                 ((ResultSceneCtrl) controller).resultList(solutions, atomList);
+                
             } 
             else {
                 loadSubscene(SELECTION_STR);
@@ -356,25 +358,25 @@ public class MainAppCtrl implements Initializable {
         
         ArrayList<String> alFormatted = new ArrayList<>();        
         // Formatting the output and checking if the total number of atoms exceeds the limit (20)
-        for(int i = 0; i <= llSymbols.size() - 1; i++) {
+        for(int i = 0; i < llSymbols.size(); i++) {
             //TODO: Check if it's a valid atom - if not - error and return
             //TODO: Check for repetitions COOH -> CO2H 
             //TODO: Order in the order of the atoms after the fact
             // If it's the last - must be letter
-            if(i == llSymbols.size() - 1) {
+            if(i == llSymbols.size() - 1 && Character.isLetter(llSymbols.getLast().charAt(0))) {
                 alFormatted.add(llSymbols.getLast());
                 alFormatted.add(""+1);
             }
             // If it doesn't contain a number
-            else if(!llSymbols.get(i).matches(".*\\d+.*")) {
+            else if(Character.isLetter(llSymbols.get(i).charAt(0))) {
                 // If the next value is a number, add the symbol and the number to the list
-                if(llSymbols.get(i + 1).matches(".*\\d+.*")) {
+                if(Character.isDigit(llSymbols.get(i + 1).charAt(0))) {
                     alFormatted.add(llSymbols.get(i));
                     alFormatted.add(llSymbols.get(i + 1));
                     i++;
                 }
                 // If it doesn't contain a number after the symbol, add a 1 to the list 
-                else if(!llSymbols.get(i + 1).matches(".*\\d+.*")) {
+                else {
                     alFormatted.add(llSymbols.get(i));
                     alFormatted.add(""+1);
                 }
@@ -390,11 +392,11 @@ public class MainAppCtrl implements Initializable {
         // Create an array to bubble sort
         int[] arrayToSortNumbers = new int[arrayToSortSymbols.length];
         for(int i = 0; i < arrayToSortNumbers.length; i++) {
-            for(int j = 0; j < atoms.length - 1; j++) {
-                if(arrayToSortSymbols[i].equals(atoms[j].getSymbol())) {
+            for(int j = 0; j < atoms.length - 1; j++)
+                if(arrayToSortSymbols[i].equals(atoms[j].getSymbol()))
                     arrayToSortNumbers[i] = atoms[j].getNumber();
-                }
-            }
+            
+            
             if(arrayToSortNumbers[i] == 0) {
                 System.out.println("Element: " + arrayToSortSymbols[i] + " not found.");
                 arrayToSortNumbers[i] = -1;
@@ -439,22 +441,26 @@ public class MainAppCtrl implements Initializable {
         }
         alFinished.add(numTimesFound + "");
         // Uncomment if want to see the array returned
-//        System.out.println("alFinished: " + alFinished);
+        System.out.println("alFinished: " + alFinished);
         return alFinished.toArray(new String[alFinished.size()]);
     }
     
     private int[] bubbleSort(int arr[]) {
-        int n = arr.length;
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = 0; j < n - i - 1; j++) {
-                if (arr[j] > arr[j + 1]) {
-                    // swap arr[j+1] and arr[i] 
-                    int temp = arr[j];
-                    arr[j] = arr[j + 1];
-                    arr[j + 1] = temp;
+        boolean isUnsorted = true;
+        
+        while (isUnsorted) {
+            isUnsorted = false;
+            
+            for (int i = 0; i < arr.length - 1; i++) {
+                if (arr[i] > arr[i+1]) {
+                    isUnsorted = true;
+                    int temp = arr[i];
+                    arr[i] = arr[i+1];
+                    arr[i+1] = temp;
                 }
             }
         }
+        
         return arr;
-    } 
+    }
 }    
