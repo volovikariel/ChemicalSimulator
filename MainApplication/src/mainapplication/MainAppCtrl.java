@@ -128,10 +128,8 @@ public class MainAppCtrl implements Initializable {
                 String[] atomList = getAtoms(input, solutions.get(0).length);
                 //System.out.println(Arrays.toString(atomList));
                 ((ResultSceneCtrl) controller).resultList(solutions, atomList);
-                isSelecting = false;
             } 
             else {
-                isSelecting = true;
                 loadSubscene(SELECTION_STR);
             } 
         }
