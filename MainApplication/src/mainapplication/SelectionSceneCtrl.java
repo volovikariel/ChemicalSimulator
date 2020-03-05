@@ -56,7 +56,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     @FXML
     AnchorPane paneSimulation;
     
-    DataFormat data;
+    DataFormat data = new DataFormat("element");
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -71,7 +71,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         paneSimulation.setOnDragOver(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent event) {
-                if(event.getDragboard().hasImage()) {
+                if(event.getDragboard().hasContent(data)) {
                     event.acceptTransferModes(TransferMode.COPY);
                 }
                 event.consume();
@@ -80,20 +80,21 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         paneSimulation.setOnDragDropped(new EventHandler<DragEvent>() {
             @Override
             public void handle(DragEvent event) {
-                ImageView newImageView = new ImageView();
-                //Image image = new Image(event.getDragboard().getFiles().get(0).toURI().toString());
-                newImageView.setImage(event.getDragboard().getImage());
-                //newImageView.setLayoutX(event.getX() - newImageView.getImage().getWidth()/2);
-                //newImageView.setLayoutY(event.getY() - newImageView.getImage().getHeight()/2);
-                System.out.println("" + (paneSimulation.widthProperty().multiply(event.getX() / paneSimulation.widthProperty().getValue())));
-                newImageView.layoutXProperty().bind(paneSimulation.widthProperty().multiply(event.getX() / paneSimulation.widthProperty().getValue()));
-                newImageView.layoutYProperty().bind(paneSimulation.heightProperty().multiply(event.getY() / paneSimulation.heightProperty().getValue()));
-                newImageView.fitHeightProperty().bind(paneSimulation.heightProperty().divide(10.0));
-                newImageView.fitWidthProperty().bind(paneSimulation.widthProperty().divide(20.0));
-                //newImageView.fitHeightProperty().set(50);
-                //newImageView.fitWidthProperty().set(50 * newImageView.getImage().getWidth() / newImageView.getImage().getHeight());
-                paneSimulation.getChildren().add(newImageView);
-                //System.out.println("Done");
+                
+                VBox newVBox = new VBox();
+                
+                TableElement tempEl = (TableElement) event.getDragboard().getContent(data);
+                
+                appendInput(tempEl.getElementName());
+                
+                
+                System.out.println(tempEl.getElementName() + tempEl.getElementNumber());
+                newVBox.getChildren().add(new Label(tempEl.getElementNumber()));
+                newVBox.getChildren().add(new Label(tempEl.getElementName()));
+                newVBox.setLayoutX(event.getX() - newVBox.getWidth()/2);
+                newVBox.setLayoutY(event.getY() - newVBox.getHeight()/2);
+                paneSimulation.getChildren().add(newVBox);
+                
                 event.consume();
             }
         });
@@ -169,20 +170,11 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
             tempPane.setOnDragDetected(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
-                    Dragboard db = ((VBox) event.getSource()).startDragAndDrop(TransferMode.COPY);
+                    VBox tempBox = (VBox) event.getSource();
+                    Dragboard db = tempBox.startDragAndDrop(TransferMode.COPY);
                     ClipboardContent content = new ClipboardContent();
-                    SnapshotParameters params = new SnapshotParameters();
-                    params.setFill(Color.TRANSPARENT);
-                    WritableImage image = ((VBox) event.getSource()).snapshot(params, null);
-                    File tempFile = new File("temp.png");
-                    try {
-                        ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", tempFile);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    Image dbImage = new Image(tempFile.toURI().toString());
-                    tempFile.delete();
-                    content.putImage(dbImage);
+                    
+                    content.put(data, new TableElement(tempBox.getChildren()));
                     db.setContent(content);
                     event.consume();
                 }
