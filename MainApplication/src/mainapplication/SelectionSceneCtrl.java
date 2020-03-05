@@ -79,7 +79,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
             @Override
             public void handle(DragEvent event) {
                 if(event.getDragboard().hasContent(data)) {
-                    event.acceptTransferModes(TransferMode.COPY);
+                    event.acceptTransferModes(event.getTransferMode());
                 }
                 event.consume();
             }
@@ -108,6 +108,21 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                             paneSimulation.getChildren().remove(event.getSource());
                             removeString(txtManual.getText(), ((Label)((VBox) event.getSource()).getChildren().get(1)).getText());
                         }
+                    }
+                });
+                
+                newVBox.setOnDragDetected(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    VBox tempBox = (VBox) event.getSource();
+                    Dragboard db = tempBox.startDragAndDrop(TransferMode.MOVE);
+                    ClipboardContent content = new ClipboardContent();
+                    
+                    content.put(data, new TableElement(tempBox.getChildren()));
+                    db.setContent(content);
+                    paneSimulation.getChildren().remove(event.getSource());
+                    removeString(txtManual.getText(), ((Label)((VBox) event.getSource()).getChildren().get(1)).getText());
+                    event.consume();
                     }
                 });
                 
@@ -215,7 +230,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         String tempStr = "";
         for (String el: alFinished)
             if (!el.equals("1"))
-                tempStr += el;
+                  tempStr += el;
         
         txtManual.setText(tempStr);
     }
@@ -281,7 +296,8 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 }
             }
         }
-        alFinished.add("" + numTimesFound);
+        if (numTimesFound != 0)
+            alFinished.add("" + numTimesFound);
         
         return alFinished;
     }

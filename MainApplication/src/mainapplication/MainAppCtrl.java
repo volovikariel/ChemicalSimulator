@@ -112,7 +112,6 @@ public class MainAppCtrl implements Initializable {
         } 
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
             if (isSelecting) {
-                
                 String[] input = ((SelectionSceneCtrl) controller).parseInput();
                 //String[] input = {"H", "6", "C", "3"};
                 String inputStr = getInputStr(input);
