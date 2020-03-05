@@ -16,14 +16,16 @@
    <children>
       <SplitPane fx:id="splitPane" dividerPositions="0.5" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
-          <AnchorPane fx:id="paneSimulation" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
-          <AnchorPane fx:id="panePeriodic" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+          <AnchorPane fx:id="paneSimulation" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
-                  <TextField fx:id="txtManual" alignment="BOTTOM_RIGHT" depthTest="ENABLE" visible="false" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <TextField fx:id="txtManual" alignment="BOTTOM_RIGHT" depthTest="ENABLE" layoutX="454.0" layoutY="170.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
                      <font>
                         <Font size="11.0" />
                      </font>
                   </TextField>
+               </children></AnchorPane>
+          <AnchorPane fx:id="panePeriodic" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <children>
                   <GridPane fx:id="gridPane" alignment="CENTER" gridLinesVisible="true" prefHeight="196.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <columnConstraints>
                         <ColumnConstraints />

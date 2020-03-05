@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -27,6 +29,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
@@ -56,16 +59,20 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     @FXML
     AnchorPane paneSimulation;
     
-    DataFormat data = new DataFormat("element");
+    Atom[] atoms;
+    
+    static DataFormat data = new DataFormat("element");
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         splitPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                txtManual.getParent().requestFocus();
-                txtManual.setText("");
-                txtManual.setVisible(false);
+                if(txtManual.getText().isEmpty()) {
+                    txtManual.getParent().requestFocus();
+                    txtManual.setText("");
+                    txtManual.setVisible(false);
+                }
             }
         });
         paneSimulation.setOnDragOver(new EventHandler<DragEvent>() {
@@ -88,11 +95,22 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 appendInput(tempEl.getElementName());
                 
                 
-                System.out.println(tempEl.getElementName() + tempEl.getElementNumber());
+                //System.out.println(tempEl.getElementName() + tempEl.getElementNumber());
                 newVBox.getChildren().add(new Label(tempEl.getElementNumber()));
                 newVBox.getChildren().add(new Label(tempEl.getElementName()));
                 newVBox.setLayoutX(event.getX() - newVBox.getWidth()/2);
                 newVBox.setLayoutY(event.getY() - newVBox.getHeight()/2);
+                
+                newVBox.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        if (event.getButton() == MouseButton.SECONDARY) { 
+                            paneSimulation.getChildren().remove(event.getSource());
+                            removeString(txtManual.getText(), ((Label)((VBox) event.getSource()).getChildren().get(1)).getText());
+                        }
+                    }
+                });
+                
                 paneSimulation.getChildren().add(newVBox);
                 
                 event.consume();
@@ -181,5 +199,237 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
             });
             gridPane.add(tempPane, colIndx, rowIndx);
         }
+    }
+    
+    public void removeString(String originalString, String elementName) {
+        //String tempStr = txtManual.getText().replaceFirst(elementName, "");
+        String[] atomList = getAtoms(parseInput());
+        ArrayList<String> atomsArray = new ArrayList<>(Arrays.asList(atomList));
+        System.out.println(Arrays.toString(atomList));
+        
+        atomsArray.remove(elementName);
+        System.out.println(atomsArray);
+        
+        ArrayList<String> alFinished = concentrateStr(atomsArray);
+        
+        String tempStr = "";
+        for (String el: alFinished)
+            if (!el.equals("1"))
+                tempStr += el;
+        
+        txtManual.setText(tempStr);
+    }
+    
+    public String[] parseInput() {
+        String text = txtManual.getText();
+        if(text.isEmpty()) {
+            return new String[0];
+        }
+        
+        LinkedList<String> llSymbols = splitString(text);
+        
+        ArrayList<String> alFormatted = addOnes(llSymbols);
+        
+        String[] arrayToSortSymbols = getAtoms(alFormatted.toArray(new String[alFormatted.size()]));
+        
+        int[] arrayDoneSorting = sortArray(arrayToSortSymbols);
+        
+        ArrayList<String> alName = numToSymbol(arrayDoneSorting);
+        
+        ArrayList<String> alFinished = concentrateStr(alName);
+        
+        // Uncomment if want to see the array returned
+        // System.out.println("alFinished: " + alFinished);
+        return alFinished.toArray(new String[alFinished.size()]);
+    }
+    
+    public ArrayList<String> numToSymbol(int[] numArr) {
+        ArrayList<String> returnArr = new ArrayList<>(numArr.length);
+        
+        for (int currNum : numArr)
+            returnArr.add(atoms[currNum - 1].getSymbol());
+        
+        return returnArr;
+    }
+    
+    public ArrayList<String> concentrateStr(ArrayList<String> alName) {
+        // Converting back to [H, 2, O] kinda thing
+        ArrayList<String> alFinished = new ArrayList<>();
+        
+        boolean firstTime = true;
+        String currSymbol = "";
+        int numTimesFound = 0;
+        
+        // Input 
+//        System.out.println("Input: " + Arrays.toString(arrayDoneSorting));
+        for(int i = 0; i < alName.size(); i++) {
+            if(firstTime == true) {
+                currSymbol = alName.get(i);
+                alFinished.add(currSymbol);
+                numTimesFound = 1;
+                firstTime = false;
+            }
+            // It's a number now
+            else {
+                if(alName.get(i).equals(currSymbol)) {
+                    numTimesFound++;
+                } 
+                else {
+                    alFinished.add("" + numTimesFound);
+                    firstTime = true;
+                    i--;
+                }
+            }
+        }
+        alFinished.add("" + numTimesFound);
+        
+        return alFinished;
+    }
+    
+    private int[] bubbleSort(int arr[]) {
+        boolean isUnsorted = true;
+        
+        while (isUnsorted) {
+            isUnsorted = false;
+            
+            for (int i = 0; i < arr.length - 1; i++) {
+                if (arr[i] > arr[i+1]) {
+                    isUnsorted = true;
+                    int temp = arr[i];
+                    arr[i] = arr[i+1];
+                    arr[i+1] = temp;
+                }
+            }
+        }   
+        return arr;
+    }
+    
+    public int[] sortArray(String[] arrayToSortSymbols) {
+        //** Sorting section **
+        
+        // Create an array to bubble sort
+        int[] arrayToSortNumbers = new int[arrayToSortSymbols.length];
+        for(int i = 0; i < arrayToSortNumbers.length; i++) {
+            for(int j = 0; j < atoms.length - 1; j++)
+                if(arrayToSortSymbols[i].equals(atoms[j].getSymbol()))
+                    arrayToSortNumbers[i] = atoms[j].getNumber();
+            
+            
+            if(arrayToSortNumbers[i] == 0) {
+                System.out.println("Element: " + arrayToSortSymbols[i] + " not found.");
+                arrayToSortNumbers[i] = -1;
+            }
+        }
+        
+        return bubbleSort(arrayToSortNumbers);
+    }
+    
+    public ArrayList<String> addOnes(LinkedList<String> llSymbols) {
+        ArrayList<String> alFormatted = new ArrayList<>();        
+        // Formatting the output and checking if the total number of atoms exceeds the limit (20)
+        for(int i = 0; i < llSymbols.size(); i++) {
+            // If it's the last - must be letter
+            if(i == llSymbols.size() - 1 && Character.isLetter(llSymbols.getLast().charAt(0))) {
+                alFormatted.add(llSymbols.getLast());
+                alFormatted.add(""+1);
+            }
+            // If it doesn't contain a number
+            else if(Character.isLetter(llSymbols.get(i).charAt(0))) {
+                // If the next value is a number, add the symbol and the number to the list
+                if(Character.isDigit(llSymbols.get(i + 1).charAt(0))) {
+                    alFormatted.add(llSymbols.get(i));
+                    alFormatted.add(llSymbols.get(i + 1));
+                    i++;
+                }
+                // If it doesn't contain a number after the symbol, add a 1 to the list 
+                else {
+                    alFormatted.add(llSymbols.get(i));
+                    alFormatted.add(""+1);
+                }
+            }
+        }
+        
+        return alFormatted;
+    }
+    
+    public LinkedList<String> splitString(String text) {
+        char[] llInput = new char[text.length()];
+        // Converting input to a linked list
+        for(int i = 0; i < text.length(); i++) {
+            llInput[i] = text.charAt(i);
+        }
+        LinkedList<String> llSymbols = new LinkedList<>();
+        
+        // Getting ready for parsing
+        boolean started = false;
+        boolean startedNumber = false;
+        String symbol = "";
+        // Converting linked list array of character
+        for(int j = 0; j < llInput.length; j++) {
+            // >>H<<Co2C4, H>>C<<o2C4, HCo>>2<<C4, HCo2>>C<<4, HCo2C>>4<<
+            if(!started) {
+                if(Character.isDigit(llInput[j])) {
+                    startedNumber = true;
+                    llSymbols.add(symbol);
+                    symbol = Character.toString(llInput[j]);  
+                }
+                else {
+                    started = true;
+                    symbol += llInput[j];
+                    startedNumber = false;
+                }
+            }
+            // HC>>o<<2C4
+            else if(Character.isLowerCase(llInput[j])) {
+                symbol += llInput[j];
+                if (startedNumber) {
+                    System.out.println("error");
+                }
+            }
+            // H>>C<<o2C4
+            else if(Character.isUpperCase(llInput[j])) {
+                llSymbols.add(symbol);
+                startedNumber = false;
+                symbol = Character.toString(llInput[j]);
+            }
+            // HCo>>2<<C4, HCo2C>>4<<
+            else if(Character.isDigit(llInput[j])) {
+                if (startedNumber)
+                    symbol += llInput[j];
+                else {
+                    startedNumber = true;
+                    llSymbols.add(symbol);
+                    symbol = Character.toString(llInput[j]); 
+                }
+            }
+        }
+        llSymbols.add(symbol);
+        
+        return llSymbols;
+    }
+    
+    public String[] getAtoms(String[] input) {
+        int size = 0;
+        for(int i = 1; i < input.length; i+=2) {
+            size += Integer.parseInt(input[i]);
+        }
+        
+        String[] returnStr = new String[size];
+        
+        int offset = 0;
+        int prevOffset = 0;
+        for (int i = 0; i < input.length - 1; i+=2) {
+            prevOffset = offset;
+            for (; offset < prevOffset + Integer.parseInt(input[i+1]); offset++)
+            {
+                returnStr[offset] = input[i];
+            }
+        }
+        
+        return returnStr;
+    }
+
+    void setAtoms(Atom[] atoms) {
+        this.atoms = atoms;
     }
 }

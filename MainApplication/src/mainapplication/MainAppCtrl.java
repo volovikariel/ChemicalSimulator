@@ -113,7 +113,7 @@ public class MainAppCtrl implements Initializable {
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
             if (isSelecting) {
                 
-                String[] input = parseInput();
+                String[] input = ((SelectionSceneCtrl) controller).parseInput();
                 //String[] input = {"H", "6", "C", "3"};
                 String inputStr = getInputStr(input);
                 loadSubscene(LOADING_STR);
@@ -126,7 +126,7 @@ public class MainAppCtrl implements Initializable {
                     return;
                 }
                 loadSubscene(RESULTS_STR);
-                String[] atomList = getAtoms(input, solutions.get(0).length);
+                String[] atomList = ((SelectionSceneCtrl) controller).getAtoms(input);
                 //System.out.println(Arrays.toString(atomList));
                 ((ResultSceneCtrl) controller).resultList(solutions, atomList);
                 
@@ -162,6 +162,7 @@ public class MainAppCtrl implements Initializable {
         subPane = new AnchorPane();
         subScene.setRoot(subPane);
         loadSubscene(SELECTION_STR);
+        ((SelectionSceneCtrl) controller).setAtoms(atoms);
     }
     
     public void loadScene() {
@@ -281,21 +282,7 @@ public class MainAppCtrl implements Initializable {
         return new LinkedList<>();
     }
     
-    private String[] getAtoms(String[] input, int size) {
-        String[] returnStr = new String[size];
-        
-        int offset = 0;
-        int prevOffset = 0;
-        for (int i = 0; i < input.length - 1; i+=2) {
-            prevOffset = offset;
-            for (; offset < prevOffset + Integer.parseInt(input[i+1]); offset++)
-            {
-                returnStr[offset] = input[i];
-            }
-        }
-        
-        return returnStr;
-    }
+    
     
     private String getInputStr(String[] input) {
         String returnStr = "";
@@ -304,167 +291,5 @@ public class MainAppCtrl implements Initializable {
             returnStr +=  " " + element;
         }
         return returnStr;
-    }
-
-    private String[] parseInput() {
-        String text = ((SelectionSceneCtrl) controller).txtManual.getText();
-        char[] llInput = new char[text.length()];
-        // Converting input to a linked list
-        for(int i = 0; i < text.length(); i++) {
-            llInput[i] = text.charAt(i);
-        }
-        LinkedList<String> llSymbols = new LinkedList<>();
-        
-        // Getting ready for parsing
-        boolean started = false;
-        boolean startedNumber = false;
-        String symbol = "";
-        // Converting linked list array of character
-        for(int j = 0; j < llInput.length; j++) {
-            // >>H<<Co2C4, H>>C<<o2C4, HCo>>2<<C4, HCo2>>C<<4, HCo2C>>4<<
-            if(!started) {
-                if(Character.isDigit(llInput[j])) {
-                    startedNumber = true;
-                    llSymbols.add(symbol);
-                    symbol = Character.toString(llInput[j]);  
-                }
-                else {
-                    started = true;
-                    symbol += llInput[j];
-                    startedNumber = false;
-                }
-            }
-            // HC>>o<<2C4
-            else if(Character.isLowerCase(llInput[j])) {
-                symbol += llInput[j];
-                if (startedNumber) {
-                    System.out.println("error");
-                }
-            }
-            // H>>C<<o2C4
-            else if(Character.isUpperCase(llInput[j])) {
-                llSymbols.add(symbol);
-                startedNumber = false;
-                symbol = Character.toString(llInput[j]);
-            }
-            // HCo>>2<<C4, HCo2C>>4<<
-            else if(Character.isDigit(llInput[j])) {
-                if (startedNumber)
-                    symbol += llInput[j];
-                else {
-                    startedNumber = true;
-                    llSymbols.add(symbol);
-                    symbol = Character.toString(llInput[j]); 
-                }
-            }
-        }
-        llSymbols.add(symbol);
-        
-        ArrayList<String> alFormatted = new ArrayList<>();        
-        // Formatting the output and checking if the total number of atoms exceeds the limit (20)
-        for(int i = 0; i < llSymbols.size(); i++) {
-            //TODO: Check if it's a valid atom - if not - error and return
-            //TODO: Check for repetitions COOH -> CO2H 
-            //TODO: Order in the order of the atoms after the fact
-            // If it's the last - must be letter
-            if(i == llSymbols.size() - 1 && Character.isLetter(llSymbols.getLast().charAt(0))) {
-                alFormatted.add(llSymbols.getLast());
-                alFormatted.add(""+1);
-            }
-            // If it doesn't contain a number
-            else if(Character.isLetter(llSymbols.get(i).charAt(0))) {
-                // If the next value is a number, add the symbol and the number to the list
-                if(Character.isDigit(llSymbols.get(i + 1).charAt(0))) {
-                    alFormatted.add(llSymbols.get(i));
-                    alFormatted.add(llSymbols.get(i + 1));
-                    i++;
-                }
-                // If it doesn't contain a number after the symbol, add a 1 to the list 
-                else {
-                    alFormatted.add(llSymbols.get(i));
-                    alFormatted.add(""+1);
-                }
-            }
-        }
-        //** Sorting section **
-        // Checking size of list of atoms
-        int size = 0;
-        for(int i = 1; i < alFormatted.size(); i+=2) {
-            size += Integer.parseInt(alFormatted.get(i));
-        }
-        String[] arrayToSortSymbols = getAtoms(alFormatted.toArray(new String[alFormatted.size()]), size);
-        // Create an array to bubble sort
-        int[] arrayToSortNumbers = new int[arrayToSortSymbols.length];
-        for(int i = 0; i < arrayToSortNumbers.length; i++) {
-            for(int j = 0; j < atoms.length - 1; j++)
-                if(arrayToSortSymbols[i].equals(atoms[j].getSymbol()))
-                    arrayToSortNumbers[i] = atoms[j].getNumber();
-            
-            
-            if(arrayToSortNumbers[i] == 0) {
-                System.out.println("Element: " + arrayToSortSymbols[i] + " not found.");
-                arrayToSortNumbers[i] = -1;
-            }
-        }
-        // Sorting numbers
-        int[] arrayDoneSorting = bubbleSort(arrayToSortNumbers);
-        // Converting back to [H, 2, O] kinda thing
-        ArrayList<String> alFinished = new ArrayList<>();
-        
-        boolean firstTime = true;
-        int indexOfSymbol = -1;
-        int numTimesFound = 0;
-        
-        // Input 
-//        System.out.println("Input: " + Arrays.toString(arrayDoneSorting));
-        for(int i = 0; i < arrayDoneSorting.length; i++) {
-            if(firstTime == true) {
-                indexOfSymbol = arrayDoneSorting[i];
-                for(int j = 0; j < atoms.length - 1 ; j++) {
-                   if(arrayDoneSorting[i] == atoms[j].getNumber()) {
-                       alFinished.add(atoms[j].getSymbol());
-                   }
-                }
-                // First one done
-//                System.out.println("First Element of a type: " + alFinished);
-                numTimesFound++;
-                firstTime = false;
-            }
-            // It's a number now
-            else {
-                if(arrayDoneSorting[i] == indexOfSymbol) {
-                    numTimesFound++;
-                } 
-                else {
-                    alFinished.add(numTimesFound + "");
-                    numTimesFound = 0;
-                    firstTime = true;
-                    i--;
-                }
-            }
-        }
-        alFinished.add(numTimesFound + "");
-        // Uncomment if want to see the array returned
-        System.out.println("alFinished: " + alFinished);
-        return alFinished.toArray(new String[alFinished.size()]);
-    }
-    
-    private int[] bubbleSort(int arr[]) {
-        boolean isUnsorted = true;
-        
-        while (isUnsorted) {
-            isUnsorted = false;
-            
-            for (int i = 0; i < arr.length - 1; i++) {
-                if (arr[i] > arr[i+1]) {
-                    isUnsorted = true;
-                    int temp = arr[i];
-                    arr[i] = arr[i+1];
-                    arr[i+1] = temp;
-                }
-            }
-        }
-        
-        return arr;
     }
 }    
