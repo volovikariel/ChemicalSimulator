@@ -10,6 +10,7 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.shape.Line;
 
@@ -21,45 +22,38 @@ import javafx.scene.shape.Line;
 public class TabTemplateCtrl implements Initializable {
 
     int[][] matrix;
-    
-    Label hydrogen = new Label("H");
-    Label oxygen = new Label("O");
-    
+    String[] atomList;
     
     @FXML
     Canvas lewisCanvasID;
     
-    public void sendSolution(int [][] solution, String[] atomList) {
+    public void setLewisStructure(int [][] solution, String[] atomList) {
         matrix = solution;
-        Line line = new Line(162, 8, 168, 8);
         int elementCount = matrix.length; //rows
         int bondCount = 0;
-        //lewisCanvasID.getChildren().addAll(oxygen, hydrogen, line);
+        GraphicsContext gc = lewisCanvasID.getGraphicsContext2D();
         
-        //lewisCanvasID.setRightAnchor(oxygen, 20.0);
-        //lewisCanvasID.setRightAnchor(hydrogen, 40.0);
+        //iterates through the list of atoms
+        for (int i = 0; i < atomList.length; i++) {
+            String tempElement = atomList[i];
+            
+            gc.strokeText(tempElement, 150 + 20*i, 175);
+        }
         
+        
+        //iterates through the solution matrix
         for (int row = 0; row < matrix.length; row++) {
-            Label tempLbl = new Label(atomList[row]);
 
-//            lewisCanvasID.getChildren().add(tempLbl);
-//            lewisCanvasID.setTopAnchor(tempLbl, 20.0 * row);
             
             for (int col = 0; col < matrix[0].length; col++) {
                 
 
                 if (matrix[row][col] != 0) {
-////                    matrix[row][col] = bondCount;
-//                    
-////                    Label numLbl = new Label("" + matrix[row][col]);
-//
-////                    lewisCanvasID.getChildren().add(numLbl);
-////                    lewisCanvasID.setTopAnchor(numLbl, 20.0 * row);
-////                    lewisCanvasID.setLeftAnchor(numLbl, 20.0 * (col + 1));
                     
                 }
             }
         }
+        
     }
     
     

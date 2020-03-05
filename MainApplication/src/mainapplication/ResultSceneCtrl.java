@@ -46,7 +46,7 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
             
             //controller.sendSolution(list.get(i));
             //String[] temp = {"H", "H", "H", "H", "C", "C"};
-            controller.sendSolution(list.get(i), atomList);
+            controller.setLewisStructure(list.get(i), atomList);
             
             resultID.getTabs().add(newTab);
         }
