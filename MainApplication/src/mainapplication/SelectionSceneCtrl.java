@@ -14,10 +14,13 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
@@ -33,6 +36,10 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -41,6 +48,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.transform.Transform;
 import javax.imageio.ImageIO;
 
@@ -65,6 +73,32 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        paneSimulation.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                for (Node child : paneSimulation.getChildren()) {
+                    if (child instanceof VBox) {
+                        VBox box = (VBox) child;
+                        box.setPrefWidth(paneSimulation.getWidth() / 18.0);
+                        box.setLayoutX(newValue.doubleValue() * box.getLayoutX() / oldValue.doubleValue());
+                    }
+                }
+             }
+        });
+        
+        paneSimulation.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                for (Node child : paneSimulation.getChildren()) {
+                    if (child instanceof VBox) {
+                        VBox box = (VBox) child;
+                        box.setPrefHeight(paneSimulation.getHeight() / 9.0);
+                        box.setLayoutY(newValue.doubleValue() * box.getLayoutY() / oldValue.doubleValue());
+                    }
+                }
+             }
+        });
+        
         splitPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -98,8 +132,14 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 //System.out.println(tempEl.getElementName() + tempEl.getElementNumber());
                 newVBox.getChildren().add(new Label(tempEl.getElementNumber()));
                 newVBox.getChildren().add(new Label(tempEl.getElementName()));
+                
+                newVBox.setBackground(new Background(new BackgroundFill(Color.web(tempEl.getColor()), null, null)));
+                
                 newVBox.setLayoutX(event.getX() - newVBox.getWidth()/2);
                 newVBox.setLayoutY(event.getY() - newVBox.getHeight()/2);
+                
+                newVBox.setPrefWidth(paneSimulation.getWidth() / 18.0);
+                newVBox.setPrefHeight(paneSimulation.getHeight() / 9.0);
                 
                 newVBox.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
@@ -118,7 +158,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                     Dragboard db = tempBox.startDragAndDrop(TransferMode.MOVE);
                     ClipboardContent content = new ClipboardContent();
                     
-                    content.put(data, new TableElement(tempBox.getChildren()));
+                    content.put(data, new TableElement(tempBox.getChildren(), tempBox.getBackground()));
                     db.setContent(content);
                     paneSimulation.getChildren().remove(event.getSource());
                     removeString(txtManual.getText(), ((Label)((VBox) event.getSource()).getChildren().get(1)).getText());
@@ -158,7 +198,9 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         for (int i = 0; i < 9; i++) {
             gridPane.getRowConstraints().add(i, tempRow);
         }
+        
         VBox tempPane;
+        Paint tempColor = Color.AQUA;
         for (int i = 0; i < atoms.length; i++) {
             switch (i) {
                 case 2:
@@ -199,7 +241,61 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 rowIndx += 2;
             }
             
+            switch (colIndx) {
+                case 0:
+                    tempColor = Color.rgb(255, 204, 201);
+                    break;
+                case 1:
+                    tempColor = Color.rgb(209, 211, 255);
+                    break;
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                case 9:
+                case 10:
+                case 11:
+                    tempColor = Color.rgb(192, 220, 255);
+                    break;
+                case 17:
+                    tempColor = Color.rgb(255, 233, 206);
+                    break;
+                default:
+                    if (rowIndx < 5) {
+                        tempColor = colIndx - rowIndx >= 12 ? Color.rgb(255, 255, 199) : Color.rgb(203, 255, 197);
+                    }
+                    else {
+                        tempColor = colIndx > 15 ? Color.rgb(255, 255, 199) : Color.rgb(203, 255, 197);
+                    }
+                    
+                    switch (i) {
+                        case 4:
+                        case 13:
+                        case 31:
+                        case 32:
+                        case 50:
+                        case 51:
+                        case 83:
+                            tempColor = Color.rgb(224, 240, 195);
+                            break;
+                    }
+            }
+            
+            if (i == 0)
+                tempColor = Color.rgb(255, 255, 199);
+            
+            else if (rowIndx == 7)
+                tempColor = Color.rgb(192, 255, 255);
+            
+            else if (rowIndx == 8)
+                tempColor = Color.rgb(197, 255, 234);
+            
             tempPane = new VBox(new Label( "" + (i + 1)), new Label(atoms[i].getSymbol()));
+            tempPane.setBackground(new Background(new BackgroundFill(tempColor, null, null)));
+            //tempPane.setBorder(new Border(new BorderStroke(Color.BLACK, null, null, BorderStroke.THICK)));
             tempPane.setOnDragDetected(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
@@ -207,7 +303,8 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                     Dragboard db = tempBox.startDragAndDrop(TransferMode.COPY);
                     ClipboardContent content = new ClipboardContent();
                     
-                    content.put(data, new TableElement(tempBox.getChildren()));
+                    
+                    content.put(data, new TableElement(tempBox.getChildren(), tempBox.getBackground()));
                     db.setContent(content);
                     event.consume();
                 }
@@ -326,9 +423,11 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         // Create an array to bubble sort
         int[] arrayToSortNumbers = new int[arrayToSortSymbols.length];
         for(int i = 0; i < arrayToSortNumbers.length; i++) {
-            for(int j = 0; j < atoms.length - 1; j++)
-                if(arrayToSortSymbols[i].equals(atoms[j].getSymbol()))
-                    arrayToSortNumbers[i] = atoms[j].getNumber();
+            for (Atom atom : atoms) {
+                if (arrayToSortSymbols[i].equals(atom.getSymbol())) {
+                    arrayToSortNumbers[i] = atom.getNumber();
+                }
+            }
             
             
             if(arrayToSortNumbers[i] == 0) {
@@ -424,7 +523,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         return llSymbols;
     }
     
-    public String[] getAtoms(String[] input) {
+    static public String[] getAtoms(String[] input) {
         int size = 0;
         for(int i = 1; i < input.length; i+=2) {
             size += Integer.parseInt(input[i]);

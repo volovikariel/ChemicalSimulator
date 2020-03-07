@@ -125,7 +125,7 @@ public class MainAppCtrl implements Initializable {
                     return;
                 }
                 loadSubscene(RESULTS_STR);
-                String[] atomList = ((SelectionSceneCtrl) controller).getAtoms(input);
+                String[] atomList = SelectionSceneCtrl.getAtoms(input);
                 //System.out.println(Arrays.toString(atomList));
                 ((ResultSceneCtrl) controller).resultList(solutions, atomList);
                 
@@ -199,8 +199,10 @@ public class MainAppCtrl implements Initializable {
             subPane.getChildren().add(root);
             controller = (SubSceneController) loader.getController();
             
-            if (isSelecting)
+            if (isSelecting) {
                 ((SelectionSceneCtrl) controller).loadTable(atoms);
+                ((SelectionSceneCtrl) controller).setAtoms(atoms);
+            }
             
         } catch (IOException e) {
             e.printStackTrace();
