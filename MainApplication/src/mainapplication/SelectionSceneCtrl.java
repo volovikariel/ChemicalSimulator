@@ -82,6 +82,13 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
              }
         });
         
+        txtManual.setOnMouseClicked(new EventHandler<MouseEvent> () {
+            @Override
+            public void handle(MouseEvent event) {
+                txtManual.getParent().requestFocus();
+            }
+        });
+        
         splitPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -162,19 +169,38 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     }
     
     public void removeChar() {
-        if(txtManual.getLength() >= 1) {   
-            txtManual.setText(txtManual.getText().substring(0, txtManual.getLength() - 1));
-            // Update all the VBox's
+        if(txtManual.getLength() >= 1) {  
+            
+            LinkedList<String> llSymbols = splitString(txtManual.getText());
+        
+            ArrayList<String> alFormatted = addOnes(llSymbols);
+
+            String[] arrayStrings = getAtoms(alFormatted.toArray(new String[alFormatted.size()]));
+            
+            //System.out.println(llSymbols);
+            
+            String last = arrayStrings[arrayStrings.length - 1];
+            
             for(Node el : paneSimulation.getChildren()) {
                 if(el instanceof VBox) {
                     String symbolName = ((Label)(((VBox)el).getChildren().get(1))).getText();
-                    if(txtManual.getText().contains(symbolName.substring(0, symbolName.length() - 1)) && !txtManual.getText().contains(symbolName)) {
-                        txtManual.setText(txtManual.getText().replace(symbolName.substring(0, symbolName.length() - 1), ""));
+                    if (symbolName.equals(last)) {
                         paneSimulation.getChildren().remove(el);
                         break;
                     }
                 }
             }
+            
+            ArrayList<String> alName = new ArrayList<>(Arrays.asList(arrayStrings));
+            
+            ArrayList<String> alFinished = concentrateStr(new ArrayList<String>(alName.subList(0, alName.size()-1)));
+            
+            last = "";
+            for (String temp : alFinished)
+                if (!temp.equals("1"))
+                    last += temp;
+            
+            txtManual.setText(last);
         }
     }
     
