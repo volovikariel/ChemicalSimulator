@@ -8,16 +8,25 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.Pane?>
 
-<SplitPane dividerPositions="0.5" prefHeight="352.0" prefWidth="381.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mainapplication.TabTemplateCtrl">
-   <items>
-      <Pane fx:id="lewisPaneID" prefHeight="350.0" prefWidth="186.0">
-         <children>
-            <Canvas fx:id="lewisCanvasID" height="200.0" width="200.0" />
-         </children></Pane>
-      <SubScene height="348.0" width="181.0">
-        <root>
-          <Region />
-        </root>
-      </SubScene>
-   </items>
-</SplitPane>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mainapplication.TabTemplateCtrl" fx:id="root">
+   <children>
+      <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <items>
+            <Pane fx:id="lewisPaneID" prefHeight="350.0" prefWidth="186.0">
+               <children>
+                  <Canvas fx:id="lewisCanvasID" height="200.0" width="200.0" />
+               </children>
+            </Pane>
+            <StackPane prefHeight="150.0" prefWidth="200.0" fx:id="bindAnchor">
+               <children>
+                  <SubScene fx:id="realView" height="600.0" width="300.0" StackPane.alignment="CENTER">
+                     <root>
+                        <Region />
+                     </root>
+                  </SubScene>
+               </children>
+            </StackPane>
+         </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

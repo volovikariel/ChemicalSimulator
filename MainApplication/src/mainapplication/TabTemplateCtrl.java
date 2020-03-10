@@ -6,13 +6,24 @@
 package mainapplication;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ResourceBundle;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Group;
+import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Sphere;
 
 /**
  * FXML Controller class
@@ -23,6 +34,13 @@ public class TabTemplateCtrl implements Initializable {
 
     int[][] matrix;
     String[] atomList;
+    
+    @FXML
+    SubScene realView;
+    @FXML
+    AnchorPane root;
+    @FXML
+    StackPane bindAnchor;
     
     @FXML
     Canvas lewisCanvasID;
@@ -57,11 +75,93 @@ public class TabTemplateCtrl implements Initializable {
     }
     
     
+    public void set3D(int [][] solution, String[] atomList) {
+        matrix = solution;
+        this.atomList = atomList;
+        
+        ArrayList<Sphere> finalList = getRelativeLocation(0, -1, new double[] {100, 0, 0});
+        
+        Group root = new Group();
+        
+        root.getChildren().addAll(finalList);
+        
+        realView.setRoot(root);
+    }
+    
+    public ArrayList<Sphere> getRelativeLocation(int currRow, int prevRow, double[] vec) {
+        ArrayList<Sphere> returnList = new ArrayList<>();
+        
+        if (atomList[currRow].equals("H")) {
+            Sphere temp = new Sphere(40);
+            temp.setMaterial(new PhongMaterial(Color.WHITE));
+            returnList.add(temp);
+            
+            if (prevRow != -1) {
+                return returnList;
+            }
+            
+            for (int i = 0; i < matrix.length; i++) {
+                if (matrix[currRow][i] != 0) {
+                    double[] transVec = {100, 0, 0};
+                    ArrayList<Sphere> recursion = getRelativeLocation(i, currRow, transVec);
+                    
+                    for (Sphere sphere : recursion) {
+                        sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
+                        sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
+                        sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
+                        
+                        returnList.add(sphere);
+                    }
+                }
+            }
+            
+            return returnList;
+        }
+        
+        int bondCount = 0;          //see how many lone pairs
+        int thingsBondedCount = 0;  //get steric number
+
+        for (int el : matrix[currRow]) {
+            if (el != 0) {
+                bondCount += el;
+                thingsBondedCount++;
+            }
+        }
+
+        int lonePairs = 4 - bondCount;
+        int stericNumber = thingsBondedCount + lonePairs;
+
+        Sphere temp = new Sphere(50);
+        temp.setMaterial(new PhongMaterial(Color.RED));
+        returnList.add(temp);
+
+        for (int i = 0; i < matrix.length; i++) {
+            if (matrix[currRow][i] != 0) {
+                if (i != prevRow) {
+                    double[] transVec = {100, 0, 0};
+                    ArrayList<Sphere> recursion = getRelativeLocation(i, currRow, transVec);
+
+                    for (Sphere sphere : recursion) {
+                        sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
+                        sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
+                        sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
+
+                        returnList.add(sphere);
+                    }
+                }
+            }
+        }
+        
+        return returnList;
+    } 
+    
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        realView.setManaged(false);
+        realView.heightProperty().bind(bindAnchor.heightProperty());
+        realView.widthProperty().bind(bindAnchor.widthProperty());
     }
 }

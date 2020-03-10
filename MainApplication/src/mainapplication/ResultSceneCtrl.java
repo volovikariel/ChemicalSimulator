@@ -44,9 +44,12 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
             Tab newTab = new Tab("" + (i + 1));
             newTab.setContent(root);
             
+            
+            
             //controller.sendSolution(list.get(i));
             //String[] temp = {"H", "H", "H", "H", "C", "C"};
             controller.setLewisStructure(list.get(i), atomList);
+            controller.set3D(list.get(i), atomList);
             
             resultID.getTabs().add(newTab);
         }
@@ -56,7 +59,7 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        
     }    
     
 }
