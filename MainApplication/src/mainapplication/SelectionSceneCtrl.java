@@ -5,29 +5,20 @@
  */
 package mainapplication;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
@@ -38,24 +29,14 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.transform.Transform;
-import javax.imageio.ImageIO;
 
-/**
- *
- * @author cstuser
- */
 public class SelectionSceneCtrl implements Initializable, SubSceneController {
     
     @FXML
@@ -70,6 +51,8 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     Atom[] atoms;
     
     static DataFormat data = new DataFormat("element");
+    
+    static ArrayList<VBox> vboxes = new ArrayList<>();
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -123,7 +106,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
             public void handle(DragEvent event) {
                 
                 VBox newVBox = new VBox();
-                
+                vboxes.add(newVBox);
                 TableElement tempEl = (TableElement) event.getDragboard().getContent(data);
                 
                 appendInput(tempEl.getElementName());
@@ -179,8 +162,19 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     }
     
     public void removeChar() {
-        if(txtManual.getLength() >= 1) {
-            txtManual.setText(txtManual.getText().substring(0, txtManual.getLength() - 1));   
+        if(txtManual.getLength() >= 1) {   
+            txtManual.setText(txtManual.getText().substring(0, txtManual.getLength() - 1));
+            // Update all the VBox's
+            for(Node el : paneSimulation.getChildren()) {
+                if(el instanceof VBox) {
+                    String symbolName = ((Label)(((VBox)el).getChildren().get(1))).getText();
+                    if(txtManual.getText().contains(symbolName.substring(0, symbolName.length() - 1)) && !txtManual.getText().contains(symbolName)) {
+                        txtManual.setText(txtManual.getText().replace(symbolName.substring(0, symbolName.length() - 1), ""));
+                        paneSimulation.getChildren().remove(el);
+                        break;
+                    }
+                }
+            }
         }
     }
     
@@ -323,7 +317,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         System.out.println(atomsArray);
         
         ArrayList<String> alFinished = concentrateStr(atomsArray);
-        
+                
         String tempStr = "";
         for (String el: alFinished)
             if (!el.equals("1"))
@@ -360,7 +354,6 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         
         for (int currNum : numArr)
             returnArr.add(atoms[currNum - 1].getSymbol());
-        
         return returnArr;
     }
     
