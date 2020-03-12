@@ -71,9 +71,6 @@ public class TabTemplateCtrl implements Initializable {
         for (int i = 0; i < atomList.length; i++) {
             String tempElement = atomList[i];
             
-            gc.lineTo(i+150, i+100);
-            
-            
             
             
             
@@ -86,7 +83,7 @@ public class TabTemplateCtrl implements Initializable {
             gc.strokeText(tempElement, 150 + 20*i, 175);
             
             Paint p = Color.BLACK;
-            gc.strokeLine(150 + 20*i, 150 + 20*i, i+2, 175);
+            gc.strokeLine(i+100, 150, 175*i, 150);
         }
         
         
