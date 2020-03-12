@@ -19,9 +19,10 @@ typedef struct Atom
     Link* bondList;
     int totalBondCount;
     int listIndex;
+    int atomicNumber;
 } Atom;
 
-Atom* createAtom(int bondCount, char name[2], double electroneg, int listIndex);
-void loadAtom(int bondCount, char name[2], double electroneg, int listIndex, Atom* atom);
+Atom* createAtom(int bondCount, char name[2], double electroneg, int listIndex, int atomicNumber);
+void loadAtom(int bondCount, char name[2], double electroneg, int listIndex, int atomicNumber, Atom* atom);
 
 #endif

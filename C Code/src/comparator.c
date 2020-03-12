@@ -6,6 +6,137 @@
 
 #include "../inc/memory.h"
 
+bool isIsomorph(Atom* atomList, int* a, int* b, int atomListSize)
+{
+    //assumes int* b is already reduced, since it it old solutions,
+    // must reduce A, then must compare reduced forms
+
+    //reduceMatrix(atomList, a, atomListSize);
+
+    for (int i = 0; i < atomListSize * atomListSize; i++)
+      if (a[i] != b[i])
+        return 0;
+
+    return 1;
+}
+
+void reduceMatrix(Atom* atomList, int* matrix, int atomListSize)
+{
+    bool hasEdited = 1;
+    int atomCount = 1;
+
+    int whileCount = 0;
+
+    while (hasEdited && whileCount < atomListSize * atomListSize)
+    {
+        whileCount++;
+
+        hasEdited = 0;
+        atomCount = 1;
+        // compare each row with the following
+        for (int i = 0; i < atomListSize - 1; i++)
+        {
+            if (atomList[i + 1].atomicNumber == atomList[i].atomicNumber)
+              atomCount++;
+            else
+            {
+              if (atomCount == 1)
+              {
+                //reduce this row as much as possible
+                bool hasChanged = 1;
+
+                while (hasChanged)
+                {
+                  hasChanged = 0;
+
+                  for (int j = 0; j < atomListSize - 1; j++)
+                  {
+                    if (atomList[j + 1].atomicNumber == atomList[j].atomicNumber)
+                    {
+                      if (matrix[i * atomListSize + j] < matrix[i * atomListSize + j + 1])
+                      {
+                        hasChanged = 1;
+                        hasEdited = 1;
+
+                        swapRowCol(matrix, j, j + 1, atomListSize);
+
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
+
+              atomCount = 1;
+            }
+            // if the next row is "smaller", then swap them and restart the loop
+            //make sure they are the same element
+            if (atomList[i + 1].atomicNumber == atomList[i].atomicNumber)
+            {
+                //go element by element and compare for first difference
+                for (int k = 0; k < atomListSize; k++)
+                {
+                    if (matrix[i * atomListSize + k] < matrix[(i + 1) * atomListSize + k])
+                    {
+                        hasEdited = 1;
+
+                        swapRowCol(matrix, i, i + 1, atomListSize);
+
+                        break;
+                    }
+                    else if (matrix[i * atomListSize + k] > matrix[(i + 1) * atomListSize + k])
+                      break;
+                }
+            }
+        }
+
+        if (atomCount == 1)
+        {
+          //reduce this row as much as possible
+          bool hasChanged = 1;
+
+          while (hasChanged)
+          {
+            hasChanged = 0;
+
+            for (int j = 0; j < atomListSize - 1; j++)
+            {
+              if (atomList[j + 1].atomicNumber == atomList[j].atomicNumber)
+              {
+                if (matrix[(atomListSize - 1) * atomListSize + j] < matrix[(atomListSize - 1) * atomListSize + j + 1])
+                {
+                  hasChanged = 1;
+                  hasEdited = 1;
+
+                  swapRowCol(matrix, j, j + 1, atomListSize);
+
+                  break;
+                }
+              }
+            }
+          }
+        }
+    }
+}
+
+void swapRowCol(int* matrix, int row1, int row2, int atomListSize)
+{
+    int temp;
+    for (int i = 0; i < atomListSize; i++)
+    {
+      temp = matrix[row1 * atomListSize + i];
+      matrix[row1 * atomListSize + i] = matrix[row2 * atomListSize + i];
+      matrix[row2 * atomListSize + i] = temp;
+    }
+
+    for (int j = 0; j < atomListSize; j++)
+    {
+        temp = matrix[j * atomListSize + row1];
+        matrix[j * atomListSize + row1] = matrix[j * atomListSize + row2];
+        matrix[j * atomListSize + row2] = temp;
+    }
+}
+
 bool compareSolMatrix(Atom* atomList, int* a, int* b, int atomListSize)
 {
     /*//check if they are the same, without permutations

@@ -5,7 +5,7 @@
 
 #include "../inc/memory.h"
 
-void loadAtom(int bondCount, char name[2], double electroneg, int listIndex, Atom* atom)
+void loadAtom(int bondCount, char name[2], double electroneg, int listIndex, int atomicNumber, Atom* atom)
 {
     atom->bondCount = bondCount;
     atom->totalBondCount = bondCount;
@@ -21,19 +21,20 @@ void loadAtom(int bondCount, char name[2], double electroneg, int listIndex, Ato
 
     atom->bondList = startLink;
     atom->electroneg = electroneg;
+    atom->atomicNumber = atomicNumber;
     atom->name[0] = name[0];
     atom->name[1] = name[1];
     atom->listIndex = listIndex;
 }
 
-Atom* createAtom(int bondCount, char name[2], double electroneg, int listIndex)
+Atom* createAtom(int bondCount, char name[2], double electroneg, int listIndex, int atomicNumber)
 {
     Atom* returnAtom = malloc(sizeof(Atom));
 #ifdef MEMDEBUG
     printMalloc((void*) returnAtom, sizeof(Atom), 13);
 #endif
 
-    loadAtom(bondCount, name, electroneg, listIndex, returnAtom);
+    loadAtom(bondCount, name, electroneg, listIndex, atomicNumber, returnAtom);
 
     return returnAtom;
 }

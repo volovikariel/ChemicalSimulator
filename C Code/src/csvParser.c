@@ -50,6 +50,9 @@ Element* loadTable(char* filepath)
         table[rowCount - 1].isMetal = atoi(field);
         field = strtok(NULL, ",");
 
+        table[rowCount - 1].atomicNumber = rowCount;
+        field = strtok(NULL, ",");
+
         if (field != NULL)
         {
             printf("parsing error at line %d, too many arguments", rowCount);

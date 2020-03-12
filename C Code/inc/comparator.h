@@ -7,6 +7,10 @@ typedef struct Pair
     int bondWeight;
 } Pair;
 
+bool isIsomorph(Atom* atomList, int* a, int* b, int atomListSize);
+void reduceMatrix(Atom* atomList, int* matrix, int atomListSize);
+void swapRowCol(int* matrix, int row1, int row2, int atomListSize);
+
 bool compareSolMatrix(Atom* atomList, int* a, int* b, int atomListSize);
 bool compareString(char* a, char* b);
 char* appendString(char* a, char* b, int sizeA, int sizeB);

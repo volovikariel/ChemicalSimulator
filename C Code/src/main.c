@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     for (int k = 0; k < TABLESIZE; k++)
     {
         for (int i = currOffset; i < currOffset + table[k].count; i++)
-            loadAtom(table[k].bond, table[k].name, table[k].elecNeg, i, &(atomList[i]));
+            loadAtom(table[k].bond, table[k].name, table[k].elecNeg, i, table[k].atomicNumber, &(atomList[i]));
         currOffset += table[k].count;
     }
 
@@ -178,6 +178,7 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
 
         //save the solution
         int* temp = saveSolution(atomList, atomListSize);
+        reduceMatrix(atomList, temp, atomListSize);
         //compare with previous solutions
         //skip first empty link
         Link* tempStartLink = solutionList->nextLink;
@@ -186,6 +187,7 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
         while (tempStartLink != NULL && !isEqual)
         {
             isEqual = compareSolMatrix(atomList, temp, (int*) tempStartLink->valuePtr, atomListSize);
+            //isEqual = isIsomorph(atomList, temp, (int*) tempStartLink->valuePtr, atomListSize);
             saveBeforeLast = tempStartLink;
             tempStartLink = tempStartLink->nextLink;
         }

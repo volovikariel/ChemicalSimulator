@@ -81,6 +81,14 @@ public class TabTemplateCtrl implements Initializable {
         
         ArrayList<Sphere> finalList = getRelativeLocation(0, -1, new double[] {100, 0, 0});
         
+        double[] transVec = {30, 100, 0};
+        
+        for (Sphere sphere : finalList) {
+            sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
+            sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
+            sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
+        }
+        
         Group root = new Group();
         
         root.getChildren().addAll(finalList);

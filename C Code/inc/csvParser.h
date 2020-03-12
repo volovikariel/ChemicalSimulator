@@ -11,6 +11,7 @@ typedef struct Element
   bool isMetal;
   double elecNeg;
   int count;
+  int atomicNumber;
 } Element;
 
 Element* loadTable(char* filepath);
