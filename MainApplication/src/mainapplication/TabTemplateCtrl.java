@@ -18,6 +18,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -39,12 +40,17 @@ public class TabTemplateCtrl implements Initializable {
     @FXML
     SubScene realView;
     @FXML
-    AnchorPane root;
-    @FXML
     StackPane bindAnchor;
     
     @FXML
     Canvas lewisCanvasID;
+    
+    double initX;
+    double initY;
+    double startTransX;
+    double startTransY;
+    
+    private Group root = new Group();
     
     public void setLewisStructure(int [][] solution, String[] atomList) {
         matrix = solution;
@@ -97,15 +103,13 @@ public class TabTemplateCtrl implements Initializable {
         
         ArrayList<Sphere> finalList = getRelativeLocation(0, -1, new double[] {100, 0, 0});
         
-        double[] transVec = {30, 100, 0};
+        double[] transVec = {0, 0, 0};
         
         for (Sphere sphere : finalList) {
             sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
             sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
             sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
-        }
-        
-        Group root = new Group();
+        }        
         
         root.getChildren().addAll(finalList);
         
@@ -187,5 +191,27 @@ public class TabTemplateCtrl implements Initializable {
         realView.setManaged(false);
         realView.heightProperty().bind(bindAnchor.heightProperty());
         realView.widthProperty().bind(bindAnchor.widthProperty());
+        root.layoutXProperty().bind(realView.widthProperty().divide(2));
+        root.layoutYProperty().bind(realView.heightProperty().divide(2));
+    }
+    
+    @FXML
+    public void handleMouseClick(MouseEvent event) {
+        initX = event.getX();
+        initY = event.getY();
+        
+        //startTransX = root.getTranslateX();
+        //startTransY = root.getTranslateY();
+        
+        startTransX = root.translateXProperty().get();
+        startTransY = root.translateYProperty().get();
+    }
+            
+    @FXML
+    public void handleMouseDrag(MouseEvent event) {
+        root.translateXProperty().set(event.getX() - initX + startTransX);
+        root.translateYProperty().set(event.getY() - initY + startTransY);
+        //root.setTranslateX(event.getX() - initX + startTransX);
+        //root.setTranslateY(event.getY() - initY + startTransY);
     }
 }

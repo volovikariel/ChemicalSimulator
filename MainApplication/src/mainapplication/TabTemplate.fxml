@@ -8,7 +8,7 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.Pane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mainapplication.TabTemplateCtrl" fx:id="root">
+<AnchorPane fx:id="root" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mainapplication.TabTemplateCtrl">
    <children>
       <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <items>
@@ -17,7 +17,7 @@
                   <Canvas fx:id="lewisCanvasID" height="200.0" width="200.0" />
                </children>
             </Pane>
-            <StackPane prefHeight="150.0" prefWidth="200.0" fx:id="bindAnchor">
+            <StackPane fx:id="bindAnchor" onMouseDragged="#handleMouseDrag" onMousePressed="#handleMouseClick" prefHeight="150.0" prefWidth="200.0">
                <children>
                   <SubScene fx:id="realView" height="600.0" width="300.0" StackPane.alignment="CENTER">
                      <root>
