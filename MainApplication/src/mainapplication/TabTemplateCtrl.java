@@ -21,6 +21,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Sphere;
@@ -55,7 +56,22 @@ public class TabTemplateCtrl implements Initializable {
         for (int i = 0; i < atomList.length; i++) {
             String tempElement = atomList[i];
             
+            gc.lineTo(i+150, i+100);
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             gc.strokeText(tempElement, 150 + 20*i, 175);
+            
+            Paint p = Color.BLACK;
+            gc.strokeLine(150 + 20*i, 150 + 20*i, i+2, 175);
         }
         
         
