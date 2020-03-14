@@ -22,6 +22,13 @@ typedef struct Atom
     int atomicNumber;
 } Atom;
 
+typedef struct Solution
+{
+    int* matrix;
+    int overallCharge;
+    int score;
+} Solution;
+
 Atom* createAtom(int bondCount, char name[2], double electroneg, int listIndex, int atomicNumber);
 void loadAtom(int bondCount, char name[2], double electroneg, int listIndex, int atomicNumber, Atom* atom);
 

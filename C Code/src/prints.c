@@ -72,13 +72,14 @@ void printMolMatrix(Atom* atomList, int atomListSize)
 #endif
 }
 
-void printSolMatrix(int* solution, int atomListSize)
+void printSolMatrix(Solution* solution, int atomListSize)
 {
     printf(">>>>\n");
+    printf("%d\n", solution->score);
     for (int i = 0; i < atomListSize; i++)
     {
         for (int j = 0; j < atomListSize; j++)
-            printf("%d ", solution[i * atomListSize + j]);
+            printf("%d ", solution->matrix[i * atomListSize + j]);
 
         printf("\n");
     }

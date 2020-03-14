@@ -111,7 +111,7 @@ public class MainAppCtrl implements Initializable {
                 //String[] input = {"H", "6", "C", "3"};
                 String inputStr = getInputStr(input);
                 loadSubscene(LOADING_STR);
-                LinkedList<int[][]> solutions = callAlgorithm(inputStr);
+                LinkedList<Solution> solutions = callAlgorithm(inputStr);
                 if (solutions.isEmpty()) {
                     System.out.println("No solutions found!!");
                     
@@ -124,7 +124,9 @@ public class MainAppCtrl implements Initializable {
                     return;
                 }
                 loadSubscene(RESULTS_STR);
-                String[] atomList = SelectionSceneCtrl.getAtoms(input);
+                //String[] atomList = SelectionSceneCtrl.getAtoms(input);
+                String[] atomList = solutions.getFirst().getNames();
+                solutions.removeFirst();
                 //System.out.println(Arrays.toString(atomList));
                 ((ResultSceneCtrl) controller).resultList(solutions, atomList);
                 
@@ -209,7 +211,7 @@ public class MainAppCtrl implements Initializable {
     }
 
 
-    private LinkedList<int[][]> callAlgorithm(String input) {
+    private LinkedList<Solution> callAlgorithm(String input) {
     	try {
             Path currentRelativePath = Paths.get("");
             String s = currentRelativePath.toAbsolutePath().toString();
@@ -221,14 +223,19 @@ public class MainAppCtrl implements Initializable {
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String line = null;
             boolean isReading = false;
-            LinkedList<int[][]> solutionSet = new LinkedList<>();
+            LinkedList<Solution> solutionSet = new LinkedList<>();
             int[][] tempArray = null;
             int currMatrixLine = 0;
             int matrixSize = 1;
+            int tempScore = 0;
             while ((s = stdInput.readLine()) != null) {
                 // Reached the end of the file
                 if(s.equals("END")) {
                     return solutionSet;
+                }
+                
+                if(s.contains("+ ")) {
+                    solutionSet.add(new Solution(s.substring(2, s.length()).split(" ")));
                 }
 
                 if (s.equals(">>>>")) {
@@ -238,7 +245,7 @@ public class MainAppCtrl implements Initializable {
                 	}
 
                 	isReading = true;
-                	currMatrixLine = 0;
+                	currMatrixLine = -1;
                 	matrixSize = 1;
                 }
                 else if (isReading) {
@@ -251,9 +258,15 @@ public class MainAppCtrl implements Initializable {
                 		isReading = false;
                 	}
                 	else {
-	                	String[] valuesStr = s.split(" ");
-
-	                	if (currMatrixLine == 0) {
+                                if (currMatrixLine == -1) {
+                                    tempScore = Integer.parseInt(s);
+                                    currMatrixLine++;
+                                    continue;
+                                }
+                                
+                                String[] valuesStr = s.split(" ");
+                                
+                                if (currMatrixLine == 0) {
 	                		matrixSize = valuesStr.length;
 	                		tempArray = new int[matrixSize][matrixSize];
 	                	}
@@ -262,7 +275,7 @@ public class MainAppCtrl implements Initializable {
 	                		return null;
 	                	}
 	                	else if (currMatrixLine == matrixSize - 1) {
-	                		solutionSet.add(tempArray);
+	                		solutionSet.add(new Solution(tempArray, tempScore));
 	                	}
 
 	                	for (int i = 0; i < matrixSize; i++) {

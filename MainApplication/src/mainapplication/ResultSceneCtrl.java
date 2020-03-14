@@ -28,7 +28,7 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
     @FXML
     private TabPane resultID;
     
-    public void resultList(LinkedList<int[][]> list, String[] atomList) {
+    public void resultList(LinkedList<Solution> list, String[] atomList) {
         for (int i = 0; i < list.size(); i++) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("TabTemplate.fxml"));
             Parent root = null;
@@ -46,8 +46,8 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
             
             //controller.sendSolution(list.get(i));
             //String[] temp = {"H", "H", "H", "H", "C", "C"};
-            controller.setLewisStructure(list.get(i), atomList);
-            controller.set3D(list.get(i), atomList);
+            controller.setLewisStructure(list.get(i).getMatrix(), atomList);
+            controller.set3D(list.get(i).getMatrix(), atomList);
             
             resultID.getTabs().add(newTab);
         }
