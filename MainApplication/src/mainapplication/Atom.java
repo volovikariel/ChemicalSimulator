@@ -4,6 +4,7 @@ public class Atom {
     private String symbol;
     private int shells;
     private double electroneg;
+    private boolean isMetal;
     
     private int number;
     
@@ -15,11 +16,12 @@ public class Atom {
         this.electroneg = electroneg;
     }
     
-    public Atom(String symbol, String shells, String electroneg, int number) {
+    public Atom(String symbol, String shells, String electroneg, String isMetal, int number) {
         this.symbol = symbol;
         this.shells = Integer.parseInt(shells);
         this.electroneg = Double.parseDouble(electroneg);
         this.number = number;
+        this.isMetal = isMetal.equals("1");
     }
     
     public String getSymbol() {

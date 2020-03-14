@@ -153,7 +153,7 @@ public class MainAppCtrl implements Initializable {
         try (CSVParser csvParser = new CSVParser(new FileReader(s), CSVFormat.DEFAULT.withHeader());) {
             int index = 0;
             for (CSVRecord csvRecord : csvParser) {
-                atoms[index] = new Atom(csvRecord.get(0), csvRecord.get(1), csvRecord.get(2), index + 1);
+                atoms[index] = new Atom(csvRecord.get(0), csvRecord.get(1), csvRecord.get(2), csvRecord.get(3), index + 1);
                 index++;
             }
         } catch(IOException e) {
