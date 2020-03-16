@@ -12,9 +12,13 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Camera;
+import javafx.scene.DepthTest;
 import javafx.scene.Group;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -22,6 +26,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -191,17 +196,19 @@ public class TabTemplateCtrl implements Initializable {
                             double rads = Math.toRadians(180 - 109.5);
                             double[] axis = normalize(vec);
                             switch (amountFound) {
+                                // l -> \
                                 case 0:
                                     transVec = makeRoation(vec, 0, 0, -rads);
                                     break;
+                                // \ -> /
                                 case 1:
                                     transVec = makeRoation(vec, 0, 0, -rads);
-                                    transVec = makeRot(transVec, axis, rads);
+                                    transVec = makeRot(transVec, axis, Math.toRadians(120));
                                     break;
+                                // / -> |
                                 case 2:
                                     transVec = makeRoation(vec, 0, 0, -rads);
-                                    transVec = makeRot(transVec, axis, rads);
-                                    transVec = makeRot(transVec, axis, rads);
+                                    transVec = makeRot(transVec, axis, Math.toRadians(-120));
                                     break;
                                 default:
                                     break;
@@ -365,6 +372,23 @@ public class TabTemplateCtrl implements Initializable {
         realView.widthProperty().bind(bindAnchor.widthProperty());
         root.layoutXProperty().bind(realView.widthProperty().divide(2));
         root.layoutYProperty().bind(realView.heightProperty().divide(2));
+
+        // Handle the scrolling for 3D
+        bindAnchor.setOnScroll(new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent event) {
+                if(event.getDeltaY() > 0) {
+                    root.scaleXProperty().set(root.getScaleX() * 1.05);
+                    root.scaleYProperty().set(root.getScaleY() * 1.05);
+                    root.scaleZProperty().set(root.getScaleZ() * 1.05);
+                }
+                else {
+                    root.scaleXProperty().set(root.getScaleX() * 0.95);
+                    root.scaleYProperty().set(root.getScaleY() * 0.95);
+                    root.scaleZProperty().set(root.getScaleZ() * 0.95);
+                }
+            }
+        });
     }
     
     @FXML
