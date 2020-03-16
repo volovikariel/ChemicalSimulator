@@ -5,36 +5,32 @@
  */
 package mainapplication;
 
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
-import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Point3D;
 import javafx.scene.Camera;
-import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Line;
+import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
 
 /**
  * FXML Controller class
@@ -64,6 +60,8 @@ public class TabTemplateCtrl implements Initializable {
     double prevXAng = 0;
     double prevYAng = 0;
     
+    public Camera camera;
+        
     private Group root = new Group();
     
     public void setLewisStructure(int [][] solution, String[] atomList) {
@@ -122,9 +120,40 @@ public class TabTemplateCtrl implements Initializable {
             sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
         }        
         
+        // Add Cylinders before spheres so that they get clipped properly
+        root.getChildren().addAll(getAllCylinders(finalList));
         root.getChildren().addAll(finalList);
-        
         realView.setRoot(root);
+    }
+    
+    public ArrayList<Cylinder> getAllCylinders(ArrayList<Sphere> spheres) {
+        ArrayList<Cylinder> cylinderList = new ArrayList<>();
+        for(int i = 0; i < spheres.size() - 1; i++) {
+            Sphere sphere1 = spheres.get(i);
+            Sphere sphere2 = spheres.get(i+1);
+            Point3D pointA = new Point3D(sphere1.getTranslateX(), sphere1.getTranslateY(), sphere1.getTranslateZ());
+            Point3D pointB = new Point3D(sphere2.getTranslateX(), sphere2.getTranslateY(), sphere2.getTranslateZ());
+            Point3D diff = pointB.subtract(pointA);
+            double length = diff.magnitude();
+            
+            // Transformation to move in between 2 spheres
+            Point3D mid = pointB.midpoint(pointA);
+            Translate moveToMidpoint = new Translate(mid.getX(), mid.getY(), mid.getZ());
+            
+            // Transformation to match the angle between the 2 spheres
+            Point3D axisOfRot = diff.crossProduct(new Point3D(0, 1, 0));
+            double angle = Math.acos(diff.normalize().dotProduct(new Point3D(0, 1, 0)));
+            Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRot);
+
+            Cylinder cylinder = new Cylinder(5, length);
+            PhongMaterial cylinderMaterial = new PhongMaterial(Color.BLACK);
+            cylinderMaterial.setSpecularColor(Color.GRAY);
+            cylinder.setMaterial(cylinderMaterial);
+            cylinder.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
+
+            cylinderList.add(cylinder);
+        }
+        return cylinderList;
     }
     
     public ArrayList<Sphere> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
@@ -150,7 +179,6 @@ public class TabTemplateCtrl implements Initializable {
                         sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
                         sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
                         sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
-                        
                         returnList.add(sphere);
                     }
                 }
@@ -372,7 +400,8 @@ public class TabTemplateCtrl implements Initializable {
         realView.widthProperty().bind(bindAnchor.widthProperty());
         root.layoutXProperty().bind(realView.widthProperty().divide(2));
         root.layoutYProperty().bind(realView.heightProperty().divide(2));
-
+        camera = new PerspectiveCamera();
+        realView.setCamera(camera);
         // Handle the scrolling for 3D
         bindAnchor.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
@@ -388,7 +417,7 @@ public class TabTemplateCtrl implements Initializable {
                     root.scaleZProperty().set(root.getScaleZ() * 0.95);
                 }
             }
-        });
+        });        
     }
     
     @FXML
@@ -421,9 +450,9 @@ public class TabTemplateCtrl implements Initializable {
             root.setRotationAxis(Rotate.Y_AXIS);
             prevXAng += (event.getX() - initXAng) * 360/ 100;
             root.setRotate(prevXAng);
-            root.setRotationAxis(Rotate.X_AXIS);
-            prevYAng += (event.getY() - initYAng) * 360/ 100;
-            root.setRotate(prevYAng);
+//            root.setRotationAxis(Rotate.X_AXIS);
+//            prevYAng += (event.getY() - initYAng) * 360/ 100;
+//            root.setRotate(prevYAng);
             
             initXAng = event.getX();
             initYAng = event.getY();

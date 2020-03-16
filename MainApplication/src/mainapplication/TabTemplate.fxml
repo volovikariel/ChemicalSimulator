@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.canvas.*?>
-<?import javafx.scene.*?>
-<?import java.lang.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.SceneAntialiasing?>
+<?import javafx.scene.SubScene?>
+<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 
-<AnchorPane fx:id="root" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mainapplication.TabTemplateCtrl">
+<AnchorPane fx:id="root" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mainapplication.TabTemplateCtrl">
    <children>
       <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <items>
@@ -19,10 +20,13 @@
             </Pane>
             <StackPane fx:id="bindAnchor" onMouseDragged="#handleMouseDrag" onMousePressed="#handleMouseClick" prefHeight="150.0" prefWidth="200.0">
                <children>
-                  <SubScene fx:id="realView" height="600.0" width="300.0" StackPane.alignment="CENTER">
+                  <SubScene fx:id="realView" fill="#00000077" height="600.0" width="300.0" StackPane.alignment="CENTER">
                      <root>
                         <Region />
                      </root>
+                     <antiAliasing>
+                        <SceneAntialiasing fx:constant="BALANCED" />
+                     </antiAliasing>
                   </SubScene>
                </children>
             </StackPane>
