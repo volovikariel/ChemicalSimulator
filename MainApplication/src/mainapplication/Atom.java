@@ -6,6 +6,8 @@ public class Atom {
     private double electroneg;
     private boolean isMetal;
     
+    private String color;
+    
     private int number;
     
     public Atom() {}
@@ -16,12 +18,13 @@ public class Atom {
         this.electroneg = electroneg;
     }
     
-    public Atom(String symbol, String shells, String electroneg, String isMetal, int number) {
+    public Atom(String symbol, String shells, String electroneg, String isMetal, int number, String color) {
         this.symbol = symbol;
         this.shells = Integer.parseInt(shells);
         this.electroneg = Double.parseDouble(electroneg);
         this.number = number;
         this.isMetal = isMetal.equals("1");
+        this.color = color;
     }
     
     public String getSymbol() {
@@ -56,7 +59,20 @@ public class Atom {
     public String toString() {
         return "Atom{"  + symbol + "," + shells + "," + electroneg + '}';
     }
-    
-    
-    
+
+    public boolean isIsMetal() {
+        return isMetal;
+    }
+
+    public void setIsMetal(boolean isMetal) {
+        this.isMetal = isMetal;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
 }

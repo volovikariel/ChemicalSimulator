@@ -145,11 +145,13 @@ bool compareSolMatrix(Atom* atomList, int* a, int* b, int atomListSize)
             return 0;
     */
 
+    //save array for which rows have already been used
     bool* isDisabled = calloc(atomListSize, sizeof(bool));
 #ifdef MEMDEBUG
     printMalloc((void*) isDisabled, atomListSize * sizeof(bool), 14);
 #endif
 
+    //save 2 pairLists to be used later for comparison
     Pair* aPairList = malloc(atomListSize * sizeof(Pair));
     Pair* bPairList = malloc(atomListSize * sizeof(Pair));
 #ifdef MEMDEBUG
@@ -162,16 +164,23 @@ bool compareSolMatrix(Atom* atomList, int* a, int* b, int atomListSize)
     int j = 0;
     int k = 0;
 
-    for (int i  = 0; i < atomListSize; i ++)
+    //for every row
+    for (int i  = 0; i < atomListSize; i++)
     {
+      //if this row was disabled, dont even try it
+      if (isDisabled[i])
+        continue;
+
       foundSimRow = 0;
 
-      for (int j = 0; j < atomListSize; j++)
+      //save the row as a pairList
+      for (j = 0; j < atomListSize; j++)
       {
-        aPairList[j].name = atomList[j].name;
+        aPairList[j].atomicNumber = atomList[j].atomicNumber;
         aPairList[j].bondWeight = a[i * atomListSize + j];
       }
 
+      //sort this pair
       sortPairs(aPairList, atomListSize);
 
       //find a similar row in b that isn't disabled
@@ -180,19 +189,21 @@ bool compareSolMatrix(Atom* atomList, int* a, int* b, int atomListSize)
         //if this row wasn't already used
         if (!isDisabled[j])
         {
-
+          //save the row as a pairList
           for (k = 0; k < atomListSize; k++)
           {
-            bPairList[k].name = atomList[k].name;
+            bPairList[k].atomicNumber = atomList[k].atomicNumber;
             bPairList[k].bondWeight = b[j * atomListSize + k];
           }
 
+          //sort this pair
           sortPairs(bPairList, atomListSize);
 
           if (comparePairList(aPairList, bPairList, atomListSize))
           {
             foundSimRow = 1;
             isDisabled[j] = 1;
+            isDisabled[i] = 1;
           }
         }
       }
@@ -269,14 +280,18 @@ char* appendString(char* a, char* b, int sizeA, int sizeB)
 
 bool isSmallerThan(Pair* a, Pair* b)
 {
-    if (isSmallerString(a->name, b->name))
+    /*if (isSmallerString(a->name, b->name))
       return 1;
 
     if (isSmallerString(b->name, a->name))
       return 0;
+    */
 
-    //compare numbers
-    return a->bondWeight <= b->bondWeight;
+    if (a->atomicNumber == b->atomicNumber)
+      //compare numbers
+      return a->bondWeight <= b->bondWeight;
+
+    return a->atomicNumber < b->atomicNumber;
 }
 
 bool isSmallerString(char* a, char* b)
@@ -311,11 +326,11 @@ void sortPairs(Pair* pairList, int listSize)
       if (!isSmallerThan(&(pairList[i]), &(pairList[i+1])))
       {
         isSorted = 0;
-        tempPair.name = pairList[i].name;
+        tempPair.atomicNumber = pairList[i].atomicNumber;
         tempPair.bondWeight = pairList[i].bondWeight;
-        pairList[i].name = pairList[i+1].name;
+        pairList[i].atomicNumber = pairList[i+1].atomicNumber;
         pairList[i].bondWeight = pairList[i+1].bondWeight;
-        pairList[i+1].name = tempPair.name;
+        pairList[i+1].atomicNumber = tempPair.atomicNumber;
         pairList[i+1].bondWeight = tempPair.bondWeight;
       }
     }
@@ -326,9 +341,23 @@ bool comparePairList(Pair* a, Pair* b, int listSize)
 {
   for (int i = 0; i < listSize; i++)
   {
-    if (!compareString(a[i].name, b[i].name) || a[i].bondWeight != b[i].bondWeight)
+    if (a[i].atomicNumber != b[i].atomicNumber || a[i].bondWeight != b[i].bondWeight)
       return 0;
   }
 
   return 1;
+}
+
+int getCharge(Atom* atomList, int atomListSize)
+{
+  int charge = 0;
+  int partialCharge = 0;
+
+  for (int i = 0; i < atomListSize; i++)
+  {
+    partialCharge = -1 * atomList[i].bondCount;
+    charge += partialCharge;
+  }
+
+  return charge;
 }

@@ -15,7 +15,13 @@
                   <Canvas fx:id="lewisCanvasID" height="200.0" width="200.0" />
                </children>
             </Pane>
+<<<<<<< HEAD
             <StackPane fx:id="bindAnchor" onMouseDragged="#handleMouseDrag" onMousePressed="#handleMouseClick" prefHeight="150.0" prefWidth="200.0" />
+=======
+            <StackPane fx:id="bindAnchor" onMouseDragged="#handleMouseDrag" onMousePressed="#handleMouseClick" prefHeight="150.0" prefWidth="200.0">
+               
+            </StackPane>
+>>>>>>> f157121fe864637c0e829c0f731d935d661c64e9
          </items>
       </SplitPane>
    </children>

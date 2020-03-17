@@ -3,7 +3,7 @@
 
 typedef struct Pair
 {
-    char* name;
+    int atomicNumber;
     int bondWeight;
 } Pair;
 
@@ -19,5 +19,7 @@ bool isSmallerString(char* a, char* b);
 bool comparePairList(Pair* a, Pair* b, int listSize);
 
 void sortPairs(Pair* pairList, int listSize);
+
+int getCharge(Atom* atomList, int atomListSize);
 
 #endif

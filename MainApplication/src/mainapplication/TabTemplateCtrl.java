@@ -48,11 +48,15 @@ public class TabTemplateCtrl implements Initializable {
     String[] atomList;
     
     public SubScene realView;
+    Atom[] atoms;
+    
     @FXML
     StackPane bindAnchor;
     
     @FXML
     Canvas lewisCanvasID;
+    
+    final int BOND_SIZE = 125;
     
     double initX;
     double initY;
@@ -114,7 +118,7 @@ public class TabTemplateCtrl implements Initializable {
         matrix = solution;
         this.atomList = atomList;
         
-        ArrayList<Shape3D> finalList = getRelativeLocation(0, -1, new double[] {100, 0, 0}, new LinkedList<>());
+        ArrayList<Shape3D> finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
         
         double[] transVec = {0, 0, 0};
         
@@ -135,8 +139,8 @@ public class TabTemplateCtrl implements Initializable {
         ArrayList<Shape3D> returnList = new ArrayList<>();
         
         if (atomList[currRow].equals("H")) {
-            Sphere temp = new Sphere(30);
-            temp.setMaterial(new PhongMaterial(Color.BLUE));
+            Sphere temp = new Sphere(40);
+            temp.setMaterial(new PhongMaterial(Color.web(atoms[0].getColor())));
             returnList.add(temp);
             
             if (prevRow != -1) {
@@ -145,8 +149,7 @@ public class TabTemplateCtrl implements Initializable {
             
             for (int i = 0; i < matrix.length; i++) {
                 if (matrix[currRow][i] != 0) {
-                    double[] transVec = {125, 0, 0};
-                    //add cylinder
+                    double[] transVec = {BOND_SIZE, 0, 0};
                     Cylinder bond = getCylinder(transVec);
                     returnList.add(bond);
                     ArrayList<Shape3D> recursion = getRelativeLocation(i, currRow, transVec, prevs);
@@ -175,8 +178,14 @@ public class TabTemplateCtrl implements Initializable {
 
         int lonePairs = 4 - bondCount;
         int stericNumber = thingsBondedCount + lonePairs;
+       
+        String color = null;
+        for (int i = 0; i < atoms.length; i++) {
+            if (atomList[currRow].equals(atoms[i].getSymbol()))
+                color = atoms[i].getColor();
+        }
         Sphere temp = new Sphere(50);
-        temp.setMaterial(new PhongMaterial(Color.RED));
+        temp.setMaterial(new PhongMaterial(Color.web(color)));
         returnList.add(temp);
         
         int amountFound = 0;
@@ -392,6 +401,10 @@ public class TabTemplateCtrl implements Initializable {
         camera = new PerspectiveCamera(false);
         camera.setFieldOfView(70);
         realView.setCamera(camera);
+        
+        atoms = MainAppCtrl.getAtoms();
+        
+        // Handle the scrolling for 3D
         bindAnchor.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override 
             public void handle(ScrollEvent event) {
