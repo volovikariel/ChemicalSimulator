@@ -14,7 +14,7 @@ typedef struct Atom
 {
     int bondCount;
     bool isSolitary;
-    char name[2];
+    char name[3];
     double electroneg;
     Link* bondList;
     int totalBondCount;
@@ -27,6 +27,7 @@ typedef struct Solution
     int* matrix;
     int overallCharge;
     int score;
+    int* ionRatios;
 } Solution;
 
 Atom* createAtom(int bondCount, char name[2], double electroneg, int listIndex, int atomicNumber);

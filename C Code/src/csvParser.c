@@ -37,10 +37,7 @@ Element* loadTable(char* filepath)
         strcpy((char*) &(table[rowCount - 1].name), field);
         field = strtok(NULL, ",");
 
-        if (rowCount < 3)
-            table[rowCount - 1].bond = 2 - atoi(field);
-        else
-            table[rowCount - 1].bond = 8 - atoi(field);
+        table[rowCount - 1].bond = atoi(field);
 
         field = strtok(NULL, ",");
 
@@ -49,6 +46,14 @@ Element* loadTable(char* filepath)
 
         table[rowCount - 1].isMetal = atoi(field);
         field = strtok(NULL, ",");
+
+        if (!table[rowCount - 1].isMetal)
+        {
+          if (rowCount < 3)
+              table[rowCount - 1].bond = 2 - table[rowCount - 1].bond;
+          else
+              table[rowCount - 1].bond = 8 - table[rowCount - 1].bond;
+        }
 
         table[rowCount - 1].atomicNumber = rowCount;
         field = strtok(NULL, ",");

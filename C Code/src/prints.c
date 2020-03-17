@@ -85,3 +85,26 @@ void printSolMatrix(Solution* solution, int atomListSize)
     }
     printf("<<<<\n");
 }
+
+void printSolution(Solution* solution, int atomListSize, int metalListSize)
+{
+  printf(">>>>\n");
+  printf("%d\n", solution->score);
+  for (int i = 0; i < atomListSize; i++)
+  {
+      for (int j = 0; j < atomListSize; j++)
+          printf("%d ", solution->matrix[i * atomListSize + j]);
+
+      printf("\n");
+  }
+
+  //print the ratio list, including the covalent parts ratio
+  for (int i = 0; i < metalListSize + 1; i++)
+  {
+      printf("%d ", solution->ionRatios[i]);
+  }
+
+  printf("\n");
+
+  printf("<<<<\n");
+}

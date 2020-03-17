@@ -9,7 +9,8 @@
 #include "../inc/memory.h"
 
 void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList);
-void ionizeSolutions(Link* solutionList, Atom* atomList, Atom* metalList, int atomListSize, int metalListSize);
+void attempt(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList, Atom* currAtom);
+void ionizeSolutions(Link* solutionList, Atom* metalList, int metalListSize);
 
 int* saveSolution(Atom* atomList, int atomListSize);
 
@@ -97,15 +98,14 @@ int main(int argc, char *argv[])
     //get a list of solutions for the covalent part
     iterator(atomList, sizeCovalent, startLink, solLink);
 
-    if (sizeIonic)
-      //see if the ionic part can be added to it
-      ionizeSolutions(solLink, atomList, metalList, sizeCovalent, sizeIonic);
+    ionizeSolutions(solLink, metalList, sizeIonic);
 
     //print all the solutions
     //start with the list of atoms
     printf("+ ");
     for (int i = 0; i < sizeCovalent; i++)
       printf("%s ", atomList[i].name);
+    printf("\n- ");
     for (int i = 0; i < sizeIonic; i++)
       printf("%s ", metalList[i].name);
 
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
     currLink = solLink->nextLink;
     while (currLink != NULL)
     {
-        printSolMatrix(((Solution*) currLink->valuePtr), sizeCovalent + sizeIonic);
+        printSolMatrix(((Solution*) currLink->valuePtr), sizeCovalent);
         currLink = currLink->nextLink;
     }
 
@@ -162,10 +162,6 @@ int main(int argc, char *argv[])
             if (currLink->valuePtr != NULL)
             {
 #ifdef MEMDEBUG
-                printFree(((Solution*) currLink->valuePtr)->matrix, 2);
-#endif
-                free(((Solution*) currLink->valuePtr)->matrix);
-#ifdef MEMDEBUG
                 printFree(currLink->valuePtr, 2);
 #endif
                 free(currLink->valuePtr);
@@ -185,7 +181,15 @@ int main(int argc, char *argv[])
         if (currLink->valuePtr != NULL)
         {
 #ifdef MEMDEBUG
-            printFree(currLink->valuePtr, 4);
+            printFree(((Solution*) currLink->valuePtr)->matrix, 2);
+#endif
+            free(((Solution*) currLink->valuePtr)->matrix);
+#ifdef MEMDEBUG
+            printFree(((Solution*) currLink->valuePtr)->ionRatios, 2);
+#endif
+            free(((Solution*) currLink->valuePtr)->ionRatios);
+#ifdef MEMDEBUG
+            printFree(currLink->valuePtr, 2);
 #endif
             free(currLink->valuePtr);
         }
@@ -220,39 +224,17 @@ int main(int argc, char *argv[])
 
 void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList)
 {
-    Link* currAtomLink = currAtomVisit;
-    Atom* currAtom = NULL;
-    bool isFound = 0;
-    while (currAtomLink != NULL && !isFound)
+    //see if any are solitary
+    bool noSolitaryExist = 1;
+    for (int i = 0; i < atomListSize; i++)
+        noSolitaryExist *= atomList[i].totalBondCount - atomList[i].bondCount;
+
+    //if no solitary atom exists
+    if (noSolitaryExist || atomListSize == 1)
     {
-        currAtom = (Atom*) currAtomLink->valuePtr;
-
-        if (currAtom->bondCount)
-            isFound = 1;
-
-        currAtomLink = currAtomLink->nextLink;
-    }
-
-    if (!isFound)
-    {
-        int freeLinks = 0;
-        for (int i = 0; i < atomListSize; i++)
-            freeLinks += atomList[i].bondCount;
-
-        if (freeLinks)
-        {
-            //printf("Failed branch because of %d missing links\n", freeLinks);
-            return;
-        }
-
-        //keep total solutions (before comparing)
-        //solCount++;
-        /*if (solCount % 1000000 == 0)
-            printf("%d million\n", solCount / 1000000);*/
-
         //save the solution
         int* temp = saveSolution(atomList, atomListSize);
-        reduceMatrix(atomList, temp, atomListSize);
+        //reduceMatrix(atomList, temp, atomListSize);
         //compare with previous solutions
         //skip first empty link
         Link* tempStartLink = solutionList->nextLink;
@@ -260,7 +242,7 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
         bool isEqual = 0;
         while (tempStartLink != NULL && !isEqual)
         {
-            isEqual = compareSolMatrix(atomList, temp, (int*) tempStartLink->valuePtr, atomListSize);
+            isEqual = compareSolMatrix(atomList, temp, (int*) ((Solution*) tempStartLink->valuePtr)->matrix, atomListSize);
             //isEqual = isIsomorph(atomList, temp, (int*) tempStartLink->valuePtr, atomListSize);
             saveBeforeLast = tempStartLink;
             tempStartLink = tempStartLink->nextLink;
@@ -270,11 +252,12 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
         {
             //printSolMatrix(temp, atomListSize);
             Link* newSolLink = malloc(sizeof(Link));
-            newSolLink->prevLink = tempStartLink;
+            newSolLink->prevLink = saveBeforeLast;
             Solution* newSol = malloc(sizeof(Solution));
             newSol->matrix = temp;
-            newSol->overallCharge = 0;
-            newSol->score = 0;
+            newSol->overallCharge = getCharge(atomList, atomListSize);
+            newSol->score = newSol->overallCharge;
+            newSol->ionRatios = NULL;
             newSolLink->valuePtr = (void*) newSol;
             newSolLink->nextLink = NULL;
             saveBeforeLast->nextLink = newSolLink;
@@ -287,149 +270,181 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
 
             solCount++;
         }
+        //if a similar soluion was found, then following tree will be the same, so return
         else
         {
 #ifdef MEMDEBUG
           printFree(temp, 18);
 #endif
           free(temp);
+
+          return;
         }
-
-        return;
     }
 
-    //prev solitary atoms tried
-    Link* triedAtomsStart = malloc(sizeof(Link));
-    triedAtomsStart->prevLink = NULL;
-    triedAtomsStart->nextLink = NULL;
-    triedAtomsStart->valuePtr = NULL;
-#ifdef MEMDEBUG
-    printMalloc((void*) triedAtomsStart, sizeof(Link), 5);
-#endif
+    Link* currAtomLink = currAtomVisit;
+    Atom* currAtom = NULL;
 
-    //for every other atom, save current state, try, then reload current state
-    //if not solitary, then try it,
-    //if solitary only try one of each atom
-    for (int i = 0; i < atomListSize; i++)
+    //for each occurence of an atom with bonds left, select it (bonds left now means within octet)
+    while (currAtomLink != NULL)
     {
-        if (i == currAtom->listIndex)
-            continue;
+        currAtom = (Atom*) currAtomLink->valuePtr;
 
-        if (atomList[i].bondCount == 0)
-            continue;
+        //if currAtom has less than 4 bonds, can fit in octet
+        int maxBonds = (currAtom->atomicNumber > 2) ? 4 : 1;
+        if (currAtom->totalBondCount - currAtom->bondCount < maxBonds)
+            attempt(atomList, atomListSize, currAtomVisit, solutionList, currAtom);
 
-        if (atomList[i].isSolitary == 1)
-        {
-            bool wasTried = 0;
-            //skipping the last empty item
-            Link* currItem = triedAtomsStart;
-            while(currItem->nextLink != NULL && !wasTried)
-            {
-                if (atomList[i].name[0] == ((Atom*) currItem->valuePtr)->name[0])
-                    wasTried = 1;
-
-                currItem = currItem->nextLink;
-            }
-
-            if (!wasTried)
-            {
-                //add this attempt
-                Link* newTry = malloc(sizeof(Link));
-                newTry->prevLink = NULL;
-                newTry->nextLink = triedAtomsStart;
-                triedAtomsStart->prevLink = newTry;
-                newTry->valuePtr = (void*) &(atomList[i]);
-                triedAtomsStart = newTry;
-#ifdef MEMDEBUG
-                printMalloc((void*) newTry, sizeof(Link), 6);
-#endif
-            }
-            else
-                continue;
-        }
-
-        /*printf(currAtom->name);
-        printf("\t");
-        printf(atomList[i].name);
-        printf("\n");*/
-
-        currAtom->bondCount--;
-        currAtom->isSolitary = 0;
-        Link* newCurrStart = malloc(sizeof(Link));
-        newCurrStart->prevLink = NULL;
-        newCurrStart->nextLink = currAtom->bondList;
-        newCurrStart->valuePtr = &(atomList[i]);
-        currAtom->bondList->prevLink = newCurrStart;
-        currAtom->bondList = newCurrStart;
-#ifdef MEMDEBUG
-        printMalloc((void*) newCurrStart, sizeof(Link), 7);
-#endif
-
-        atomList[i].bondCount--;
-        atomList[i].isSolitary = 0;
-        newCurrStart = malloc(sizeof(Link));
-        newCurrStart->prevLink = NULL;
-        newCurrStart->nextLink = atomList[i].bondList;
-        newCurrStart->valuePtr = currAtom;
-        atomList[i].bondList->prevLink = newCurrStart;
-        atomList[i].bondList = newCurrStart;
-#ifdef MEMDEBUG
-        printMalloc((void*) newCurrStart, sizeof(Link), 8);
-#endif
-
-        //add this location to beggining of the currAtomVisit
-        Link* newStart = malloc(sizeof(Link));
-        newStart->prevLink = NULL;
-        newStart->valuePtr = (void*) &(atomList[i]);
-        newStart->nextLink = currAtomVisit;
-        currAtomVisit->prevLink = newStart;
-#ifdef MEMDEBUG
-        printMalloc((void*) newStart, sizeof(Link), 9);
-#endif
-
-
-        iterator(atomList, atomListSize, newStart, solutionList);
-
-
-        //remove this atom from the beginning of the currAtomVisit
-#ifdef MEMDEBUG
-        printFree((void*) currAtomVisit->prevLink, 7);
-#endif
-        free(currAtomVisit->prevLink);
-        currAtomVisit->prevLink = NULL;
-
-        atomList[i].bondList = atomList[i].bondList->nextLink;
-#ifdef MEMDEBUG
-        printFree((void*) atomList[i].bondList->prevLink, 8);
-#endif
-        free(atomList[i].bondList->prevLink);
-        atomList[i].bondList->prevLink = NULL;
-        atomList[i].bondCount++;
-        if (atomList[i].bondCount == atomList[i].totalBondCount)
-            atomList[i].isSolitary = 1;
-
-        currAtom->bondList = currAtom->bondList->nextLink;
-#ifdef MEMDEBUG
-        printFree((void*) currAtom->bondList->prevLink, 9);
-#endif
-        free(currAtom->bondList->prevLink);
-        currAtom->bondList->prevLink = NULL;
-        currAtom->bondCount++;
-        if (currAtom->bondCount == currAtom->totalBondCount)
-            currAtom->isSolitary = 1;
+        currAtomLink = currAtomLink->nextLink;
     }
+}
 
-    Link* currItem = triedAtomsStart;
-    Link* tempLink;
-    while (currItem != NULL)
-    {
-        tempLink = currItem;
-        currItem = currItem->nextLink;
+void attempt(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList, Atom* currAtom)
+{
+  //prev solitary atoms tried
+  Link* triedAtomsStart = malloc(sizeof(Link));
+  triedAtomsStart->prevLink = NULL;
+  triedAtomsStart->nextLink = NULL;
+  triedAtomsStart->valuePtr = NULL;
 #ifdef MEMDEBUG
-        printFree((void*) tempLink, 10);
+  printMalloc((void*) triedAtomsStart, sizeof(Link), 5);
 #endif
-        free(tempLink);
-    }
+
+  //for every other atom, save current state, try, then reload current state
+  //if not solitary, then try it,
+  //if solitary only try one of each atom
+  for (int i = 0; i < atomListSize; i++)
+  {
+      //if it is the same atom (no loops allowed)
+      if (i == currAtom->listIndex)
+          continue;
+
+      //if other atom doesnt have bonds left
+      int maxBonds = (atomList[i].atomicNumber > 2) ? 4 : 1;
+      if (atomList[i].totalBondCount - atomList[i].bondCount == maxBonds)
+          continue;
+
+      //if other atom isnt connected to anything
+      if (atomList[i].isSolitary == 1)
+      {
+          bool wasTried = 0;
+          //skipping the last empty item
+          Link* currItem = triedAtomsStart;
+          //check to make sure the same atom type wasn't already tried
+          while(currItem->nextLink != NULL && !wasTried)
+          {
+              if (atomList[i].name[0] == ((Atom*) currItem->valuePtr)->name[0])
+                  wasTried = 1;
+
+              currItem = currItem->nextLink;
+          }
+
+          //if wasn't already tried
+          if (!wasTried)
+          {
+              //add this attempt
+              Link* newTry = malloc(sizeof(Link));
+              newTry->prevLink = NULL;
+              newTry->nextLink = triedAtomsStart;
+              triedAtomsStart->prevLink = newTry;
+              newTry->valuePtr = (void*) &(atomList[i]);
+              triedAtomsStart = newTry;
+#ifdef MEMDEBUG
+              printMalloc((void*) newTry, sizeof(Link), 6);
+#endif
+          }
+          //if was already tried
+          else
+              continue;
+      }
+
+      /*printf(currAtom->name);
+      printf("\t");
+      printf(atomList[i].name);
+      printf("\n");*/
+
+      //update currentAtom's information
+      currAtom->bondCount--;
+      currAtom->isSolitary = 0;
+      Link* newCurrStart = malloc(sizeof(Link));
+      newCurrStart->prevLink = NULL;
+      newCurrStart->nextLink = currAtom->bondList;
+      newCurrStart->valuePtr = &(atomList[i]);
+      currAtom->bondList->prevLink = newCurrStart;
+      currAtom->bondList = newCurrStart;
+#ifdef MEMDEBUG
+      printMalloc((void*) newCurrStart, sizeof(Link), 7);
+#endif
+
+      //update this atom's information
+      atomList[i].bondCount--;
+      atomList[i].isSolitary = 0;
+      newCurrStart = malloc(sizeof(Link));
+      newCurrStart->prevLink = NULL;
+      newCurrStart->nextLink = atomList[i].bondList;
+      newCurrStart->valuePtr = currAtom;
+      atomList[i].bondList->prevLink = newCurrStart;
+      atomList[i].bondList = newCurrStart;
+#ifdef MEMDEBUG
+      printMalloc((void*) newCurrStart, sizeof(Link), 8);
+#endif
+
+      //add this location to beggining of the currAtomVisit
+      Link* newStart = malloc(sizeof(Link));
+      newStart->prevLink = NULL;
+      newStart->valuePtr = (void*) &(atomList[i]);
+      newStart->nextLink = currAtomVisit;
+      currAtomVisit->prevLink = newStart;
+#ifdef MEMDEBUG
+      printMalloc((void*) newStart, sizeof(Link), 9);
+#endif
+
+      //recursively call this method
+      iterator(atomList, atomListSize, newStart, solutionList);
+
+
+      //remove this atom from the beginning of the currAtomVisit
+#ifdef MEMDEBUG
+      printFree((void*) currAtomVisit->prevLink, 7);
+#endif
+      free(currAtomVisit->prevLink);
+      currAtomVisit->prevLink = NULL;
+
+      //restore this atom's information
+      atomList[i].bondList = atomList[i].bondList->nextLink;
+#ifdef MEMDEBUG
+      printFree((void*) atomList[i].bondList->prevLink, 8);
+#endif
+      free(atomList[i].bondList->prevLink);
+      atomList[i].bondList->prevLink = NULL;
+      atomList[i].bondCount++;
+      if (atomList[i].bondCount == atomList[i].totalBondCount)
+          atomList[i].isSolitary = 1;
+
+      //restore currentAtom's information
+      currAtom->bondList = currAtom->bondList->nextLink;
+#ifdef MEMDEBUG
+      printFree((void*) currAtom->bondList->prevLink, 9);
+#endif
+      free(currAtom->bondList->prevLink);
+      currAtom->bondList->prevLink = NULL;
+      currAtom->bondCount++;
+      if (currAtom->bondCount == currAtom->totalBondCount)
+          currAtom->isSolitary = 1;
+  }
+
+  //empty triedAtomsStart and remove
+  Link* currItem = triedAtomsStart;
+  Link* tempLink;
+  while (currItem != NULL)
+  {
+      tempLink = currItem;
+      currItem = currItem->nextLink;
+#ifdef MEMDEBUG
+      printFree((void*) tempLink, 10);
+#endif
+      free(tempLink);
+  }
 }
 
 int* saveSolution(Atom* atomList, int atomListSize)
@@ -455,7 +470,7 @@ int* saveSolution(Atom* atomList, int atomListSize)
     return tempArray;
 }
 
-void ionizeSolutions(Link* solutionList, Atom* atomList, Atom* metalList, int atomListSize, int metalListSize)
+void ionizeSolutions(Link* solutionList, Atom* metalList, int metalListSize)
 {
     //go through every solution
     Link* currLink;
@@ -463,50 +478,20 @@ void ionizeSolutions(Link* solutionList, Atom* atomList, Atom* metalList, int at
     currLink = solutionList->nextLink;
 
     Solution* currSol;
-    int* newMatrix;
-
-    int totalSize = atomListSize + metalListSize;
+    int* ionRatios;
 
     while (currLink != NULL)
     {
+        //create an array of integers
         currSol = (Solution*) currLink->valuePtr;
-        newMatrix = malloc(totalSize * totalSize * sizeof(int));
-  #ifdef MEMDEBUG
-        printMalloc((void*) newMatrix, totalSize*totalSize * sizeof(int), 25);
-  #endif
-
-        if (currSol->overallCharge > 0)
-        {
-
-        }
-        else
-        {
-            //add a row where the extra ions keep their electron
-            for (int i = 0; i < atomListSize; i++)
-              for (int j = 0; j < atomListSize; j++)
-                newMatrix[i * totalSize + j] = currSol->matrix[i * atomListSize + j];
-
-            for (int i = atomListSize; i < totalSize; i++)
-              for (int j = 0; j < totalSize; j++)
-              {
-                if (i == j)
-                {
-                  newMatrix[j * totalSize + i] = 8 - metalList[i - atomListSize].totalBondCount;
-                }
-                else
-                {
-                  newMatrix[j * totalSize + i] = 0;
-                  newMatrix[i * totalSize + j] = 0;
-                }
-              }
-        }
-
+        ionRatios = calloc(metalListSize, sizeof(int));
 #ifdef MEMDEBUG
-        printFree((void*) currSol->matrix, 25);
+        printMalloc((void*) ionRatios, metalListSize * sizeof(int), 25);
 #endif
-        free(currSol->matrix);
-        currSol->matrix = newMatrix;
 
-        currLink = currLink->nextLink;
+        for (int i = 0; i < metalListSize; i++)
+          ionRatios[i] = metalList[i].totalBondCount;
+
+        currSol->ionRatios = ionRatios;
     }
 }
