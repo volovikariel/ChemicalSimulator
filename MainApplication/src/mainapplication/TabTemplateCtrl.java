@@ -28,6 +28,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
+import javafx.scene.shape.Shape3D;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
@@ -110,56 +111,56 @@ public class TabTemplateCtrl implements Initializable {
         matrix = solution;
         this.atomList = atomList;
         
-        ArrayList<Sphere> finalList = getRelativeLocation(0, -1, new double[] {100, 0, 0}, new LinkedList<>());
+        ArrayList<Shape3D> finalList = getRelativeLocation(0, -1, new double[] {100, 0, 0}, new LinkedList<>());
         
         double[] transVec = {0, 0, 0};
         
-        for (Sphere sphere : finalList) {
+        for (Shape3D sphere : finalList) {
             sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
             sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
             sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
         }        
         
         // Add Cylinders before spheres so that they get clipped properly
-        root.getChildren().addAll(getAllCylinders(finalList));
+        //root.getChildren().addAll(getAllCylinders(finalList));
         root.getChildren().addAll(finalList);
         realView.setRoot(root);
     }
     
-    public ArrayList<Cylinder> getAllCylinders(ArrayList<Sphere> spheres) {
-        ArrayList<Cylinder> cylinderList = new ArrayList<>();
-        for(int i = 0; i < spheres.size() - 1; i++) {
-            Sphere sphere1 = spheres.get(i);
-            Sphere sphere2 = spheres.get(i+1);
-            Point3D pointA = new Point3D(sphere1.getTranslateX(), sphere1.getTranslateY(), sphere1.getTranslateZ());
-            Point3D pointB = new Point3D(sphere2.getTranslateX(), sphere2.getTranslateY(), sphere2.getTranslateZ());
-            Point3D diff = pointB.subtract(pointA);
-            double length = diff.magnitude();
-            
-            // Transformation to move in between 2 spheres
-            Point3D mid = pointB.midpoint(pointA);
-            Translate moveToMidpoint = new Translate(mid.getX(), mid.getY(), mid.getZ());
-            
-            // Transformation to match the angle between the 2 spheres
-            Point3D axisOfRot = diff.crossProduct(new Point3D(0, 1, 0));
-            double angle = Math.acos(diff.normalize().dotProduct(new Point3D(0, 1, 0)));
-            Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRot);
-
-            Cylinder cylinder = new Cylinder(5, length);
-            PhongMaterial cylinderMaterial = new PhongMaterial(Color.BLACK);
-            cylinderMaterial.setSpecularColor(Color.GRAY);
-            cylinder.setMaterial(cylinderMaterial);
-            cylinder.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
-
-            cylinderList.add(cylinder);
-        }
-        return cylinderList;
-    }
+//    public ArrayList<Cylinder> getAllCylinders(ArrayList<Sphere> spheres) {
+//        ArrayList<Cylinder> cylinderList = new ArrayList<>();
+//        for(int i = 0; i < spheres.size() - 1; i++) {
+//            Sphere sphere1 = spheres.get(i);
+//            Sphere sphere2 = spheres.get(i+1);
+//            Point3D pointA = new Point3D(sphere1.getTranslateX(), sphere1.getTranslateY(), sphere1.getTranslateZ());
+//            Point3D pointB = new Point3D(sphere2.getTranslateX(), sphere2.getTranslateY(), sphere2.getTranslateZ());
+//            Point3D diff = pointB.subtract(pointA);
+//            double length = diff.magnitude();
+//            
+//            // Transformation to move in between 2 spheres
+//            Point3D mid = pointB.midpoint(pointA);
+//            Translate moveToMidpoint = new Translate(mid.getX(), mid.getY(), mid.getZ());
+//            
+//            // Transformation to match the angle between the 2 spheres
+//            Point3D axisOfRot = diff.crossProduct(new Point3D(0, 1, 0));
+//            double angle = Math.acos(diff.normalize().dotProduct(new Point3D(0, 1, 0)));
+//            Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRot);
+//
+//            Cylinder cylinder = new Cylinder(5, length);
+//            PhongMaterial cylinderMaterial = new PhongMaterial(Color.BLACK);
+//            cylinderMaterial.setSpecularColor(Color.GRAY);
+//            cylinder.setMaterial(cylinderMaterial);
+//            cylinder.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
+//
+//            cylinderList.add(cylinder);
+//        }
+//        return cylinderList;
+//    }
     
-    public ArrayList<Sphere> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
+    public ArrayList<Shape3D> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
         prevs.add(currRow);
         
-        ArrayList<Sphere> returnList = new ArrayList<>();
+        ArrayList<Shape3D> returnList = new ArrayList<>();
         
         if (atomList[currRow].equals("H")) {
             Sphere temp = new Sphere(40);
@@ -173,9 +174,12 @@ public class TabTemplateCtrl implements Initializable {
             for (int i = 0; i < matrix.length; i++) {
                 if (matrix[currRow][i] != 0) {
                     double[] transVec = {100, 0, 0};
-                    ArrayList<Sphere> recursion = getRelativeLocation(i, currRow, transVec, prevs);
+                    //add cylinder
+                    Cylinder bond = getCylinder(transVec);
+                    returnList.add(bond);
+                    ArrayList<Shape3D> recursion = getRelativeLocation(i, currRow, transVec, prevs);
                     
-                    for (Sphere sphere : recursion) {
+                    for (Shape3D sphere : recursion) {
                         sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
                         sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
                         sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
@@ -246,10 +250,12 @@ public class TabTemplateCtrl implements Initializable {
                             break;
                     }
                     
-                    
-                    ArrayList<Sphere> recursion = getRelativeLocation(i, currRow, transVec, prevs);
+                    //add cylinder
+                    Cylinder bond = getCylinder(transVec);
+                    returnList.add(bond);
+                    ArrayList<Shape3D> recursion = getRelativeLocation(i, currRow, transVec, prevs);
 
-                    for (Sphere sphere : recursion) {
+                    for (Shape3D sphere : recursion) {
                         sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
                         sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
                         sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
@@ -457,5 +463,30 @@ public class TabTemplateCtrl implements Initializable {
             initXAng = event.getX();
             initYAng = event.getY();
         }
+    }
+
+    private Cylinder getCylinder(double[] transVec) {
+        double length = 1;
+        for (double num : transVec)
+            length += num * num;
+        
+        length = Math.sqrt(length);
+        
+        Cylinder cylinder = new Cylinder(5, length);
+        PhongMaterial cylinderMaterial = new PhongMaterial(Color.BLACK);
+        cylinderMaterial.setSpecularColor(Color.GRAY);
+        cylinder.setMaterial(cylinderMaterial);
+        
+        Translate moveToMidpoint = new Translate(transVec[0] / 2, transVec[1] / 2, transVec[2] / 2);
+        
+        Point3D diff = new Point3D(transVec[0], transVec[1], transVec[2]);
+        
+        Point3D axisOfRot = diff.crossProduct(new Point3D(0, 1, 0));
+        double angle = Math.acos(diff.normalize().dotProduct(new Point3D(0, 1, 0)));
+        Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRot);
+        
+        cylinder.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
+        
+        return cylinder;
     }
 }
