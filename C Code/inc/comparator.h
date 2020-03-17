@@ -3,7 +3,7 @@
 
 typedef struct Pair
 {
-    char* name;
+    int atomicNumber;
     int bondWeight;
 } Pair;
 
