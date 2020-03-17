@@ -209,9 +209,10 @@ public class TabTemplateCtrl implements Initializable {
         returnList.add(temp);
         
         int amountFound = 0;
-
+        int numBonds = 0;
         for (int i = 0; i < matrix.length; i++) {
             if (matrix[currRow][i] != 0) {
+                numBonds = matrix[currRow][i];
                 if (i != prevRow && !prevs.contains(i)) {
                     double[] transVec = new double[3];
                     
@@ -249,10 +250,18 @@ public class TabTemplateCtrl implements Initializable {
                         default:
                             break;
                     }
-                    
                     //add cylinder
-                    Cylinder bond = getCylinder(transVec);
-                    returnList.add(bond);
+                    double translateModif = 0;
+                    for(int j = 0; j < numBonds; j++) {
+                        if(numBonds == 3) {
+                            translateModif = j-1;
+                        } else if (numBonds == 2) {
+                            translateModif = j-0.5;
+                        }
+                        Cylinder bond2 = getCylinder(transVec);
+                        bond2.getTransforms().add(new Translate(translateModif*transVec[0]/6, translateModif*transVec[1] * -1/12, translateModif*transVec[2]/6));
+                        returnList.add(bond2);
+                    }
                     ArrayList<Shape3D> recursion = getRelativeLocation(i, currRow, transVec, prevs);
 
                     for (Shape3D sphere : recursion) {
