@@ -10,7 +10,7 @@
 
 void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList);
 void attempt(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList, Atom* currAtom);
-void ionizeSolutions(Link* solutionList, Atom* atomList, Atom* metalList, int atomListSize, int metalListSize);
+void ionizeSolutions(Link* solutionList, Atom* metalList, int metalListSize);
 
 int* saveSolution(Atom* atomList, int atomListSize);
 
@@ -98,15 +98,14 @@ int main(int argc, char *argv[])
     //get a list of solutions for the covalent part
     iterator(atomList, sizeCovalent, startLink, solLink);
 
-    if (sizeIonic)
-      //see if the ionic part can be added to it
-      ionizeSolutions(solLink, atomList, metalList, sizeCovalent, sizeIonic);
+    //ionizeSolutions(solLink, metalList, sizeIonic);
 
     //print all the solutions
     //start with the list of atoms
     printf("+ ");
     for (int i = 0; i < sizeCovalent; i++)
       printf("%s ", atomList[i].name);
+    printf("\n- ");
     for (int i = 0; i < sizeIonic; i++)
       printf("%s ", metalList[i].name);
 
@@ -119,7 +118,7 @@ int main(int argc, char *argv[])
     currLink = solLink->nextLink;
     while (currLink != NULL)
     {
-        printSolMatrix(((Solution*) currLink->valuePtr), sizeCovalent + sizeIonic);
+        printSolMatrix(((Solution*) currLink->valuePtr), sizeCovalent);
         currLink = currLink->nextLink;
     }
 
@@ -163,10 +162,6 @@ int main(int argc, char *argv[])
             if (currLink->valuePtr != NULL)
             {
 #ifdef MEMDEBUG
-                printFree(((Solution*) currLink->valuePtr)->matrix, 2);
-#endif
-                free(((Solution*) currLink->valuePtr)->matrix);
-#ifdef MEMDEBUG
                 printFree(currLink->valuePtr, 2);
 #endif
                 free(currLink->valuePtr);
@@ -186,7 +181,15 @@ int main(int argc, char *argv[])
         if (currLink->valuePtr != NULL)
         {
 #ifdef MEMDEBUG
-            printFree(currLink->valuePtr, 4);
+            printFree(((Solution*) currLink->valuePtr)->matrix, 2);
+#endif
+            free(((Solution*) currLink->valuePtr)->matrix);
+// #ifdef MEMDEBUG
+//             printFree(((Solution*) currLink->valuePtr)->ionRatios, 2);
+// #endif
+//             free(((Solution*) currLink->valuePtr)->ionRatios);
+#ifdef MEMDEBUG
+            printFree(currLink->valuePtr, 2);
 #endif
             free(currLink->valuePtr);
         }
@@ -254,6 +257,7 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
             newSol->matrix = temp;
             newSol->overallCharge = getCharge(atomList, atomListSize);
             newSol->score = newSol->overallCharge;
+            //newSol->ionRatios = NULL;
             newSolLink->valuePtr = (void*) newSol;
             newSolLink->nextLink = NULL;
             saveBeforeLast->nextLink = newSolLink;
@@ -466,64 +470,28 @@ int* saveSolution(Atom* atomList, int atomListSize)
     return tempArray;
 }
 
-void ionizeSolutions(Link* solutionList, Atom* atomList, Atom* metalList, int atomListSize, int metalListSize)
-{
-    //go through every solution
-    Link* currLink;
-    //skip the first empty entry
-    currLink = solutionList->nextLink;
-
-    Solution* currSol;
-    int* newMatrix;
-
-    int totalSize = atomListSize + metalListSize;
-
-    while (currLink != NULL)
-    {
-        currSol = (Solution*) currLink->valuePtr;
-        newMatrix = calloc(totalSize * totalSize, sizeof(int));
-  #ifdef MEMDEBUG
-        printMalloc((void*) newMatrix, totalSize*totalSize * sizeof(int), 25);
-  #endif
-
-        if (currSol->overallCharge < 0)
-        {
-          for (int i = 0; i < atomListSize; i++)
-            for (int j = 0; j < atomListSize; j++)
-              newMatrix[i * totalSize + j] = currSol->matrix[i * atomListSize + j];
-
-            for (int i = atomListSize; i < totalSize; i++)
-              for (int j = 0; j < totalSize; j++)
-              {
-                if (i == j)
-                {
-                  newMatrix[j * totalSize + i] = 8 - metalList[i - atomListSize].totalBondCount;
-                }
-              }
-        }
-        else
-        {
-            //add a row where the extra ions keep their electron
-            for (int i = 0; i < atomListSize; i++)
-              for (int j = 0; j < atomListSize; j++)
-                newMatrix[i * totalSize + j] = currSol->matrix[i * atomListSize + j];
-
-            for (int i = atomListSize; i < totalSize; i++)
-              for (int j = 0; j < totalSize; j++)
-              {
-                if (i == j)
-                {
-                  newMatrix[j * totalSize + i] = 8 - metalList[i - atomListSize].totalBondCount;
-                }
-              }
-        }
-
-#ifdef MEMDEBUG
-        printFree((void*) currSol->matrix, 25);
-#endif
-        free(currSol->matrix);
-        currSol->matrix = newMatrix;
-
-        currLink = currLink->nextLink;
-    }
-}
+// void ionizeSolutions(Link* solutionList, Atom* metalList, int metalListSize)
+// {
+//     //go through every solution
+//     Link* currLink;
+//     //skip the first empty entry
+//     currLink = solutionList->nextLink;
+//
+//     Solution* currSol;
+//     int* ionRatios;
+//
+//     while (currLink != NULL)
+//     {
+//         //create an array of integers
+//         currSol = (Solution*) currLink->valuePtr;
+//         ionRatios = calloc(metalListSize, sizeof(int));
+// #ifdef MEMDEBUG
+//         printMalloc((void*) ionRatios, metalListSize * sizeof(int), 25);
+// #endif
+//
+//         for (int i = 0; i < metalListSize; i++)
+//           ionRatios[i] = metalList[i].totalBondCount;
+//
+//         currSol->ionRatios = ionRatios;
+//     }
+// }

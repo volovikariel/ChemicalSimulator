@@ -28,7 +28,7 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
     @FXML
     private TabPane resultID;
     
-    public void resultList(LinkedList<Solution> list, String[] atomList) {
+    public void resultList(LinkedList<Solution> list, String[] atomList, Atom[] metalList) {
         for (int i = 0; i < list.size(); i++) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("TabTemplate.fxml"));
             Parent root = null;

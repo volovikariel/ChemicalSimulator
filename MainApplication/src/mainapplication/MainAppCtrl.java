@@ -124,11 +124,27 @@ public class MainAppCtrl implements Initializable {
                     return;
                 }
                 loadSubscene(RESULTS_STR);
-                //String[] atomList = SelectionSceneCtrl.getAtoms(input);
+                //get atom list
                 String[] atomList = solutions.getFirst().getNames();
                 solutions.removeFirst();
+                //get metal list
+                String[] metalList = solutions.getFirst().getNames();
+                solutions.removeFirst();
+                Atom[] metalAtoms = new Atom[metalList.length];
+                
+                int offset = 0;
+                for (int i = 0; i < metalList.length; i++) {
+                    for (int j = offset; j < atoms.length; j++) {
+                        if (atoms[j].getSymbol().equals(metalList[i])) {
+                            metalAtoms[i] = atoms[j];
+                            offset = j;
+                            break;
+                        }
+                    }
+                }
+                
                 //System.out.println(Arrays.toString(atomList));
-                ((ResultSceneCtrl) controller).resultList(solutions, atomList);
+                ((ResultSceneCtrl) controller).resultList(solutions, atomList, metalAtoms);
                 
             } 
             else {
@@ -237,6 +253,9 @@ public class MainAppCtrl implements Initializable {
                 if(s.contains("+ ")) {
                     solutionSet.add(new Solution(s.substring(2, s.length()).split(" ")));
                 }
+                if(s.contains("- ")) {
+                    solutionSet.add(new Solution(s.substring(2, s.length()).split(" ")));
+                }
 
                 if (s.equals(">>>>")) {
                 	if (isReading) {
@@ -250,10 +269,7 @@ public class MainAppCtrl implements Initializable {
                 }
                 else if (isReading) {
                 	if (s.equals("<<<<")) {
-                		if (currMatrixLine != matrixSize) {
-                			System.out.println("ERROR, matrix ended before size reached");
-                			return null;
-                		}
+                		solutionSet.add(new Solution(tempArray, tempScore));
 
                 		isReading = false;
                 	}
@@ -270,12 +286,11 @@ public class MainAppCtrl implements Initializable {
 	                		matrixSize = valuesStr.length;
 	                		tempArray = new int[matrixSize][matrixSize];
 	                	}
-	                	else if (currMatrixLine > matrixSize) {
-	                		System.out.println("ERROR, matrix size mismatch");
-	                		return null;
-	                	}
-	                	else if (currMatrixLine == matrixSize - 1) {
-	                		solutionSet.add(new Solution(tempArray, tempScore));
+	                	else if (currMatrixLine >= matrixSize) {
+                                        //first part is the metal's name
+                                        
+                                        //second part is it's ratio
+                                    
 	                	}
 
 	                	for (int i = 0; i < matrixSize; i++) {
