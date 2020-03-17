@@ -252,8 +252,8 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
             newSolLink->prevLink = saveBeforeLast;
             Solution* newSol = malloc(sizeof(Solution));
             newSol->matrix = temp;
-            newSol->overallCharge = 0;
-            newSol->score = 0;
+            newSol->overallCharge = getCharge(atomList, atomListSize);
+            newSol->score = newSol->overallCharge;
             newSolLink->valuePtr = (void*) newSol;
             newSolLink->nextLink = NULL;
             saveBeforeLast->nextLink = newSolLink;
@@ -481,14 +481,25 @@ void ionizeSolutions(Link* solutionList, Atom* atomList, Atom* metalList, int at
     while (currLink != NULL)
     {
         currSol = (Solution*) currLink->valuePtr;
-        newMatrix = malloc(totalSize * totalSize * sizeof(int));
+        newMatrix = calloc(totalSize * totalSize, sizeof(int));
   #ifdef MEMDEBUG
         printMalloc((void*) newMatrix, totalSize*totalSize * sizeof(int), 25);
   #endif
 
-        if (currSol->overallCharge > 0)
+        if (currSol->overallCharge < 0)
         {
+          for (int i = 0; i < atomListSize; i++)
+            for (int j = 0; j < atomListSize; j++)
+              newMatrix[i * totalSize + j] = currSol->matrix[i * atomListSize + j];
 
+            for (int i = atomListSize; i < totalSize; i++)
+              for (int j = 0; j < totalSize; j++)
+              {
+                if (i == j)
+                {
+                  newMatrix[j * totalSize + i] = 8 - metalList[i - atomListSize].totalBondCount;
+                }
+              }
         }
         else
         {
@@ -503,11 +514,6 @@ void ionizeSolutions(Link* solutionList, Atom* atomList, Atom* metalList, int at
                 if (i == j)
                 {
                   newMatrix[j * totalSize + i] = 8 - metalList[i - atomListSize].totalBondCount;
-                }
-                else
-                {
-                  newMatrix[j * totalSize + i] = 0;
-                  newMatrix[i * totalSize + j] = 0;
                 }
               }
         }

@@ -347,3 +347,17 @@ bool comparePairList(Pair* a, Pair* b, int listSize)
 
   return 1;
 }
+
+int getCharge(Atom* atomList, int atomListSize)
+{
+  int charge = 0;
+  int partialCharge = 0;
+
+  for (int i = 0; i < atomListSize; i++)
+  {
+    partialCharge = -1 * atomList[i].bondCount;
+    charge += partialCharge;
+  }
+
+  return charge;
+}
