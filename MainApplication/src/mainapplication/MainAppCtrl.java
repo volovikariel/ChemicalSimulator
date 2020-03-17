@@ -72,7 +72,11 @@ public class MainAppCtrl implements Initializable {
     private final char ENTER = 13;
     private final char BACKSPACE = 8;
     
-    private Atom[] atoms;
+    private static Atom[] atoms;
+
+    public static Atom[] getAtoms() {
+        return atoms;
+    }
     
     @FXML
     private void handleMouse(MouseEvent event) {
@@ -169,7 +173,7 @@ public class MainAppCtrl implements Initializable {
         try (CSVParser csvParser = new CSVParser(new FileReader(s), CSVFormat.DEFAULT.withHeader());) {
             int index = 0;
             for (CSVRecord csvRecord : csvParser) {
-                atoms[index] = new Atom(csvRecord.get(0), csvRecord.get(1), csvRecord.get(2), csvRecord.get(3), index + 1);
+                atoms[index] = new Atom(csvRecord.get(0), csvRecord.get(1), csvRecord.get(2), csvRecord.get(3), index + 1, csvRecord.get(4));
                 index++;
             }
         } catch(IOException e) {

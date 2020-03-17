@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     //get a list of solutions for the covalent part
     iterator(atomList, sizeCovalent, startLink, solLink);
 
-    //ionizeSolutions(solLink, metalList, sizeIonic);
+    ionizeSolutions(solLink, metalList, sizeIonic);
 
     //print all the solutions
     //start with the list of atoms
@@ -184,10 +184,10 @@ int main(int argc, char *argv[])
             printFree(((Solution*) currLink->valuePtr)->matrix, 2);
 #endif
             free(((Solution*) currLink->valuePtr)->matrix);
-// #ifdef MEMDEBUG
-//             printFree(((Solution*) currLink->valuePtr)->ionRatios, 2);
-// #endif
-//             free(((Solution*) currLink->valuePtr)->ionRatios);
+#ifdef MEMDEBUG
+            printFree(((Solution*) currLink->valuePtr)->ionRatios, 2);
+#endif
+            free(((Solution*) currLink->valuePtr)->ionRatios);
 #ifdef MEMDEBUG
             printFree(currLink->valuePtr, 2);
 #endif
@@ -257,7 +257,7 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
             newSol->matrix = temp;
             newSol->overallCharge = getCharge(atomList, atomListSize);
             newSol->score = newSol->overallCharge;
-            //newSol->ionRatios = NULL;
+            newSol->ionRatios = NULL;
             newSolLink->valuePtr = (void*) newSol;
             newSolLink->nextLink = NULL;
             saveBeforeLast->nextLink = newSolLink;
@@ -470,28 +470,28 @@ int* saveSolution(Atom* atomList, int atomListSize)
     return tempArray;
 }
 
-// void ionizeSolutions(Link* solutionList, Atom* metalList, int metalListSize)
-// {
-//     //go through every solution
-//     Link* currLink;
-//     //skip the first empty entry
-//     currLink = solutionList->nextLink;
-//
-//     Solution* currSol;
-//     int* ionRatios;
-//
-//     while (currLink != NULL)
-//     {
-//         //create an array of integers
-//         currSol = (Solution*) currLink->valuePtr;
-//         ionRatios = calloc(metalListSize, sizeof(int));
-// #ifdef MEMDEBUG
-//         printMalloc((void*) ionRatios, metalListSize * sizeof(int), 25);
-// #endif
-//
-//         for (int i = 0; i < metalListSize; i++)
-//           ionRatios[i] = metalList[i].totalBondCount;
-//
-//         currSol->ionRatios = ionRatios;
-//     }
-// }
+void ionizeSolutions(Link* solutionList, Atom* metalList, int metalListSize)
+{
+    //go through every solution
+    Link* currLink;
+    //skip the first empty entry
+    currLink = solutionList->nextLink;
+
+    Solution* currSol;
+    int* ionRatios;
+
+    while (currLink != NULL)
+    {
+        //create an array of integers
+        currSol = (Solution*) currLink->valuePtr;
+        ionRatios = calloc(metalListSize, sizeof(int));
+#ifdef MEMDEBUG
+        printMalloc((void*) ionRatios, metalListSize * sizeof(int), 25);
+#endif
+
+        for (int i = 0; i < metalListSize; i++)
+          ionRatios[i] = metalList[i].totalBondCount;
+
+        currSol->ionRatios = ionRatios;
+    }
+}

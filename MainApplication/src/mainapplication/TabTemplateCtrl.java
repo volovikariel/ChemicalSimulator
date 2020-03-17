@@ -16,6 +16,7 @@ import javafx.geometry.Point3D;
 import javafx.scene.Camera;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
+import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -43,6 +44,8 @@ public class TabTemplateCtrl implements Initializable {
     int[][] matrix;
     String[] atomList;
     
+    Atom[] atoms;
+    
     @FXML
     SubScene realView;
     @FXML
@@ -50,6 +53,8 @@ public class TabTemplateCtrl implements Initializable {
     
     @FXML
     Canvas lewisCanvasID;
+    
+    final int BOND_SIZE = 125;
     
     double initX;
     double initY;
@@ -111,7 +116,7 @@ public class TabTemplateCtrl implements Initializable {
         matrix = solution;
         this.atomList = atomList;
         
-        ArrayList<Shape3D> finalList = getRelativeLocation(0, -1, new double[] {100, 0, 0}, new LinkedList<>());
+        ArrayList<Shape3D> finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
         
         double[] transVec = {0, 0, 0};
         
@@ -164,7 +169,7 @@ public class TabTemplateCtrl implements Initializable {
         
         if (atomList[currRow].equals("H")) {
             Sphere temp = new Sphere(40);
-            temp.setMaterial(new PhongMaterial(Color.WHITE));
+            temp.setMaterial(new PhongMaterial(Color.web(atoms[0].getColor())));
             returnList.add(temp);
             
             if (prevRow != -1) {
@@ -173,7 +178,7 @@ public class TabTemplateCtrl implements Initializable {
             
             for (int i = 0; i < matrix.length; i++) {
                 if (matrix[currRow][i] != 0) {
-                    double[] transVec = {100, 0, 0};
+                    double[] transVec = {BOND_SIZE, 0, 0};
                     //add cylinder
                     Cylinder bond = getCylinder(transVec);
                     returnList.add(bond);
@@ -204,8 +209,13 @@ public class TabTemplateCtrl implements Initializable {
         int lonePairs = 4 - bondCount;
         int stericNumber = thingsBondedCount + lonePairs;
 
+        String color = null;
+        for (int i = 0; i < atoms.length; i++) {
+            if (atomList[currRow].equals(atoms[i].getSymbol()))
+                color = atoms[i].getColor();
+        }
         Sphere temp = new Sphere(50);
-        temp.setMaterial(new PhongMaterial(Color.RED));
+        temp.setMaterial(new PhongMaterial(Color.web(color)));
         returnList.add(temp);
         
         int amountFound = 0;
@@ -410,6 +420,8 @@ public class TabTemplateCtrl implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        realView = new SubScene(bindAnchor, 100, 100, true, SceneAntialiasing.BALANCED);
+        bindAnchor.getChildren().add(realView);
         realView.setManaged(false);
         realView.heightProperty().bind(bindAnchor.heightProperty());
         realView.widthProperty().bind(bindAnchor.widthProperty());
@@ -417,6 +429,9 @@ public class TabTemplateCtrl implements Initializable {
         root.layoutYProperty().bind(realView.heightProperty().divide(2));
         camera = new PerspectiveCamera();
         realView.setCamera(camera);
+        
+        atoms = MainAppCtrl.getAtoms();
+        
         // Handle the scrolling for 3D
         bindAnchor.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override

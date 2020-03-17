@@ -27,7 +27,7 @@ typedef struct Solution
     int* matrix;
     int overallCharge;
     int score;
-    //int* ionRatios;
+    int* ionRatios;
 } Solution;
 
 Atom* createAtom(int bondCount, char name[2], double electroneg, int listIndex, int atomicNumber);

@@ -24,6 +24,7 @@ void loadAtom(int bondCount, char name[2], double electroneg, int listIndex, int
     atom->atomicNumber = atomicNumber;
     atom->name[0] = name[0];
     atom->name[1] = name[1];
+    atom->name[2] = '\0';
     atom->listIndex = listIndex;
 }
 
