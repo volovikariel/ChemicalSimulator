@@ -23,6 +23,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.DepthTest;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
@@ -170,7 +171,6 @@ public class MainAppCtrl implements Initializable {
         // Makes the subscene resize with its parent scene
         subScene.heightProperty().bind(parentScene.heightProperty().subtract(35));
         subScene.widthProperty().bind(parentScene.widthProperty());
-        
         parentScene.setOnKeyTyped(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {

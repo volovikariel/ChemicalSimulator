@@ -9,13 +9,17 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
+import javafx.application.ConditionalFeature;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point3D;
 import javafx.scene.Camera;
+import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
+import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -43,8 +47,7 @@ public class TabTemplateCtrl implements Initializable {
     int[][] matrix;
     String[] atomList;
     
-    @FXML
-    SubScene realView;
+    public SubScene realView;
     @FXML
     StackPane bindAnchor;
     
@@ -61,9 +64,9 @@ public class TabTemplateCtrl implements Initializable {
     double prevXAng = 0;
     double prevYAng = 0;
     
-    public Camera camera;
+    public PerspectiveCamera camera;
         
-    private Group root = new Group();
+    private Group atomGroup = new Group();
     
     public void setLewisStructure(int [][] solution, String[] atomList) {
         matrix = solution;
@@ -121,41 +124,10 @@ public class TabTemplateCtrl implements Initializable {
             sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
         }        
         
-        // Add Cylinders before spheres so that they get clipped properly
-        //root.getChildren().addAll(getAllCylinders(finalList));
-        root.getChildren().addAll(finalList);
-        realView.setRoot(root);
+        atomGroup.getChildren().addAll(finalList);
+        realView.setRoot(atomGroup);
     }
     
-//    public ArrayList<Cylinder> getAllCylinders(ArrayList<Sphere> spheres) {
-//        ArrayList<Cylinder> cylinderList = new ArrayList<>();
-//        for(int i = 0; i < spheres.size() - 1; i++) {
-//            Sphere sphere1 = spheres.get(i);
-//            Sphere sphere2 = spheres.get(i+1);
-//            Point3D pointA = new Point3D(sphere1.getTranslateX(), sphere1.getTranslateY(), sphere1.getTranslateZ());
-//            Point3D pointB = new Point3D(sphere2.getTranslateX(), sphere2.getTranslateY(), sphere2.getTranslateZ());
-//            Point3D diff = pointB.subtract(pointA);
-//            double length = diff.magnitude();
-//            
-//            // Transformation to move in between 2 spheres
-//            Point3D mid = pointB.midpoint(pointA);
-//            Translate moveToMidpoint = new Translate(mid.getX(), mid.getY(), mid.getZ());
-//            
-//            // Transformation to match the angle between the 2 spheres
-//            Point3D axisOfRot = diff.crossProduct(new Point3D(0, 1, 0));
-//            double angle = Math.acos(diff.normalize().dotProduct(new Point3D(0, 1, 0)));
-//            Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRot);
-//
-//            Cylinder cylinder = new Cylinder(5, length);
-//            PhongMaterial cylinderMaterial = new PhongMaterial(Color.BLACK);
-//            cylinderMaterial.setSpecularColor(Color.GRAY);
-//            cylinder.setMaterial(cylinderMaterial);
-//            cylinder.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
-//
-//            cylinderList.add(cylinder);
-//        }
-//        return cylinderList;
-//    }
     
     public ArrayList<Shape3D> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
         prevs.add(currRow);
@@ -163,8 +135,8 @@ public class TabTemplateCtrl implements Initializable {
         ArrayList<Shape3D> returnList = new ArrayList<>();
         
         if (atomList[currRow].equals("H")) {
-            Sphere temp = new Sphere(40);
-            temp.setMaterial(new PhongMaterial(Color.WHITE));
+            Sphere temp = new Sphere(30);
+            temp.setMaterial(new PhongMaterial(Color.BLUE));
             returnList.add(temp);
             
             if (prevRow != -1) {
@@ -173,7 +145,7 @@ public class TabTemplateCtrl implements Initializable {
             
             for (int i = 0; i < matrix.length; i++) {
                 if (matrix[currRow][i] != 0) {
-                    double[] transVec = {100, 0, 0};
+                    double[] transVec = {125, 0, 0};
                     //add cylinder
                     Cylinder bond = getCylinder(transVec);
                     returnList.add(bond);
@@ -203,7 +175,6 @@ public class TabTemplateCtrl implements Initializable {
 
         int lonePairs = 4 - bondCount;
         int stericNumber = thingsBondedCount + lonePairs;
-
         Sphere temp = new Sphere(50);
         temp.setMaterial(new PhongMaterial(Color.RED));
         returnList.add(temp);
@@ -255,12 +226,13 @@ public class TabTemplateCtrl implements Initializable {
                     for(int j = 0; j < numBonds; j++) {
                         if(numBonds == 3) {
                             translateModif = j-1;
-                        } else if (numBonds == 2) {
+                        } 
+                        else if (numBonds == 2) {
                             translateModif = j-0.5;
                         }
-                        Cylinder bond2 = getCylinder(transVec);
-                        bond2.getTransforms().add(new Translate(translateModif*transVec[0]/6, translateModif*transVec[1] * -1/12, translateModif*transVec[2]/6));
-                        returnList.add(bond2);
+                        Cylinder bond = getCylinder(transVec);
+                        bond.getTransforms().add(new Translate(translateModif*transVec[0]/3, translateModif*transVec[1] * -1/4, translateModif*transVec[2]/6));
+                        returnList.add(bond);
                     }
                     ArrayList<Shape3D> recursion = getRelativeLocation(i, currRow, transVec, prevs);
 
@@ -410,29 +382,31 @@ public class TabTemplateCtrl implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        realView = new SubScene(bindAnchor, 100, 100, true, SceneAntialiasing.BALANCED);
+        bindAnchor.getChildren().add(realView);
         realView.setManaged(false);
         realView.heightProperty().bind(bindAnchor.heightProperty());
         realView.widthProperty().bind(bindAnchor.widthProperty());
-        root.layoutXProperty().bind(realView.widthProperty().divide(2));
-        root.layoutYProperty().bind(realView.heightProperty().divide(2));
-        camera = new PerspectiveCamera();
+        atomGroup.layoutXProperty().bind(realView.widthProperty().divide(2));
+        atomGroup.layoutYProperty().bind(realView.heightProperty().divide(2));
+        camera = new PerspectiveCamera(false);
+        camera.setFieldOfView(70);
         realView.setCamera(camera);
-        // Handle the scrolling for 3D
         bindAnchor.setOnScroll(new EventHandler<ScrollEvent>() {
-            @Override
+            @Override 
             public void handle(ScrollEvent event) {
                 if(event.getDeltaY() > 0) {
-                    root.scaleXProperty().set(root.getScaleX() * 1.05);
-                    root.scaleYProperty().set(root.getScaleY() * 1.05);
-                    root.scaleZProperty().set(root.getScaleZ() * 1.05);
+                    atomGroup.scaleXProperty().set(atomGroup.getScaleX() * 1.25);
+                    atomGroup.scaleYProperty().set(atomGroup.getScaleY() * 1.25);
+                    atomGroup.scaleZProperty().set(atomGroup.getScaleZ() * 1.25);
                 }
                 else {
-                    root.scaleXProperty().set(root.getScaleX() * 0.95);
-                    root.scaleYProperty().set(root.getScaleY() * 0.95);
-                    root.scaleZProperty().set(root.getScaleZ() * 0.95);
+                    atomGroup.scaleXProperty().set(atomGroup.getScaleX() * 0.75);
+                    atomGroup.scaleYProperty().set(atomGroup.getScaleY() * 0.75);
+                    atomGroup.scaleZProperty().set(atomGroup.getScaleZ() * 0.75);
                 }
             }
-        });        
+        });
     }
     
     @FXML
@@ -444,8 +418,8 @@ public class TabTemplateCtrl implements Initializable {
             //startTransX = root.getTranslateX();
             //startTransY = root.getTranslateY();
 
-            startTransX = root.translateXProperty().get();
-            startTransY = root.translateYProperty().get();
+            startTransX = atomGroup.translateXProperty().get();
+            startTransY = atomGroup.translateYProperty().get();
         }
         else if (event.getButton() == MouseButton.PRIMARY) {
             initXAng = event.getX();
@@ -456,15 +430,13 @@ public class TabTemplateCtrl implements Initializable {
     @FXML
     public void handleMouseDrag(MouseEvent event) {
         if (event.getButton() == MouseButton.SECONDARY) {
-            root.translateXProperty().set(event.getX() - initX + startTransX);
-            root.translateYProperty().set(event.getY() - initY + startTransY);
-            //root.setTranslateX(event.getX() - initX + startTransX);
-            //root.setTranslateY(event.getY() - initY + startTransY);
+            atomGroup.translateXProperty().set(event.getX() - initX + startTransX);
+            atomGroup.translateYProperty().set(event.getY() - initY + startTransY);
         }
         else if (event.getButton() == MouseButton.PRIMARY) {
-            root.setRotationAxis(Rotate.Y_AXIS);
+            atomGroup.setRotationAxis(Rotate.Y_AXIS);
             prevXAng += (event.getX() - initXAng) * 360/ 100;
-            root.setRotate(prevXAng);
+            atomGroup.setRotate(prevXAng);
 //            root.setRotationAxis(Rotate.X_AXIS);
 //            prevYAng += (event.getY() - initYAng) * 360/ 100;
 //            root.setRotate(prevYAng);
