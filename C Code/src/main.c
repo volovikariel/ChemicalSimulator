@@ -234,6 +234,7 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
     {
         //save the solution
         int* temp = saveSolution(atomList, atomListSize);
+        int score = getScore(atomList, temp, atomListSize);
         //reduceMatrix(atomList, temp, atomListSize);
         //compare with previous solutions
         //skip first empty link
@@ -242,12 +243,20 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
         bool isEqual = 0;
         while (tempStartLink != NULL && !isEqual)
         {
-            isEqual = compareSolMatrix(atomList, temp, (int*) ((Solution*) tempStartLink->valuePtr)->matrix, atomListSize);
+            if (score == ((Solution*) tempStartLink->valuePtr)->score)
+              isEqual = compareSolMatrix(atomList, temp, ((Solution*) tempStartLink->valuePtr)->matrix, atomListSize);
             //isEqual = isIsomorph(atomList, temp, (int*) tempStartLink->valuePtr, atomListSize);
+
+            //with scoring, if we assume an ordered list, then the moment a score higher than this one appears
+            //we know there won't be another similar to this one and can place it directly
+            else if (score < ((Solution*) tempStartLink->valuePtr)->score)
+              //to skip the rest of the loop
+              break;
+
             saveBeforeLast = tempStartLink;
             tempStartLink = tempStartLink->nextLink;
         }
-        //if no similar solution was found
+        //if no similar solution was found and it is thus the least probable
         if (!isEqual)
         {
             //printSolMatrix(temp, atomListSize);
@@ -256,10 +265,12 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
             Solution* newSol = malloc(sizeof(Solution));
             newSol->matrix = temp;
             newSol->overallCharge = getCharge(atomList, atomListSize);
-            newSol->score = newSol->overallCharge;
+            newSol->score = score;
             newSol->ionRatios = NULL;
             newSolLink->valuePtr = (void*) newSol;
-            newSolLink->nextLink = NULL;
+            newSolLink->nextLink = tempStartLink;
+            if (tempStartLink != NULL)
+              tempStartLink->prevLink = newSolLink;
             saveBeforeLast->nextLink = newSolLink;
 #ifdef MEMDEBUG
             printMalloc((void*) newSolLink, sizeof(Link), 4);
@@ -484,14 +495,20 @@ void ionizeSolutions(Link* solutionList, Atom* metalList, int metalListSize)
     {
         //create an array of integers
         currSol = (Solution*) currLink->valuePtr;
-        ionRatios = calloc(metalListSize, sizeof(int));
+        ionRatios = calloc(metalListSize + 1, sizeof(int));
 #ifdef MEMDEBUG
         printMalloc((void*) ionRatios, metalListSize * sizeof(int), 25);
 #endif
+      //calculate ion ratios
+
+
+
 
         for (int i = 0; i < metalListSize; i++)
           ionRatios[i] = metalList[i].totalBondCount;
 
         currSol->ionRatios = ionRatios;
+
+        currLink = currLink->nextLink;
     }
 }

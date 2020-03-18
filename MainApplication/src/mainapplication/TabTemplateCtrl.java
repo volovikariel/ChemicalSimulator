@@ -132,36 +132,6 @@ public class TabTemplateCtrl implements Initializable {
         realView.setRoot(root);
     }
     
-//    public ArrayList<Cylinder> getAllCylinders(ArrayList<Sphere> spheres) {
-//        ArrayList<Cylinder> cylinderList = new ArrayList<>();
-//        for(int i = 0; i < spheres.size() - 1; i++) {
-//            Sphere sphere1 = spheres.get(i);
-//            Sphere sphere2 = spheres.get(i+1);
-//            Point3D pointA = new Point3D(sphere1.getTranslateX(), sphere1.getTranslateY(), sphere1.getTranslateZ());
-//            Point3D pointB = new Point3D(sphere2.getTranslateX(), sphere2.getTranslateY(), sphere2.getTranslateZ());
-//            Point3D diff = pointB.subtract(pointA);
-//            double length = diff.magnitude();
-//            
-//            // Transformation to move in between 2 spheres
-//            Point3D mid = pointB.midpoint(pointA);
-//            Translate moveToMidpoint = new Translate(mid.getX(), mid.getY(), mid.getZ());
-//            
-//            // Transformation to match the angle between the 2 spheres
-//            Point3D axisOfRot = diff.crossProduct(new Point3D(0, 1, 0));
-//            double angle = Math.acos(diff.normalize().dotProduct(new Point3D(0, 1, 0)));
-//            Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRot);
-//
-//            Cylinder cylinder = new Cylinder(5, length);
-//            PhongMaterial cylinderMaterial = new PhongMaterial(Color.BLACK);
-//            cylinderMaterial.setSpecularColor(Color.GRAY);
-//            cylinder.setMaterial(cylinderMaterial);
-//            cylinder.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
-//
-//            cylinderList.add(cylinder);
-//        }
-//        return cylinderList;
-//    }
-    
     public ArrayList<Shape3D> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
         prevs.add(currRow);
         
@@ -260,6 +230,12 @@ public class TabTemplateCtrl implements Initializable {
                         default:
                             break;
                     }
+                    
+                    //if first element, must make special case,
+                    //update the transVec to be simply where you "came from"
+                    if (prevRow == -1 && amountFound == 0)
+                        transVec = makeRoation(vec, Math.PI, Math.PI, Math.PI);
+                    
                     //add cylinder
                     double translateModif = 0;
                     for(int j = 0; j < numBonds; j++) {
@@ -477,9 +453,14 @@ public class TabTemplateCtrl implements Initializable {
             //root.setTranslateY(event.getY() - initY + startTransY);
         }
         else if (event.getButton() == MouseButton.PRIMARY) {
-            root.setRotationAxis(Rotate.Y_AXIS);
-            prevXAng += (event.getX() - initXAng) * 360/ 100;
-            root.setRotate(prevXAng);
+            Rotate rotX = new Rotate((event.getX() - initXAng) * 360/ 200, Rotate.Y_AXIS);
+            Rotate rotY = new Rotate((event.getY() - initYAng) * 360/ 200, Rotate.X_AXIS);
+            root.getTransforms().addAll(rotX, rotY);
+            
+//            root.setRotationAxis(Rotate.Y_AXIS);
+//            prevXAng += (event.getX() - initXAng) * 360/ 100;
+//            root.setRotate(prevXAng);
+//            
 //            root.setRotationAxis(Rotate.X_AXIS);
 //            prevYAng += (event.getY() - initYAng) * 360/ 100;
 //            root.setRotate(prevYAng);

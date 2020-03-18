@@ -291,9 +291,6 @@ public class MainAppCtrl implements Initializable {
 	                		tempArray = new int[matrixSize][matrixSize];
 	                	}
 	                	else if (currMatrixLine >= matrixSize) {
-                                        //first part is the metal's name
-                                        
-                                        //second part is it's ratio
                                     
 	                	}
 
