@@ -361,3 +361,83 @@ int getCharge(Atom* atomList, int atomListSize)
 
   return charge;
 }
+
+int getScore(Atom* atomList, int* temp, int atomListSize)
+{
+  //things to check in order of importance
+  //charge of entire molecule
+  //formal charge of each atom, weighed with their electronegativity
+  //distances between formal charges (like father from each other and unlinke nearer)
+  //count number of covalent bonds?
+  //check angle in loops
+
+  int score = 0;
+
+  int totalCharge = 0;
+  int sumOfAbsFormalCharge = 0;
+  int tempPartialCharge = 0;
+
+  for (int i = 0; i < atomListSize; i++)
+  {
+    tempPartialCharge = -1 * atomList[i].bondCount;
+    totalCharge += tempPartialCharge;
+    sumOfAbsFormalCharge += tempPartialCharge > 0 ? tempPartialCharge : -1 * tempPartialCharge;
+  }
+
+  //get loops
+  int loopSize = 0;
+  int startIndx = 0;
+  int endIndx = 0;
+  int* prevRows = calloc(atomListSize, sizeof(int));
+#ifdef MEMDEBUG
+  printMalloc((void*) prevRows, atomListSize * sizeof(int), 30);
+#endif
+
+  if (getLoop(temp, atomListSize, prevRows, 0, 1, &startIndx, &endIndx))
+    loopSize = endIndx - startIndx + 1;
+
+#ifdef MEMDEBUG
+  printFree(prevRows, 30);
+#endif
+  free(prevRows);
+
+  //get abs totalCharge
+  totalCharge = totalCharge > 0 ? totalCharge : -1 * totalCharge;
+  score = totalCharge * 1000 + sumOfAbsFormalCharge * 10 + loopSize;
+  return score;
+}
+
+bool getLoop(int* temp, int atomListSize, int* prevRows, int currRow, int currIndx, int* startIndx, int* endIndx)
+{
+  prevRows[currRow] = currIndx;
+  //prevRows contains a list of int with the order in which they were found
+  //go through everything currRow is connected to and see if there are any loops
+  for (int i = 0; i < atomListSize; i++)
+  {
+    //if it is connected to it
+    if (temp[currRow * atomListSize + i])
+    {
+      //if it was already visited
+      if (prevRows[i])
+      {
+        if (prevRows[i] == currIndx - 1)
+          continue;
+        //everything between now and then is in the loop
+        *startIndx = prevRows[i];
+        *endIndx = currIndx;
+
+        return 1;
+      }
+      else
+      {
+        //visit it
+        if (getLoop(temp, atomListSize, prevRows, i, currIndx + 1, startIndx, endIndx))
+          return 1;
+      }
+    }
+  }
+
+  prevRows[currRow] = 0;
+
+  return 0;
+}

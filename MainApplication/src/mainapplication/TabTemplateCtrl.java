@@ -18,11 +18,13 @@ import javafx.geometry.Point3D;
 import javafx.scene.Camera;
 import javafx.scene.DepthTest;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -34,6 +36,7 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Shape3D;
 import javafx.scene.shape.Sphere;
+import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 
@@ -165,11 +168,11 @@ public class TabTemplateCtrl implements Initializable {
         matrix = solution;
         this.atomList = atomList;
         
-        ArrayList<Shape3D> finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
+        ArrayList<Node> finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
         
         double[] transVec = {0, 0, 0};
         
-        for (Shape3D sphere : finalList) {
+        for (Node sphere : finalList) {
             sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
             sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
             sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
@@ -179,11 +182,10 @@ public class TabTemplateCtrl implements Initializable {
         realView.setRoot(atomGroup);
     }
     
-    
-    public ArrayList<Shape3D> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
+    public ArrayList<Node> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
         prevs.add(currRow);
         
-        ArrayList<Shape3D> returnList = new ArrayList<>();
+        ArrayList<Node> returnList = new ArrayList<>();
         
         if (atomList[currRow].equals("H")) {
             Sphere temp = new Sphere(40);
@@ -199,9 +201,9 @@ public class TabTemplateCtrl implements Initializable {
                     double[] transVec = {BOND_SIZE, 0, 0};
                     Cylinder bond = getCylinder(transVec);
                     returnList.add(bond);
-                    ArrayList<Shape3D> recursion = getRelativeLocation(i, currRow, transVec, prevs);
+                    ArrayList<Node> recursion = getRelativeLocation(i, currRow, transVec, prevs);
                     
-                    for (Shape3D sphere : recursion) {
+                    for (Node sphere : recursion) {
                         sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
                         sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
                         sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
@@ -227,13 +229,26 @@ public class TabTemplateCtrl implements Initializable {
         int stericNumber = thingsBondedCount + lonePairs;
        
         String color = null;
+        int formalCharge = bondCount;
         for (int i = 0; i < atoms.length; i++) {
             if (atomList[currRow].equals(atoms[i].getSymbol()))
+            {
                 color = atoms[i].getColor();
+                formalCharge -= i > 2 ? 8 - atoms[i].getShells() : 2 - atoms[i].getShells();
+            }
         }
         Sphere temp = new Sphere(50);
         temp.setMaterial(new PhongMaterial(Color.web(color)));
         returnList.add(temp);
+        //if theres formal charge, add a label
+        if (formalCharge != 0) {
+            Label label = new Label("" + formalCharge);
+            returnList.add(label);
+            label.setTranslateX(30);
+            label.setTranslateY(-60);
+            label.setTranslateZ(-30);
+            label.setFont(new Font(40));
+        }
         
         int amountFound = 0;
         int numBonds = 0;
@@ -277,6 +292,12 @@ public class TabTemplateCtrl implements Initializable {
                         default:
                             break;
                     }
+                    
+                    //if first element, must make special case,
+                    //update the transVec to be simply where you "came from"
+                    if (prevRow == -1 && amountFound == 0)
+                        transVec = makeRoation(vec, Math.PI, Math.PI, Math.PI);
+                    
                     //add cylinder
                     double translateModif = 0;
                     for(int j = 0; j < numBonds; j++) {
@@ -290,9 +311,9 @@ public class TabTemplateCtrl implements Initializable {
                         bond.getTransforms().add(new Translate(translateModif*transVec[0]/3, translateModif*transVec[1] * -1/4, translateModif*transVec[2]/6));
                         returnList.add(bond);
                     }
-                    ArrayList<Shape3D> recursion = getRelativeLocation(i, currRow, transVec, prevs);
+                    ArrayList<Node> recursion = getRelativeLocation(i, currRow, transVec, prevs);
 
-                    for (Shape3D sphere : recursion) {
+                    for (Node sphere : recursion) {
                         sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
                         sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
                         sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
@@ -494,9 +515,16 @@ public class TabTemplateCtrl implements Initializable {
             atomGroup.translateYProperty().set(event.getY() - initY + startTransY);
         }
         else if (event.getButton() == MouseButton.PRIMARY) {
-            atomGroup.setRotationAxis(Rotate.Y_AXIS);
-            prevXAng += (event.getX() - initXAng) * 360/ 100;
-            atomGroup.setRotate(prevXAng);
+
+            Rotate rotX = new Rotate((event.getX() - initXAng) * 360/ 200, Rotate.Y_AXIS);
+            Rotate rotY = new Rotate((event.getY() - initYAng) * 360/ 200, Rotate.X_AXIS);
+            atomGroup.getTransforms().addAll(rotX, rotY);
+            
+//            root.setRotationAxis(Rotate.Y_AXIS);
+//            prevXAng += (event.getX() - initXAng) * 360/ 100;
+//            root.setRotate(prevXAng);
+//            
+
 //            root.setRotationAxis(Rotate.X_AXIS);
 //            prevYAng += (event.getY() - initYAng) * 360/ 100;
 //            root.setRotate(prevYAng);
