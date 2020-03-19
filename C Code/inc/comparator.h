@@ -21,5 +21,6 @@ bool comparePairList(Pair* a, Pair* b, int listSize);
 void sortPairs(Pair* pairList, int listSize);
 
 int getCharge(Atom* atomList, int atomListSize);
+int getScore(Atom* atomList, int* temp, int atomListSize);
 
 #endif

@@ -361,3 +361,33 @@ int getCharge(Atom* atomList, int atomListSize)
 
   return charge;
 }
+
+int getScore(Atom* atomList, int* temp, int atomListSize)
+{
+  //things to check in order of importance
+  //charge of entire molecule
+  //formal charge of each atom, weighed with their electronegativity
+  //distances between formal charges (like father from each other and unlinke nearer)
+  //count number of covalent bonds?
+  //check angle in loops
+
+  int score = 0;
+
+  int totalCharge = 0;
+  int sumOfAbsFormalCharge = 0;
+  int tempPartialCharge = 0;
+
+  for (int i = 0; i < atomListSize; i++)
+  {
+    tempPartialCharge = -1 * atomList[i].bondCount;
+    totalCharge += tempPartialCharge;
+    sumOfAbsFormalCharge += tempPartialCharge > 0 ? tempPartialCharge : -1 * tempPartialCharge;
+  }
+
+  //get loops
+
+  //get abs totalCharge
+  totalCharge = totalCharge > 0 ? totalCharge : -1 * totalCharge;
+  score = totalCharge * 100 + sumOfAbsFormalCharge;
+  return score;
+}

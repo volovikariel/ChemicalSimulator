@@ -7,6 +7,7 @@ package mainapplication;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 import javafx.application.ConditionalFeature;
@@ -119,7 +120,7 @@ public class TabTemplateCtrl implements Initializable {
         this.atomList = atomList;
         
         ArrayList<Shape3D> finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
-        
+//        ArrayList<Shape3D> finalList = doLoop(new int[] {0,1,2});             Ignore this - to be fixed
         double[] transVec = {0, 0, 0};
         
         for (Shape3D sphere : finalList) {
@@ -131,7 +132,6 @@ public class TabTemplateCtrl implements Initializable {
         atomGroup.getChildren().addAll(finalList);
         realView.setRoot(atomGroup);
     }
-    
     
     public ArrayList<Shape3D> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
         prevs.add(currRow);
@@ -162,7 +162,6 @@ public class TabTemplateCtrl implements Initializable {
                     }
                 }
             }
-            
             return returnList;
         }
         
@@ -230,6 +229,12 @@ public class TabTemplateCtrl implements Initializable {
                         default:
                             break;
                     }
+                    
+                    //if first element, must make special case,
+                    //update the transVec to be simply where you "came from"
+                    if (prevRow == -1 && amountFound == 0)
+                        transVec = makeRoation(vec, Math.PI, Math.PI, Math.PI);
+                    
                     //add cylinder
                     double translateModif = 0;
                     for(int j = 0; j < numBonds; j++) {
@@ -447,9 +452,16 @@ public class TabTemplateCtrl implements Initializable {
             atomGroup.translateYProperty().set(event.getY() - initY + startTransY);
         }
         else if (event.getButton() == MouseButton.PRIMARY) {
-            atomGroup.setRotationAxis(Rotate.Y_AXIS);
-            prevXAng += (event.getX() - initXAng) * 360/ 100;
-            atomGroup.setRotate(prevXAng);
+
+            Rotate rotX = new Rotate((event.getX() - initXAng) * 360/ 200, new Point3D(0, 1, 0));
+            Rotate rotY = new Rotate((event.getY() - initYAng) * 360/ 200, new Point3D(1, 0, 0));
+            atomGroup.getTransforms().addAll(rotX, rotY);
+            
+//            root.setRotationAxis(Rotate.Y_AXIS);
+//            prevXAng += (event.getX() - initXAng) * 360/ 100;
+//            root.setRotate(prevXAng);
+//            
+
 //            root.setRotationAxis(Rotate.X_AXIS);
 //            prevYAng += (event.getY() - initYAng) * 360/ 100;
 //            root.setRotate(prevYAng);
@@ -482,5 +494,33 @@ public class TabTemplateCtrl implements Initializable {
         cylinder.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
         
         return cylinder;
+    }
+    
+    // TODO: Pretty broken - Jorge halp
+    private ArrayList<Shape3D> doLoop(int[] loopIndices) {
+        ArrayList<Shape3D> returnedList = new ArrayList<>();
+        LinkedList<Integer> previous = new LinkedList<>();
+        double[] transVec = new double[] {BOND_SIZE, 0, 0};
+        
+//        double[] temp = transVec;
+        double angle = 180 - 360/loopIndices.length;
+        for(int i = 0; i < loopIndices.length; i++) {
+//            cylinder.getTransforms().add(new Translate(transVec[0], transVec[1]));
+            Sphere tempSphere = new Sphere(40);
+            tempSphere.setMaterial(new PhongMaterial(Color.GREENYELLOW));
+            transVec = makeRot(transVec, new double[]{0, 0, 1}, i * Math.toRadians(angle));
+            tempSphere.setTranslateX(tempSphere.getTranslateX() + transVec[0]);
+            tempSphere.setTranslateY(tempSphere.getTranslateY() + transVec[1]);
+            tempSphere.setTranslateZ(tempSphere.getTranslateZ() + transVec[2]);
+            
+//            tempSphere.getTransforms().addAll(new Rotate(angle * i, Rotate.Z_AXIS));    
+//            previous.add(i);    
+            Cylinder cylinder = getCylinder(transVec);
+            returnedList.add(tempSphere);
+            returnedList.add(cylinder);
+//            returnedList.addAll(getRelativeLocation(i, i - 1, transVec, previous));
+//            System.out.println(i + "th time " + returnedList);
+        }
+        return returnedList;
     }
 }
