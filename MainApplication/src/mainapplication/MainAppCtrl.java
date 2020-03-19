@@ -240,7 +240,13 @@ public class MainAppCtrl implements Initializable {
             File dir = new File(s);
             Runtime run = Runtime.getRuntime();
             
-            Process proc = run.exec(String.format("b.exe%s", input), null, dir);
+            //get os
+            String osName = System.getProperty("os.name").toLowerCase();
+            Process proc;
+            if (osName.contains("win"))
+                proc = run.exec(String.format("b.exe%s", input), null, dir);
+            else
+                proc = run.exec(String.format("./b%s", input), null, dir);
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String line = null;
