@@ -23,7 +23,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.DepthTest;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
@@ -291,9 +290,6 @@ public class MainAppCtrl implements Initializable {
 	                		tempArray = new int[matrixSize][matrixSize];
 	                	}
 	                	else if (currMatrixLine >= matrixSize) {
-                                        //first part is the metal's name
-                                    
-                                        //second part is it's ratio
                                     
 	                	}
 

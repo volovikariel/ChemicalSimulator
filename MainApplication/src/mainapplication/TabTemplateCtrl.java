@@ -7,24 +7,20 @@ package mainapplication;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
-import javafx.application.ConditionalFeature;
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point3D;
-import javafx.scene.Camera;
-import javafx.scene.DepthTest;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -35,6 +31,7 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Shape3D;
 import javafx.scene.shape.Sphere;
+import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 
@@ -75,42 +72,89 @@ public class TabTemplateCtrl implements Initializable {
     
     public void setLewisStructure(int [][] solution, String[] atomList) {
         matrix = solution;
+        int [][] triMatrix = new int [matrix.length - 1][matrix.length - 1];
         int elementCount = matrix.length; //rows
         int bondCount = 0;
+        int bond = 0;
         GraphicsContext gc = lewisCanvasID.getGraphicsContext2D();
         
         //iterates through the list of atoms
-        for (int i = 0; i < atomList.length; i++) {
-            String tempElement = atomList[i];
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            gc.strokeText(tempElement, 150 + 20*i, 175);
-            
-            Paint p = Color.BLACK;
-            gc.strokeLine(i+100, 150, 175*i, 150);
+//        for (int i = 0; i < atomList.length; i++) {
+//            String tempElement = atomList[i];
+//            
+//            gc.strokeText(tempElement, 150 + 20*i, 175);
+//            
+//            Paint p = Color.BLACK;
+//            gc.strokeLine(i+100, 150, 175*i, 150);
+//        }
+        
+        //this is only the upper half of the matrix which contains the solution once
+        for (int row = 0; row < matrix.length; row++) {
+            for (int col = 1; col < matrix[0].length; col++) {
+                triMatrix[row][col] = matrix[row][col];
+            }
         }
         
         
-        //iterates through the solution matrix
-        for (int row = 0; row < matrix.length; row++) {
-
+        for (int row = 0; row < triMatrix.length; row++) {
             
-            for (int col = 0; col < matrix[0].length; col++) {
-                
-
-                if (matrix[row][col] != 0) {
+            
+            for (int col = 0; col < triMatrix[0].length; col++) {
+                if (triMatrix[row][col] != 0) {
+                    
                     
                 }
             }
         }
+        
+        
+        for (int [] rows : triMatrix) {
+            for (int col : rows) {
+                if (col != 0) {
+                    bondCount++;
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    System.out.println("(" + col + ", " + rows.length + ")");
+                }
+            }
+        }
+        // boundCount --> amount of bonds in the molecule
+        //
+        
+        
+        
+        //iterates through the solution matrix
+        for (int row = 0; row < matrix.length; row++) {
+            for (int col = 0; col < matrix[0].length; col++) {
+                if (matrix[row][col] != 0) {
+                    String tempElement = atomList[row];
+                    String tempElement2 = atomList[col];
+                    bond = matrix[row][col];
+                    
+                    
+                    
+                    
+                    
+                    gc.strokeText(tempElement, 150 + 20 * row, 175);
+                    gc.strokeText(tempElement2, 150 + 20 * row, 175);
+                    
+                    Paint p = Color.BLACK;
+                    gc.strokeLine(row + 100, 150, 175 * row, 150);
+                    
+                }
+            }
+        }
+        
+    }
+    
+    public void printLewis(String [] atoms, int bonds) {
         
     }
     
@@ -119,11 +163,11 @@ public class TabTemplateCtrl implements Initializable {
         matrix = solution;
         this.atomList = atomList;
         
-        ArrayList<Shape3D> finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
 //        ArrayList<Shape3D> finalList = doLoop(new int[] {0,1,2});             Ignore this - to be fixed
+        ArrayList<Node> finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
         double[] transVec = {0, 0, 0};
         
-        for (Shape3D sphere : finalList) {
+        for (Node sphere : finalList) {
             sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
             sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
             sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
@@ -133,10 +177,10 @@ public class TabTemplateCtrl implements Initializable {
         realView.setRoot(atomGroup);
     }
     
-    public ArrayList<Shape3D> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
+    public ArrayList<Node> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
         prevs.add(currRow);
         
-        ArrayList<Shape3D> returnList = new ArrayList<>();
+        ArrayList<Node> returnList = new ArrayList<>();
         
         if (atomList[currRow].equals("H")) {
             Sphere temp = new Sphere(40);
@@ -152,9 +196,9 @@ public class TabTemplateCtrl implements Initializable {
                     double[] transVec = {BOND_SIZE, 0, 0};
                     Cylinder bond = getCylinder(transVec);
                     returnList.add(bond);
-                    ArrayList<Shape3D> recursion = getRelativeLocation(i, currRow, transVec, prevs);
+                    ArrayList<Node> recursion = getRelativeLocation(i, currRow, transVec, prevs);
                     
-                    for (Shape3D sphere : recursion) {
+                    for (Node sphere : recursion) {
                         sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
                         sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
                         sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);
@@ -179,13 +223,26 @@ public class TabTemplateCtrl implements Initializable {
         int stericNumber = thingsBondedCount + lonePairs;
        
         String color = null;
+        int formalCharge = bondCount;
         for (int i = 0; i < atoms.length; i++) {
             if (atomList[currRow].equals(atoms[i].getSymbol()))
+            {
                 color = atoms[i].getColor();
+                formalCharge -= i > 2 ? 8 - atoms[i].getShells() : 2 - atoms[i].getShells();
+            }
         }
         Sphere temp = new Sphere(50);
         temp.setMaterial(new PhongMaterial(Color.web(color)));
         returnList.add(temp);
+        //if theres formal charge, add a label
+        if (formalCharge != 0) {
+            Label label = new Label("" + formalCharge);
+            returnList.add(label);
+            label.setTranslateX(30);
+            label.setTranslateY(-60);
+            label.setTranslateZ(-30);
+            label.setFont(new Font(40));
+        }
         
         int amountFound = 0;
         int numBonds = 0;
@@ -248,9 +305,9 @@ public class TabTemplateCtrl implements Initializable {
                         bond.getTransforms().add(new Translate(translateModif*transVec[0]/3, translateModif*transVec[1] * -1/4, translateModif*transVec[2]/6));
                         returnList.add(bond);
                     }
-                    ArrayList<Shape3D> recursion = getRelativeLocation(i, currRow, transVec, prevs);
+                    ArrayList<Node> recursion = getRelativeLocation(i, currRow, transVec, prevs);
 
-                    for (Shape3D sphere : recursion) {
+                    for (Node sphere : recursion) {
                         sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
                         sphere.setTranslateY(sphere.getTranslateY() + transVec[1]);
                         sphere.setTranslateZ(sphere.getTranslateZ() + transVec[2]);

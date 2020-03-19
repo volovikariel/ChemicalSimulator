@@ -15,5 +15,7 @@ public class LewisStructure {
     public int oxygen = 2;
     public String oSymbol = "O";
     
-    
+    public static void main(String[] args) {
+        
+    }
 }

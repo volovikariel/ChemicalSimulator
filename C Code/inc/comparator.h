@@ -22,5 +22,9 @@ void sortPairs(Pair* pairList, int listSize);
 
 int getCharge(Atom* atomList, int atomListSize);
 int getScore(Atom* atomList, int* temp, int atomListSize);
+<<<<<<< HEAD
+=======
+bool getLoop(int* temp, int atomListSize, int* prevRows, int currRow, int currIndx, int* startIndx, int* endIndx);
+>>>>>>> 5cd52756d7749bf3da5ab5ff9d3f1b58472cefc9
 
 #endif
