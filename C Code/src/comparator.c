@@ -386,7 +386,7 @@ int getScore(Atom* atomList, int* temp, int atomListSize, int loopSize)
 
   //get abs totalCharge
   totalCharge = totalCharge > 0 ? totalCharge : -1 * totalCharge;
-  score = totalCharge * 1000 + sumOfAbsFormalCharge * 10 + loopSize;
+  score = totalCharge * 1000 + sumOfAbsFormalCharge * 10 + ((loopSize) ? 6 - loopSize : 0);
   return score;
 }
 
