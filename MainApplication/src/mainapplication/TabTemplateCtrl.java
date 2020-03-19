@@ -38,9 +38,11 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 
 /**
- * FXML Controller class
- *
- * @author cstuser
+ * Main entry point of the JavaFX application
+ * 
+ * @author Ariel Volovik
+ * @author Jorge Marcano
+ * @author Samy Arab
  */
 public class TabTemplateCtrl implements Initializable {
 

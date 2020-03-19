@@ -19,9 +19,11 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
 /**
- * FXML Controller class
- *
- * @author cstuser
+ * Main entry point of the JavaFX application
+ * 
+ * @author Ariel Volovik
+ * @author Jorge Marcano
+ * @author Samy Arab
  */
 public class ResultSceneCtrl implements Initializable, SubSceneController {
 

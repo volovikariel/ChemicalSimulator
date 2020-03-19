@@ -7,10 +7,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ProgressIndicator;
 
 /**
- * FXML Controller class
- *
- * @author Jorge
+ * Main entry point of the JavaFX application
+ * 
+ * @author Ariel Volovik
+ * @author Jorge Marcano
+ * @author Samy Arab
  */
+
 public class LoadingSceneController implements Initializable, SubSceneController {
 
     @FXML
