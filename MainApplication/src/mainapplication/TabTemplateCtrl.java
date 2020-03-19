@@ -91,21 +91,13 @@ public class TabTemplateCtrl implements Initializable {
 //        }
         
         //this is only the upper half of the matrix which contains the solution once
-<<<<<<< HEAD
+
         for (int row = 0; row < matrix.length; row++) {
             for (int col = 1; col < matrix[row].length; col++) {
                 triMatrix[row][col] = matrix[row][col];
             }
         }
-        bondCount = triMatrix.length;
-=======
-//        for (int row = 0; row < matrix.length; row++) {
-//            for (int col = 1; col < matrix[0].length; col++) {
-//                triMatrix[row][col] = matrix[row][col];
-//            }
-//        }
->>>>>>> 726488994a30653c018611c7fc134f6926d4c905
-        
+        bondCount = triMatrix.length;       
         
         for (int row = 0; row < triMatrix.length; row++) {
             System.out.println(atomList[row]); //debugging
