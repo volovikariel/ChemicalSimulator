@@ -245,8 +245,10 @@ public class MainAppCtrl implements Initializable {
             Process proc;
             if (osName.contains("win"))
                 proc = run.exec(String.format("b.exe%s", input), null, dir);
-            else
+            else if (osName.contains("mac"))
                 proc = run.exec(String.format("./b%s", input), null, dir);
+            else
+                proc = run.exec(String.format("./b.out%s", input), null, dir);
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String line = null;
