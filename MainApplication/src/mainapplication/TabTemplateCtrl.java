@@ -89,11 +89,11 @@ public class TabTemplateCtrl implements Initializable {
 //        }
         
         //this is only the upper half of the matrix which contains the solution once
-        for (int row = 0; row < matrix.length; row++) {
-            for (int col = 1; col < matrix[0].length; col++) {
-                triMatrix[row][col] = matrix[row][col];
-            }
-        }
+//        for (int row = 0; row < matrix.length; row++) {
+//            for (int col = 1; col < matrix[0].length; col++) {
+//                triMatrix[row][col] = matrix[row][col];
+//            }
+//        }
         
         
         for (int row = 0; row < triMatrix.length; row++) {
@@ -163,8 +163,8 @@ public class TabTemplateCtrl implements Initializable {
         matrix = solution;
         this.atomList = atomList;
         
-//        ArrayList<Shape3D> finalList = doLoop(new int[] {0,1,2});             Ignore this - to be fixed
-        ArrayList<Node> finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
+        ArrayList<Node> finalList = doLoop(new int[] {0,1,2});             //Ignore this - to be fixed
+//        ArrayList<Node> finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
         double[] transVec = {0, 0, 0};
         
         for (Node sphere : finalList) {
@@ -554,25 +554,22 @@ public class TabTemplateCtrl implements Initializable {
     }
     
     // TODO: Pretty broken - Jorge halp
-    private ArrayList<Shape3D> doLoop(int[] loopIndices) {
-        ArrayList<Shape3D> returnedList = new ArrayList<>();
+    private ArrayList<Node> doLoop(int[] loopIndices) {
+        ArrayList<Node> returnedList = new ArrayList<>();
         LinkedList<Integer> previous = new LinkedList<>();
         double[] transVec = new double[] {BOND_SIZE, 0, 0};
-        
-//        double[] temp = transVec;
-        double angle = 180 - 360/loopIndices.length;
+        double angleFromCenter = Math.toRadians(360/loopIndices.length);
+        double angleAtCorners = Math.toRadians(180 - 360/loopIndices.length);
         for(int i = 0; i < loopIndices.length; i++) {
-//            cylinder.getTransforms().add(new Translate(transVec[0], transVec[1]));
             Sphere tempSphere = new Sphere(40);
             tempSphere.setMaterial(new PhongMaterial(Color.GREENYELLOW));
-            transVec = makeRot(transVec, new double[]{0, 0, 1}, i * Math.toRadians(angle));
+            transVec = makeRot(new double[]{BOND_SIZE, 0 , 0}, new double[]{0, 0, 1}, angleFromCenter * i);
             tempSphere.setTranslateX(tempSphere.getTranslateX() + transVec[0]);
             tempSphere.setTranslateY(tempSphere.getTranslateY() + transVec[1]);
             tempSphere.setTranslateZ(tempSphere.getTranslateZ() + transVec[2]);
-            
-//            tempSphere.getTransforms().addAll(new Rotate(angle * i, Rotate.Z_AXIS));    
 //            previous.add(i);    
             Cylinder cylinder = getCylinder(transVec);
+            cylinder.getTransforms().addAll(new Rotate(Math.toDegrees(angleAtCorners/2)));
             returnedList.add(tempSphere);
             returnedList.add(cylinder);
 //            returnedList.addAll(getRelativeLocation(i, i - 1, transVec, previous));
