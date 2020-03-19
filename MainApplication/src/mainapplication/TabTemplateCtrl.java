@@ -97,31 +97,14 @@ public class TabTemplateCtrl implements Initializable {
         
         
         for (int row = 0; row < triMatrix.length; row++) {
-            
+            System.out.println(atomList[row]);
             
             for (int col = 0; col < triMatrix[0].length; col++) {
+                System.out.println(atomList[col]);
+                
                 if (triMatrix[row][col] != 0) {
-                    
-                    
-                }
-            }
-        }
-        
-        
-        for (int [] rows : triMatrix) {
-            for (int col : rows) {
-                if (col != 0) {
                     bondCount++;
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    System.out.println("(" + col + ", " + rows.length + ")");
+                    System.out.println("(" + col + ", " + row + ")");
                 }
             }
         }
