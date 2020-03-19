@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package mainapplication;
 
 import java.net.URL;
@@ -36,6 +31,15 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+
+/**
+ * Controller for the selection scene.
+ * In charge of setting up the scene and its handlers, as well as parsing user input.
+ * 
+ * @author Ariel Volovik
+ * @author Jorge Marcano
+ * @author Samy Arab
+ */
 
 public class SelectionSceneCtrl implements Initializable, SubSceneController {
     
@@ -119,7 +123,6 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 appendInput(tempEl.getElementName());
                 
                 
-                //System.out.println(tempEl.getElementName() + tempEl.getElementNumber());
                 newVBox.getChildren().add(new Label(tempEl.getElementNumber()));
                 newVBox.getChildren().add(new Label(tempEl.getElementName()));
                 
@@ -169,6 +172,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     }
     
     public void removeChar() {
+        //TODO: Make it so that if the user inputs 25, a backspace makes it go back to 2 instead of 24.
         if(txtManual.getLength() >= 1) {  
             
             LinkedList<String> llSymbols = splitString(txtManual.getText());
@@ -176,8 +180,6 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
             ArrayList<String> alFormatted = addOnes(llSymbols);
 
             String[] arrayStrings = getAtoms(alFormatted.toArray(new String[alFormatted.size()]));
-            
-            //System.out.println(llSymbols);
             
             String last = arrayStrings[arrayStrings.length - 1];
             
@@ -357,21 +359,19 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         if(text.isEmpty()) {
             return new String[0];
         }
-        
+        // OHO -> [O,H,O]
         LinkedList<String> llSymbols = splitString(text);
-        
+        // [O,H,O] -> [O,1,H,1,O,1]
         ArrayList<String> alFormatted = addOnes(llSymbols);
-        
+        //TODO: Figure out what alFormatted is for
+        // ??? [O,1,H,1,O,1] -> [O,H,O] ??? -> [1,8,8]
         String[] arrayToSortSymbols = getAtoms(alFormatted.toArray(new String[alFormatted.size()]));
-        
         int[] arrayDoneSorting = sortArray(arrayToSortSymbols);
-        
+        // [1,8,8] -> [H,O,O]
         ArrayList<String> alName = numToSymbol(arrayDoneSorting);
-        
+        // [H,O,O] -> [H, 1, O, 2]
         ArrayList<String> alFinished = concentrateStr(alName);
-        
-        // Uncomment if want to see the array returned
-        // System.out.println("alFinished: " + alFinished);
+
         return alFinished.toArray(new String[alFinished.size()]);
     }
     
@@ -384,7 +384,6 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     }
     
     public ArrayList<String> concentrateStr(ArrayList<String> alName) {
-        // Converting back to [H, 2, O] kinda thing
         ArrayList<String> alFinished = new ArrayList<>();
         
         boolean firstTime = true;
@@ -417,28 +416,9 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         
         return alFinished;
     }
-    
-    private int[] bubbleSort(int arr[]) {
-        boolean isUnsorted = true;
-        
-        while (isUnsorted) {
-            isUnsorted = false;
-            
-            for (int i = 0; i < arr.length - 1; i++) {
-                if (arr[i] > arr[i+1]) {
-                    isUnsorted = true;
-                    int temp = arr[i];
-                    arr[i] = arr[i+1];
-                    arr[i+1] = temp;
-                }
-            }
-        }   
-        return arr;
-    }
-    
-    public int[] sortArray(String[] arrayToSortSymbols) {
-        //** Sorting section **
-        
+    // Sort an array of symbols in the form [H, O, H] and turn them into [1, 8, 1]
+    // then return the bubble sorted version [1, 1, 8]
+    public int[] sortArray(String[] arrayToSortSymbols) {        
         // Create an array to bubble sort
         int[] arrayToSortNumbers = new int[arrayToSortSymbols.length];
         for(int i = 0; i < arrayToSortNumbers.length; i++) {
@@ -456,6 +436,24 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         }
         
         return bubbleSort(arrayToSortNumbers);
+    }
+    
+    private int[] bubbleSort(int arr[]) {
+        boolean isUnsorted = true;
+        
+        while (isUnsorted) {
+            isUnsorted = false;
+            
+            for (int i = 0; i < arr.length - 1; i++) {
+                if (arr[i] > arr[i+1]) {
+                    isUnsorted = true;
+                    int temp = arr[i];
+                    arr[i] = arr[i+1];
+                    arr[i+1] = temp;
+                }
+            }
+        }   
+        return arr;
     }
     
     public ArrayList<String> addOnes(LinkedList<String> llSymbols) {
