@@ -9,14 +9,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
-import javafx.application.ConditionalFeature;
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point3D;
-import javafx.scene.Camera;
-import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
@@ -25,7 +21,6 @@ import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -151,8 +146,8 @@ public class TabTemplateCtrl implements Initializable {
         matrix = solution;
         this.atomList = atomList;
         
+//        ArrayList<Shape3D> finalList = doLoop(new int[] {0,1,2});             Ignore this - to be fixed
         ArrayList<Node> finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
-        
         double[] transVec = {0, 0, 0};
         
         for (Node sphere : finalList) {
@@ -194,7 +189,6 @@ public class TabTemplateCtrl implements Initializable {
                     }
                 }
             }
-            
             return returnList;
         }
         
@@ -499,8 +493,8 @@ public class TabTemplateCtrl implements Initializable {
         }
         else if (event.getButton() == MouseButton.PRIMARY) {
 
-            Rotate rotX = new Rotate((event.getX() - initXAng) * 360/ 200, Rotate.Y_AXIS);
-            Rotate rotY = new Rotate((event.getY() - initYAng) * 360/ 200, Rotate.X_AXIS);
+            Rotate rotX = new Rotate((event.getX() - initXAng) * 360/ 200, new Point3D(0, 1, 0));
+            Rotate rotY = new Rotate((event.getY() - initYAng) * 360/ 200, new Point3D(1, 0, 0));
             atomGroup.getTransforms().addAll(rotX, rotY);
             
 //            root.setRotationAxis(Rotate.Y_AXIS);
@@ -540,5 +534,33 @@ public class TabTemplateCtrl implements Initializable {
         cylinder.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
         
         return cylinder;
+    }
+    
+    // TODO: Pretty broken - Jorge halp
+    private ArrayList<Shape3D> doLoop(int[] loopIndices) {
+        ArrayList<Shape3D> returnedList = new ArrayList<>();
+        LinkedList<Integer> previous = new LinkedList<>();
+        double[] transVec = new double[] {BOND_SIZE, 0, 0};
+        
+//        double[] temp = transVec;
+        double angle = 180 - 360/loopIndices.length;
+        for(int i = 0; i < loopIndices.length; i++) {
+//            cylinder.getTransforms().add(new Translate(transVec[0], transVec[1]));
+            Sphere tempSphere = new Sphere(40);
+            tempSphere.setMaterial(new PhongMaterial(Color.GREENYELLOW));
+            transVec = makeRot(transVec, new double[]{0, 0, 1}, i * Math.toRadians(angle));
+            tempSphere.setTranslateX(tempSphere.getTranslateX() + transVec[0]);
+            tempSphere.setTranslateY(tempSphere.getTranslateY() + transVec[1]);
+            tempSphere.setTranslateZ(tempSphere.getTranslateZ() + transVec[2]);
+            
+//            tempSphere.getTransforms().addAll(new Rotate(angle * i, Rotate.Z_AXIS));    
+//            previous.add(i);    
+            Cylinder cylinder = getCylinder(transVec);
+            returnedList.add(tempSphere);
+            returnedList.add(cylinder);
+//            returnedList.addAll(getRelativeLocation(i, i - 1, transVec, previous));
+//            System.out.println(i + "th time " + returnedList);
+        }
+        return returnedList;
     }
 }

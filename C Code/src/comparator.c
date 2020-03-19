@@ -385,6 +385,14 @@ int getScore(Atom* atomList, int* temp, int atomListSize)
   }
 
   //get loops
+<<<<<<< HEAD
+
+  //get abs totalCharge
+  totalCharge = totalCharge > 0 ? totalCharge : -1 * totalCharge;
+  score = totalCharge * 100 + sumOfAbsFormalCharge;
+  return score;
+}
+=======
   int loopSize = 0;
   int startIndx = 0;
   int endIndx = 0;
@@ -441,3 +449,4 @@ bool getLoop(int* temp, int atomListSize, int* prevRows, int currRow, int currIn
 
   return 0;
 }
+>>>>>>> 5cd52756d7749bf3da5ab5ff9d3f1b58472cefc9
