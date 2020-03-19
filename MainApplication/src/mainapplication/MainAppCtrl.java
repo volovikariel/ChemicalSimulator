@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package mainapplication;
 
 import java.io.BufferedReader;
@@ -39,9 +34,12 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 /**
- * FXML Controller class
- *
- * @author cstuser
+ * Controller for the parent scene.
+ * All scenes contained in subScene are affected by the handlers written in this class.
+ * 
+ * @author Ariel Volovik
+ * @author Jorge Marcano
+ * @author Samy Arab
  */
 public class MainAppCtrl implements Initializable {
     
@@ -50,53 +48,54 @@ public class MainAppCtrl implements Initializable {
     @FXML
     private SubScene subScene;
     
-    boolean isSelecting = true;
-    
     // ParentScene -> ((AnchorPane -> SplitPane -> (SelectionPane & PeriodicPane)) & MenuBar)
     private Scene parentScene;
     private AnchorPane subPane;
     
     private SubSceneController controller;
     
-    private boolean isDown = true;
+    boolean isSelectionScene = true;
+
+    private boolean menuBarIsDown = true;
     
     private boolean isAnimating = false;
     
-    //subscene locations
+    // Subscene locations
     private final String RESULTS_STR = "ResultScene.fxml";
     private final String SELECTION_STR = "SelectionScene.fxml";
     private final String LOADING_STR = "LoadingScene.fxml";
     
-    // Keys
+    // Key ASCII codes
     private final char ESCAPE = 27;
     private final char ENTER = 13;
     private final char BACKSPACE = 8;
     
     private static Atom[] atoms;
-
+    
     public static Atom[] getAtoms() {
         return atoms;
     }
     
+    // Handler for the Menubar scrolling 
     @FXML
     private void handleMouse(MouseEvent event) {
-        if(event.getY() < 15 && !isAnimating && !isDown) {
+        if(event.getY() < 15 && !isAnimating && !menuBarIsDown) {
             isAnimating = true;
             Timeline scrollIn = new Timeline(new KeyFrame(Duration.millis(100), new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    isDown = true;
+                    menuBarIsDown = true;
                     isAnimating = false;
                 }
             }, new KeyValue(menuBar.translateYProperty(), 0)));
             scrollIn.play();
         }
-        else if (event.getY() > 30 && isDown && !isAnimating) {
+        else if (event.getY() > 30 && menuBarIsDown && !isAnimating) {
             isAnimating = true;
             Timeline scrollOut = new Timeline(new KeyFrame(Duration.millis(100), new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    isDown = false;
+                    menuBarIsDown = false;
                     isAnimating = false;
                 }
             }, new KeyValue(menuBar.translateYProperty(), -30)));
@@ -106,14 +105,17 @@ public class MainAppCtrl implements Initializable {
     
     @FXML
     private void handleKeyTyped(KeyEvent keyEvent) throws IOException {
+        // Close the Stage 
         if (keyEvent.getCharacter().charAt(0) == ESCAPE) {
             ((Stage) (parentScene.getWindow())).close();
-        } 
+        }
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
-            if (isSelecting) {
+            if (isSelectionScene) { // Parse input if it's in the selection scene and Enter is pressed
                 String[] input = ((SelectionSceneCtrl) controller).parseInput();
                 //String[] input = {"H", "6", "C", "3"};
                 String inputStr = getInputStr(input);
+                //TODO: Run the call algorithm on separate thread
+                // https://stackoverflow.com/questions/44398611/running-a-process-in-a-separate-thread-so-rest-of-java-fx-application-is-usable
                 loadSubscene(LOADING_STR);
                 LinkedList<Solution> solutions = callAlgorithm(inputStr);
                 if (solutions.isEmpty()) {
@@ -128,10 +130,10 @@ public class MainAppCtrl implements Initializable {
                     return;
                 }
                 loadSubscene(RESULTS_STR);
-                //get atom list
+                // Get atom list
                 String[] atomList = solutions.getFirst().getNames();
                 solutions.removeFirst();
-                //get metal list
+                // Get metal list
                 String[] metalList = solutions.getFirst().getNames();
                 solutions.removeFirst();
                 Atom[] metalAtoms = new Atom[metalList.length];
@@ -151,11 +153,12 @@ public class MainAppCtrl implements Initializable {
                 ((ResultSceneCtrl) controller).resultList(solutions, atomList, metalAtoms);
                 
             } 
-            else {
+            else { // If you're in the Selection scene and Enter is pressed, go back to the Selection Scene
+                //TODO: Ask user for confirmation to go back
                 loadSubscene(SELECTION_STR);
             } 
         }
-        else if (Character.isLetterOrDigit(keyEvent.getCharacter().charAt(0)) && isSelecting) {
+        else if (Character.isLetterOrDigit(keyEvent.getCharacter().charAt(0)) && isSelectionScene) {
             ((SelectionSceneCtrl) controller).appendInput(keyEvent.getCharacter());
         }
         else if (keyEvent.getCharacter().charAt(0) == BACKSPACE) {
@@ -188,7 +191,7 @@ public class MainAppCtrl implements Initializable {
     public void loadScene() {
         parentScene = subScene.getScene();
         // Makes the subscene resize with its parent scene
-        subScene.heightProperty().bind(parentScene.heightProperty().subtract(35));
+        subScene.heightProperty().bind(parentScene.heightProperty().subtract(35)); // Subtract 35 to make room for the menuBar
         subScene.widthProperty().bind(parentScene.widthProperty());
         parentScene.setOnKeyTyped(new EventHandler<KeyEvent>() {
             @Override
@@ -210,7 +213,7 @@ public class MainAppCtrl implements Initializable {
     }
     
     private void loadSubscene(String subsceneFile) {
-        isSelecting = subsceneFile.equals(SELECTION_STR);
+        isSelectionScene = subsceneFile.equals(SELECTION_STR);
         FXMLLoader loader = new FXMLLoader(getClass().getResource(subsceneFile));
         try {
             Parent root = loader.load();
@@ -219,7 +222,7 @@ public class MainAppCtrl implements Initializable {
             subPane.getChildren().add(root);
             controller = (SubSceneController) loader.getController();
             
-            if (isSelecting) {
+            if (isSelectionScene) {
                 ((SelectionSceneCtrl) controller).loadTable(atoms);
                 ((SelectionSceneCtrl) controller).setAtoms(atoms);
             }
@@ -247,6 +250,8 @@ public class MainAppCtrl implements Initializable {
             int currMatrixLine = 0;
             int matrixSize = 1;
             int tempScore = 0;
+            int[] loopInfo = null;
+            
             while ((s = stdInput.readLine()) != null) {
                 // Reached the end of the file
                 if(s.equals("END")) {
@@ -269,10 +274,11 @@ public class MainAppCtrl implements Initializable {
                 	isReading = true;
                 	currMatrixLine = -1;
                 	matrixSize = 1;
+                        loopInfo = null;
                 }
                 else if (isReading) {
                 	if (s.equals("<<<<")) {
-                		solutionSet.add(new Solution(tempArray, tempScore));
+                		solutionSet.add(new Solution(tempArray, tempScore, loopInfo));
 
                 		isReading = false;
                 	}
@@ -288,16 +294,28 @@ public class MainAppCtrl implements Initializable {
                                 if (currMatrixLine == 0) {
 	                		matrixSize = valuesStr.length;
 	                		tempArray = new int[matrixSize][matrixSize];
+                                        for (int i = 0; i < matrixSize; i++) {
+                                            tempArray[currMatrixLine][i] = Integer.parseInt(valuesStr[i]);
+                                        }
 	                	}
 	                	else if (currMatrixLine >= matrixSize) {
-                                    
+                                    //loop info
+                                    if (s.contains("? ")) {
+                                        loopInfo = new int[valuesStr.length - 1];
+                                        for (int i = 1; i < valuesStr.length; i++)
+                                        {
+                                            loopInfo[i - 1] = Integer.parseInt(valuesStr[i]);
+                                        }
+                                    }
 	                	}
-
-	                	for (int i = 0; i < matrixSize; i++) {
-	                		tempArray[currMatrixLine][i] = Integer.parseInt(valuesStr[i]);
-	                	}
+                                else {
+                                    for (int i = 0; i < matrixSize; i++) {
+                                            tempArray[currMatrixLine][i] = Integer.parseInt(valuesStr[i]);
+                                    }
+                                }
 
 	                	currMatrixLine++;
+                                
                 	}
                 }
                 //System.out.println(s);

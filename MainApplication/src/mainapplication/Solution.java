@@ -9,10 +9,24 @@ public class Solution {
     private int score;
     
     private String[] names;
+    
+    private int[] loop;
 
-    public Solution(int[][] matrix, int score) {
+    public Solution(int[][] matrix, int score, int[] loop) {
         this.matrix = matrix;
         this.score = score;
+        if (loop == null)
+            this.loop = new int[0];
+        else
+            this.loop = loop;
+    }
+
+    public int[] getLoop() {
+        return loop;
+    }
+
+    public void setLoop(int[] loop) {
+        this.loop = loop;
     }
 
     public String[] getNames() {
