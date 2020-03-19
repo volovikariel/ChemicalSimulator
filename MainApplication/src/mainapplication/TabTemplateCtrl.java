@@ -219,6 +219,7 @@ public class TabTemplateCtrl implements Initializable {
             {
                 color = atoms[i].getColor();
                 formalCharge -= i > 2 ? 8 - atoms[i].getShells() : 2 - atoms[i].getShells();
+                break;
             }
         }
         Sphere temp = new Sphere(50);
@@ -236,6 +237,7 @@ public class TabTemplateCtrl implements Initializable {
         
         int amountFound = 0;
         int numBonds = 0;
+        boolean isFirst = prevRow == -1 && amountFound == 0;
         for (int i = 0; i < matrix.length; i++) {
             if (matrix[currRow][i] != 0) {
                 numBonds = matrix[currRow][i];
@@ -254,22 +256,16 @@ public class TabTemplateCtrl implements Initializable {
                         case 4:
                             double rads = Math.toRadians(180 - 109.5);
                             double[] axis = normalize(vec);
+                            double[] rotAxis = getAxis(axis, new double[] {0, 0, 1});
+                            transVec = makeRot(vec, rotAxis, -rads);
                             switch (amountFound) {
-                                // l -> \
-                                case 0:
-                                    transVec = makeRoation(vec, 0, 0, -rads);
-                                    break;
                                 // \ -> /
                                 case 1:
-                                    transVec = makeRoation(vec, 0, 0, -rads);
                                     transVec = makeRot(transVec, axis, Math.toRadians(120));
                                     break;
                                 // / -> |
                                 case 2:
-                                    transVec = makeRoation(vec, 0, 0, -rads);
-                                    transVec = makeRot(transVec, axis, Math.toRadians(-120));
-                                    break;
-                                default:
+                                    transVec = makeRot(transVec, axis, Math.toRadians(240));
                                     break;
                             }
                             break;
@@ -279,8 +275,11 @@ public class TabTemplateCtrl implements Initializable {
                     
                     //if first element, must make special case,
                     //update the transVec to be simply where you "came from"
-                    if (prevRow == -1 && amountFound == 0)
+                    if (isFirst) {
                         transVec = makeRoation(vec, Math.PI, Math.PI, Math.PI);
+                        isFirst = false;
+                        amountFound--;
+                    }
                     
                     //add cylinder
                     double translateModif = 0;
@@ -354,32 +353,63 @@ public class TabTemplateCtrl implements Initializable {
     }
     
     double[] makeRot(double[] input, double[] axis, double rad) {
-        double[][] W = {{0, -axis[2], axis[1]}, {axis[2], 0, -axis[0]}, {-axis[1], axis[0], 0}};
-        double[][] I = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+//        double[][] W = {{0, -axis[2], axis[1]}, {axis[2], 0, -axis[0]}, {-axis[1], axis[0], 0}};
+//        double[][] I = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+//        
+//        double[][] result = new double[3][3];
+//        
+//        double sin = Math.sin(rad);
+//        double cos = Math.cos(rad);
+//        
+//        double[][] W2 = new double[3][3];
+//        
+//        for (int i = 0; i < 3; i++) {
+//            for (int j = 0; j < 3; j++) {
+//                int sum = 0;
+//                for (int k = 0; k < 3; k++) {
+//                    sum += W[i][k] * W[k][j];
+//                }
+//                
+//                W2[i][j] = sum;
+//            }
+//        }
+//        
+//        for (int i = 0; i < 3; i++) {
+//            for (int j = 0; j < 3; j++) {
+//                result[i][j] = I[i][j] + sin * W[i][j] + (1 - cos) * W2[i][j];
+//            }
+//        }
+//        
+//        double[] returnVec = new double[3];
+//        
+//        for (int i = 0 ; i < 3; i++) {
+//            double sum = 0;
+//            
+//            for (int j = 0; j < 3; j++) {
+//                sum += result[i][j] * input[j];
+//            }
+//            
+//            returnVec[i] = sum;
+//        }
+//        
+//        return returnVec;
+
+        double cos = Math.cos(rad);
+        double sin = Math.sin(rad);
         
         double[][] result = new double[3][3];
         
-        double sin = Math.sin(rad);
-        double cos = Math.cos(rad);
+        result[0][0] = cos + axis[0] * axis[0] * (1 - cos);
+        result[0][1] = axis[0] * axis[1] * (1 - cos) - axis[2] * sin;
+        result[0][2] = axis[0] * axis[2] * (1 - cos) + axis[1] * sin;
         
-        double[][] W2 = new double[3][3];
+        result[1][0] = axis[1] * axis[0] * (1 - cos) + axis[2] * sin;
+        result[1][1] = cos + axis[1] * axis[1] * ( 1- cos);
+        result[1][2] = axis[1] * axis[2] * (1 - cos) - axis[0] * sin;
         
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                int sum = 0;
-                for (int k = 0; k < 3; k++) {
-                    sum += W[i][k] * W[k][j];
-                }
-                
-                W2[i][j] = sum;
-            }
-        }
-        
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                result[i][j] = I[i][j] + sin * W[i][j] + (1 - cos) * W2[i][j];
-            }
-        }
+        result[2][0] = axis[2] * axis[0] * (1 - cos) - axis[1] * sin;
+        result[2][1] = axis[2] * axis[1] * (1 - cos) + axis[0] * sin;
+        result[2][2] = cos + axis[2] * axis[2] * (1 - cos);
         
         double[] returnVec = new double[3];
         
