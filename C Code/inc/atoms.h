@@ -28,6 +28,8 @@ typedef struct Solution
     int overallCharge;
     int score;
     int* ionRatios;
+    int* loopArr;
+    int loopSize;
 } Solution;
 
 Atom* createAtom(int bondCount, char name[2], double electroneg, int listIndex, int atomicNumber);

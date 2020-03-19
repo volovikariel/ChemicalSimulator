@@ -98,7 +98,8 @@ int main(int argc, char *argv[])
     //get a list of solutions for the covalent part
     iterator(atomList, sizeCovalent, startLink, solLink);
 
-    ionizeSolutions(solLink, metalList, sizeIonic);
+    if (sizeIonic > 0)
+      ionizeSolutions(solLink, metalList, sizeIonic);
 
     //print all the solutions
     //start with the list of atoms
@@ -118,7 +119,7 @@ int main(int argc, char *argv[])
     currLink = solLink->nextLink;
     while (currLink != NULL)
     {
-        printSolMatrix(((Solution*) currLink->valuePtr), sizeCovalent);
+        printSolution(((Solution*) currLink->valuePtr), sizeCovalent, sizeIonic);
         currLink = currLink->nextLink;
     }
 
@@ -192,6 +193,14 @@ int main(int argc, char *argv[])
             printFree(currLink->valuePtr, 2);
 #endif
             free(currLink->valuePtr);
+
+            if (((Solution*) currLink->valuePtr)->loopArr != NULL)
+            {
+              free(((Solution*) currLink->valuePtr)->loopArr);
+#ifdef MEMDEBUG
+              printFree(currLink->loopArr, 2);
+#endif
+            }
         }
         startLink = currLink; //used here as a temp
         currLink = currLink->nextLink;
@@ -234,7 +243,50 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
     {
         //save the solution
         int* temp = saveSolution(atomList, atomListSize);
-        int score = getScore(atomList, temp, atomListSize);
+
+        //look for loops
+        //get loops
+        int loopSize = 0;
+        int startIndx = 0;
+        int endIndx = 0;
+        int* prevRows = calloc(atomListSize, sizeof(int));
+
+        int* loopArr = NULL;
+#ifdef MEMDEBUG
+        printMalloc((void*) prevRows, atomListSize * sizeof(int), 30);
+#endif
+
+        if (getLoop(temp, atomListSize, prevRows, 0, 1, &startIndx, &endIndx))
+          loopSize = endIndx - startIndx + 1;
+
+        //save the loop array
+        if (loopSize > 0)
+        {
+          loopArr = malloc(loopSize * sizeof(int));
+#ifdef MEMDEBUG
+          printMalloc((void*) loopArr, malloc(loopSize * sizeof(int), 31);
+#endif
+          for (int i = 0; i < loopSize; i++)
+          {
+            for (int j = 0; j < atomListSize; j++)
+            {
+              if (prevRows[j] == i + startIndx)
+              {
+                loopArr[i] = j;
+                break;
+              }
+            }
+          }
+        }
+
+#ifdef MEMDEBUG
+        printFree(prevRows, 30);
+#endif
+        free(prevRows);
+
+        int score = getScore(atomList, temp, atomListSize, loopSize);
+
+
         //reduceMatrix(atomList, temp, atomListSize);
         //compare with previous solutions
         //skip first empty link
@@ -267,6 +319,8 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
             newSol->overallCharge = getCharge(atomList, atomListSize);
             newSol->score = score;
             newSol->ionRatios = NULL;
+            newSol->loopArr = loopArr;
+            newSol->loopSize = loopSize;
             newSolLink->valuePtr = (void*) newSol;
             newSolLink->nextLink = tempStartLink;
             if (tempStartLink != NULL)

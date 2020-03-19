@@ -7,6 +7,8 @@ package mainapplication;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 import javafx.event.EventHandler;
@@ -142,12 +144,17 @@ public class TabTemplateCtrl implements Initializable {
     }
     
     
-    public void set3D(int [][] solution, String[] atomList) {
+    public void set3D(int [][] solution, String[] atomList, int[] loop) {
         matrix = solution;
         this.atomList = atomList;
         
-        ArrayList<Node> finalList = doLoop(new int[] {0,1,2});             //Ignore this - to be fixed
-//        ArrayList<Node> finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
+        ArrayList<Node> finalList;
+                
+        if (loop.length != 0)
+            finalList = doLoop(loop);
+        else
+            finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
+        
         double[] transVec = {0, 0, 0};
         
         for (Node sphere : finalList) {
@@ -309,9 +316,9 @@ public class TabTemplateCtrl implements Initializable {
     double[] getAxis(double[] a, double[] b) {
         double[] returnAxis = new double[3];
         
-        returnAxis[0] = a[1] * b[2];
-        returnAxis[1] = a[2] * b[0];
-        returnAxis[2] = a[0] * b[1];
+        returnAxis[0] = a[1] * b[2] - a[2] * b[1];
+        returnAxis[1] = a[2] * b[0] - a[0] * b[2];
+        returnAxis[2] = a[0] * b[1] - a[1] * b[0];
         
         double length = 0;
         
@@ -536,28 +543,138 @@ public class TabTemplateCtrl implements Initializable {
         return cylinder;
     }
     
-    // TODO: Pretty broken - Jorge halp
     private ArrayList<Node> doLoop(int[] loopIndices) {
+        
         ArrayList<Node> returnedList = new ArrayList<>();
         LinkedList<Integer> previous = new LinkedList<>();
-        double[] transVec = new double[] {BOND_SIZE, 0, 0};
+        
+        for (int num : loopIndices)
+            previous.add(num);
+        
+        double[] transVec;
+        double[] cylVec;
         double angleFromCenter = Math.toRadians(360/loopIndices.length);
         double angleAtCorners = Math.toRadians(180 - 360/loopIndices.length);
+        
+        double sideLen = BOND_SIZE/ Math.sqrt(2 - 2 * Math.cos(angleFromCenter));
+        
         for(int i = 0; i < loopIndices.length; i++) {
-            Sphere tempSphere = new Sphere(40);
-            tempSphere.setMaterial(new PhongMaterial(Color.GREENYELLOW));
-            transVec = makeRot(new double[]{BOND_SIZE, 0 , 0}, new double[]{0, 0, 1}, angleFromCenter * i);
+            
+            int numBonds = 0;
+            if (i != loopIndices.length - 1)
+                numBonds = matrix[loopIndices[i]][loopIndices[i + 1]];
+            else
+                numBonds = matrix[loopIndices[i]][loopIndices[0]];
+            
+            int bondCount = 0;          //see how many lone pairs
+            int thingsBondedCount = 0;  //get steric number
+
+            for (int el : matrix[loopIndices[i]]) {
+                if (el != 0) {
+                    bondCount += el;
+                    thingsBondedCount++;
+                }
+            }
+
+            String color = null;
+            int formalCharge = bondCount;
+            for (int j = 0; j < atoms.length; j++) {
+                if (atomList[loopIndices[i]].equals(atoms[j].getSymbol()))
+                {
+                    color = atoms[j].getColor();
+                    formalCharge -= j > 2 ? 8 - atoms[j].getShells() : 2 - atoms[j].getShells();
+                    break;
+                }
+            }
+            
+            Sphere tempSphere = new Sphere(50);
+            tempSphere.setMaterial(new PhongMaterial(Color.web(color)));
+            
+            transVec = new double[] {sideLen, 0, 0};
+            transVec = makeRoation(transVec, 0, 0, angleFromCenter * i);
             tempSphere.setTranslateX(tempSphere.getTranslateX() + transVec[0]);
             tempSphere.setTranslateY(tempSphere.getTranslateY() + transVec[1]);
             tempSphere.setTranslateZ(tempSphere.getTranslateZ() + transVec[2]);
-//            previous.add(i);    
-            Cylinder cylinder = getCylinder(transVec);
-            cylinder.getTransforms().addAll(new Rotate(Math.toDegrees(angleAtCorners/2)));
+            
+            //if theres formal charge, add a label
+            if (formalCharge != 0) {
+                Label label = new Label("" + formalCharge);
+                returnedList.add(label);
+                label.setTranslateX(transVec[0] + 30);
+                label.setTranslateY(transVec[1] - 60);
+                label.setTranslateZ(transVec[2] - 30);
+                label.setFont(new Font(40));
+            }
+            
+            //add cylinder
+            cylVec = new double[] {BOND_SIZE, 0, 0};
+            cylVec = makeRoation(cylVec, 0, 0, angleFromCenter * i);
+            cylVec = makeRoation(cylVec, 0, 0, Math.PI - angleAtCorners/2);
+            double translateModif = 0;
+            for(int j = 0; j < numBonds; j++) {
+                if(numBonds == 3) {
+                    translateModif = j-1;
+                } 
+                else if (numBonds == 2) {
+                    translateModif = j-0.5;
+                }
+                Cylinder cylinder = getCylinder(cylVec);
+                cylinder.setTranslateX(cylinder.getTranslateX() + transVec[0]);
+                cylinder.setTranslateY(cylinder.getTranslateY() + transVec[1]);
+                cylinder.setTranslateZ(cylinder.getTranslateZ() + transVec[2]);
+                cylinder.getTransforms().add(new Translate(translateModif*transVec[0]/3, translateModif*transVec[1] * -1/4, translateModif*transVec[2]/6));
+                returnedList.add(cylinder);
+            }
+            
+            //call the recursive fct to get everything else connected to this sphere
+            //find everything connected to this atom
+            int amountFound = 0;
+            for (int j = 0; j < matrix.length; j++) {
+                if (matrix[loopIndices[i]][j] != 0 && !previous.contains(j)) {
+                    numBonds = matrix[loopIndices[i]][j];
+                    
+                    double[] attackVec = {BOND_SIZE, 0, 0};
+                    attackVec = makeRoation(attackVec, 0, 0, angleFromCenter * i);
+                    
+                    //if there is not only one other thing
+                    if (thingsBondedCount != 3) {
+                        double[] axis = getAxis(attackVec, new double[] {0, 0, 1});
+                        attackVec = makeRot(attackVec, axis, (2 * Math.PI / 3) * (amountFound - 0.5));
+                        amountFound++;
+                    }
+                    
+                    translateModif = 0;
+                    for(int k = 0; k < numBonds; k++) {
+                        if(numBonds == 3) {
+                            translateModif = k-1;
+                        } 
+                        else if (numBonds == 2) {
+                            translateModif = k-0.5;
+                        }
+                        Cylinder cylinder = getCylinder(attackVec);
+                        cylinder.setTranslateX(cylinder.getTranslateX() + transVec[0]);
+                        cylinder.setTranslateY(cylinder.getTranslateY() + transVec[1]);
+                        cylinder.setTranslateZ(cylinder.getTranslateZ() + transVec[2]);
+                        cylinder.getTransforms().add(new Translate(translateModif*attackVec[0]/3, translateModif*attackVec[1] * -1/4, translateModif*attackVec[2]/6));
+                        returnedList.add(cylinder);
+                    }
+                    
+                    //call recursive fct
+                    ArrayList<Node> recursion = getRelativeLocation(j, loopIndices[i], attackVec, previous);
+
+                    for (Node sphere : recursion) {
+                        sphere.setTranslateX(sphere.getTranslateX() + attackVec[0] + transVec[0]);
+                        sphere.setTranslateY(sphere.getTranslateY() + attackVec[1] + transVec[1]);
+                        sphere.setTranslateZ(sphere.getTranslateZ() + attackVec[2] + transVec[2]);
+
+                        returnedList.add(sphere);
+                    }
+                }
+            }
+            
             returnedList.add(tempSphere);
-            returnedList.add(cylinder);
-//            returnedList.addAll(getRelativeLocation(i, i - 1, transVec, previous));
-//            System.out.println(i + "th time " + returnedList);
         }
+        
         return returnedList;
     }
 }

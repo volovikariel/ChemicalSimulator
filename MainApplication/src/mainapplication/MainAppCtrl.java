@@ -247,6 +247,8 @@ public class MainAppCtrl implements Initializable {
             int currMatrixLine = 0;
             int matrixSize = 1;
             int tempScore = 0;
+            int[] loopInfo = null;
+            
             while ((s = stdInput.readLine()) != null) {
                 // Reached the end of the file
                 if(s.equals("END")) {
@@ -269,10 +271,11 @@ public class MainAppCtrl implements Initializable {
                 	isReading = true;
                 	currMatrixLine = -1;
                 	matrixSize = 1;
+                        loopInfo = null;
                 }
                 else if (isReading) {
                 	if (s.equals("<<<<")) {
-                		solutionSet.add(new Solution(tempArray, tempScore));
+                		solutionSet.add(new Solution(tempArray, tempScore, loopInfo));
 
                 		isReading = false;
                 	}
@@ -288,16 +291,28 @@ public class MainAppCtrl implements Initializable {
                                 if (currMatrixLine == 0) {
 	                		matrixSize = valuesStr.length;
 	                		tempArray = new int[matrixSize][matrixSize];
+                                        for (int i = 0; i < matrixSize; i++) {
+                                            tempArray[currMatrixLine][i] = Integer.parseInt(valuesStr[i]);
+                                        }
 	                	}
 	                	else if (currMatrixLine >= matrixSize) {
-                                    
+                                    //loop info
+                                    if (s.contains("? ")) {
+                                        loopInfo = new int[valuesStr.length - 1];
+                                        for (int i = 1; i < valuesStr.length; i++)
+                                        {
+                                            loopInfo[i - 1] = Integer.parseInt(valuesStr[i]);
+                                        }
+                                    }
 	                	}
-
-	                	for (int i = 0; i < matrixSize; i++) {
-	                		tempArray[currMatrixLine][i] = Integer.parseInt(valuesStr[i]);
-	                	}
+                                else {
+                                    for (int i = 0; i < matrixSize; i++) {
+                                            tempArray[currMatrixLine][i] = Integer.parseInt(valuesStr[i]);
+                                    }
+                                }
 
 	                	currMatrixLine++;
+                                
                 	}
                 }
                 //System.out.println(s);

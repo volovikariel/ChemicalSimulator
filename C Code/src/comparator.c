@@ -362,7 +362,7 @@ int getCharge(Atom* atomList, int atomListSize)
   return charge;
 }
 
-int getScore(Atom* atomList, int* temp, int atomListSize)
+int getScore(Atom* atomList, int* temp, int atomListSize, int loopSize)
 {
   //things to check in order of importance
   //charge of entire molecule
@@ -383,31 +383,6 @@ int getScore(Atom* atomList, int* temp, int atomListSize)
     totalCharge += tempPartialCharge;
     sumOfAbsFormalCharge += tempPartialCharge > 0 ? tempPartialCharge : -1 * tempPartialCharge;
   }
-
-  //get loops
-<<<<<<< HEAD
-
-  //get abs totalCharge
-  totalCharge = totalCharge > 0 ? totalCharge : -1 * totalCharge;
-  score = totalCharge * 100 + sumOfAbsFormalCharge;
-  return score;
-}
-=======
-  int loopSize = 0;
-  int startIndx = 0;
-  int endIndx = 0;
-  int* prevRows = calloc(atomListSize, sizeof(int));
-#ifdef MEMDEBUG
-  printMalloc((void*) prevRows, atomListSize * sizeof(int), 30);
-#endif
-
-  if (getLoop(temp, atomListSize, prevRows, 0, 1, &startIndx, &endIndx))
-    loopSize = endIndx - startIndx + 1;
-
-#ifdef MEMDEBUG
-  printFree(prevRows, 30);
-#endif
-  free(prevRows);
 
   //get abs totalCharge
   totalCharge = totalCharge > 0 ? totalCharge : -1 * totalCharge;
@@ -449,4 +424,3 @@ bool getLoop(int* temp, int atomListSize, int* prevRows, int currRow, int currIn
 
   return 0;
 }
->>>>>>> 5cd52756d7749bf3da5ab5ff9d3f1b58472cefc9
