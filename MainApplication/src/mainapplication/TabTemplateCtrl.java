@@ -79,8 +79,8 @@ public class TabTemplateCtrl implements Initializable {
         int [][] triMatrix = new int [matrix.length - 1][matrix.length - 1];
         int elementCount = matrix.length; //rows
         int bondCount = 0;
-        int bond = 0;
-        GraphicsContext gc = lewisCanvasID.getGraphicsContext2D();
+        int bonds = 0;
+        
         
         //iterates through the list of atoms
 //        for (int i = 0; i < atomList.length; i++) {
@@ -93,56 +93,46 @@ public class TabTemplateCtrl implements Initializable {
 //        }
         
         //this is only the upper half of the matrix which contains the solution once
-//        for (int row = 0; row < matrix.length; row++) {
-//            for (int col = 1; col < matrix[0].length; col++) {
-//                triMatrix[row][col] = matrix[row][col];
-//            }
-//        }
-        
+
+        for (int row = 0; row < matrix.length; row++) {
+            for (int col = 1; col < matrix[row].length; col++) {
+                triMatrix[row][col] = matrix[row][col];
+            }
+        }
+        bondCount = triMatrix.length;       
         
         for (int row = 0; row < triMatrix.length; row++) {
-            System.out.println(atomList[row]);
+            System.out.println(atomList[row]); //debugging
             
-            for (int col = 0; col < triMatrix[0].length; col++) {
-                System.out.println(atomList[col]);
+            for (int col = 0; col < triMatrix[row].length; col++) {
+                System.out.println(atomList[col]); //debugging
                 
                 if (triMatrix[row][col] != 0) {
-                    bondCount++;
-                    System.out.println("(" + col + ", " + row + ")");
-                }
-            }
-        }
-        // boundCount --> amount of bonds in the molecule
-        //
-        
-        
-        
-        //iterates through the solution matrix
-        for (int row = 0; row < matrix.length; row++) {
-            for (int col = 0; col < matrix[0].length; col++) {
-                if (matrix[row][col] != 0) {
+                    System.out.println("(" + col + ", " + row + ")"); //debugging
+                    
+                    for (int [] rows : triMatrix) {
+                        bonds = bondCount - rows.length; //bonds made by that element (for angles)
+                    }
+
                     String tempElement = atomList[row];
-                    String tempElement2 = atomList[col];
-                    bond = matrix[row][col];
+                    String tempElement2 = atomList[bondCount - col];
                     
-                    
-                    
-                    
-                    
-                    gc.strokeText(tempElement, 150 + 20 * row, 175);
-                    gc.strokeText(tempElement2, 150 + 20 * row, 175);
-                    
-                    Paint p = Color.BLACK;
-                    gc.strokeLine(row + 100, 150, 175 * row, 150);
-                    
+                    printLewis(tempElement, tempElement2, bonds);
                 }
             }
         }
-        
     }
     
-    public void printLewis(String [] atoms, int bonds) {
-        
+    
+    public void printLewis(String element, String element2, int bonds) {
+        GraphicsContext gc = lewisCanvasID.getGraphicsContext2D();
+
+        gc.strokeText(element, 150 + 20 * Math.cos((double) bonds), 175);
+        gc.strokeText(element2, 150 + 20 *(360 / Math.cos((double) bonds)), 175);
+
+        Paint p = Color.BLACK;
+        gc.strokeLine(160, 150, 175 * Math.cos((double) bonds), 150);
+
     }
     
     
