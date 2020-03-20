@@ -1,16 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package mainapplication;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -19,7 +12,9 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
 /**
- * Main entry point of the JavaFX application
+ * Controller for the result scene FXML.
+ * This FXML is shown once the algorithm returns the solutions.
+ * This scene contains the TabTemplate FXML inside of it.
  * 
  * @author Ariel Volovik
  * @author Jorge Marcano
@@ -30,6 +25,13 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
     @FXML
     private TabPane resultID;
     
+    /**
+     * Method that creates each individual Tab inside of the TabPane.
+     * Each Tab corresponds to a separate solution.
+     * @param list the list of solutions
+     * @param atomList the list of non-metals 
+     * @param metalList the list of metals
+     */
     public void resultList(LinkedList<Solution> list, String[] atomList, Atom[] metalList) {
         for (int i = 0; i < list.size(); i++) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("TabTemplate.fxml"));
@@ -54,9 +56,7 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
             resultID.getTabs().add(newTab);
         }
     }
-    /**
-     * Initializes the controller class.
-     */
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         

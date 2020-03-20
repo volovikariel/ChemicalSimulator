@@ -163,7 +163,7 @@ public class MainAppCtrl implements Initializable {
         }
         else if (keyEvent.getCharacter().charAt(0) == BACKSPACE) {
             // Removes a character at a time
-            ((SelectionSceneCtrl) controller).removeChar();
+            ((SelectionSceneCtrl) controller).removeElement();
         }
     }
     
@@ -232,7 +232,11 @@ public class MainAppCtrl implements Initializable {
         }
     }
 
-
+    /**
+     * Method that runs the algorithm given a user's input and returns the ordered solutions.
+     * @param input the list of atoms
+     * @return ordered list of matrices
+     */
     private LinkedList<Solution> callAlgorithm(String input) {
     	try {
             Path currentRelativePath = Paths.get("");
@@ -240,7 +244,7 @@ public class MainAppCtrl implements Initializable {
             File dir = new File(s);
             Runtime run = Runtime.getRuntime();
             
-            //get os
+            // Runs the executable specific to the operating system
             String osName = System.getProperty("os.name").toLowerCase();
             Process proc;
             if (osName.contains("win"))
@@ -337,7 +341,11 @@ public class MainAppCtrl implements Initializable {
     }
     
     
-    
+    /**
+     * Modifies the parsed input into a format compatible with the algorithm's input.
+     * @param input [P,H,O]
+     * @return P H O
+     */
     private String getInputStr(String[] input) {
         String returnStr = "";
         

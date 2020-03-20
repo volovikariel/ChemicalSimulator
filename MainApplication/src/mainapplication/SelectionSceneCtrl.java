@@ -171,7 +171,11 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         txtManual.setText(txtManual.getText() + text);
     }
     
-    public void removeChar() {
+    /**
+     * Method which removes a single element from the list of elements which are to be parsed. 
+     * This method gets called both when the user presses backspace and when they right click and element to remove it.
+     */
+    public void removeElement() {
         //TODO: Make it so that if the user inputs 25, a backspace makes it go back to 2 instead of 24.
         if(txtManual.getLength() >= 1) {  
             
@@ -206,6 +210,10 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         }
     }
     
+    /**
+     * Loads the periodic table with proper spacing.
+     * @param atoms the list of atoms and their characteristics, received from a CSV file.
+     */
     public void loadTable(Atom[] atoms) {
         RowConstraints tempRow = new RowConstraints();
         tempRow.setVgrow(Priority.ALWAYS);
@@ -335,6 +343,11 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         }
     }
     
+    /**
+     * Method which removes an element from the TextField when its VBox gets removed by the user.
+     * @param originalString the original contents of the TextField
+     * @param elementName the element which gets removed
+     */
     public void removeString(String originalString, String elementName) {
         //String tempStr = txtManual.getText().replaceFirst(elementName, "");
         String[] atomList = getAtoms(parseInput());
@@ -350,10 +363,13 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         for (String el: alFinished)
             if (!el.equals("1"))
                   tempStr += el;
-        
         txtManual.setText(tempStr);
     }
     
+    /**
+     * Method which parses the user's input.
+     * @return an ordered, formatted version of the user's input, so as to later be used by the algorithm
+     */
     public String[] parseInput() {
         String text = txtManual.getText();
         if(text.isEmpty()) {
@@ -364,17 +380,22 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         // [O,H,O] -> [O,1,H,1,O,1]
         ArrayList<String> alFormatted = addOnes(llSymbols);
         //TODO: Figure out what alFormatted is for
-        // ??? [O,1,H,1,O,1] -> [O,H,O] ??? -> [1,8,8]
+        // [O,1,H,1,O,1] -> [O,H,O] -> [1,8,8]
         String[] arrayToSortSymbols = getAtoms(alFormatted.toArray(new String[alFormatted.size()]));
         int[] arrayDoneSorting = sortArray(arrayToSortSymbols);
         // [1,8,8] -> [H,O,O]
         ArrayList<String> alName = numToSymbol(arrayDoneSorting);
-        // [H,O,O] -> [H, 1, O, 2]
+        // [H,O,O] -> [H,1,O,2]
         ArrayList<String> alFinished = concentrateStr(alName);
 
         return alFinished.toArray(new String[alFinished.size()]);
     }
     
+    /**
+     * Method which converts the element's atomic numbers to their corresponding symbols.
+     * @param numArr the array of elements in their symbol form
+     * @return an ArrayList of the corresponding symbols
+     */
     public ArrayList<String> numToSymbol(int[] numArr) {
         ArrayList<String> returnArr = new ArrayList<>(numArr.length);
         
@@ -383,7 +404,14 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         return returnArr;
     }
     
+    /**
+     * Method which concentrates the given atom list.
+     * For example: [H,H,O] -> [H,2,O]
+     * @param alName an ArrayList of atoms to be concentrated
+     * @return the concentrated version of the ArrayList
+     */
     public ArrayList<String> concentrateStr(ArrayList<String> alName) {
+        System.out.println("ALNAME: " + alName);
         ArrayList<String> alFinished = new ArrayList<>();
         
         boolean firstTime = true;
@@ -414,10 +442,17 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         if (numTimesFound != 0)
             alFinished.add("" + numTimesFound);
         
+        System.out.println("ALFINISHED: " + alFinished);
         return alFinished;
     }
-    // Sort an array of symbols in the form [H, O, H] and turn them into [1, 8, 1]
-    // then return the bubble sorted version [1, 1, 8]
+
+    /**
+     * Method which, given a list of atoms, returns a sorted list. 
+     * The sorting has to do with the atom's atomic number. 
+     * So the result of passing in [H,O,H] would be [H,H,O].
+     * @param arrayToSortSymbols a list of atoms to be sorted
+     * @return a sorted ArrayList of the inputted atoms
+     */
     public int[] sortArray(String[] arrayToSortSymbols) {        
         // Create an array to bubble sort
         int[] arrayToSortNumbers = new int[arrayToSortSymbols.length];
@@ -456,6 +491,11 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         return arr;
     }
     
+    /**
+     * Method which adds a one to atoms which there's only one of.
+     * @param llSymbols a LinkedList of symbols
+     * @return the same LinkedList but with ones added after each element of which there is one of
+     */
     public ArrayList<String> addOnes(LinkedList<String> llSymbols) {
         ArrayList<String> alFormatted = new ArrayList<>();        
         // Formatting the output and checking if the total number of atoms exceeds the limit (20)
@@ -484,6 +524,11 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         return alFormatted;
     }
     
+    /**
+     * Method which takes in plain text and converts it to a linked list, separating them by atoms.
+     * @param text the inputed list of atoms
+     * @return a LinkedList of the atoms
+     */
     public LinkedList<String> splitString(String text) {
         char[] llInput = new char[text.length()];
         // Converting input to a linked list
@@ -536,7 +581,6 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
             }
         }
         llSymbols.add(symbol);
-        
         return llSymbols;
     }
     

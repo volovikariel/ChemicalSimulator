@@ -7,7 +7,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ProgressIndicator;
 
 /**
- * Main entry point of the JavaFX application
+ * Controller for the loading scene FXML. 
+ * This FXML is ran whilst the program waits for to receive the solutions sent by the algorithm.
  * 
  * @author Ariel Volovik
  * @author Jorge Marcano
