@@ -1,2 +1,2 @@
-cd ../src
-gcc main.c -o ../../MainApplication/linux.out
+cd ../../src
+gcc main.c atoms.c comparator.c prints.c memory.c csvParser.c -o ..\..\MainApplication\b.out -Wall
