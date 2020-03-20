@@ -1,7 +1,7 @@
 package mainapplication;
 
 /**
- * Main entry point of the JavaFX application
+ * The controller for the SubScene.
  * 
  * @author Ariel Volovik
  * @author Jorge Marcano
