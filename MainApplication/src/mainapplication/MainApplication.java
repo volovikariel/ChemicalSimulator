@@ -20,6 +20,8 @@ public class MainApplication extends Application {
     private Stage primaryStage;
     private Scene scene;
     private Scene resultScene;
+    
+    private MainAppCtrl controller;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -34,15 +36,16 @@ public class MainApplication extends Application {
         primaryStage.setTitle("Chemistry Simulator");
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainApp.fxml"));
         Parent root = loader.load();
+        controller = loader.getController();
         this.scene = new Scene(root, 1280, 960);
         primaryStage.setScene(scene);
         primaryStage.show();
         
-        ((MainAppCtrl) loader.getController()).loadScene();
+        controller.loadScene();
     }
     
     public static void main(String[] args) {
         launch(args);
-    }
-    
+    }  
+        
 }
