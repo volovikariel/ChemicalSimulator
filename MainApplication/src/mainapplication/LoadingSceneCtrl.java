@@ -21,7 +21,7 @@ import javafx.scene.text.Font;
  * @author Samy Arab
  */
 
-public class LoadingSceneController implements Initializable, SubSceneController {
+public class LoadingSceneCtrl implements Initializable, SubSceneController {
 
     @FXML
     private Label lblLoading;
