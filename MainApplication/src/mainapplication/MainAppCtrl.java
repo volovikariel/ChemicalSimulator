@@ -13,6 +13,8 @@ import java.util.ResourceBundle;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -72,6 +74,9 @@ public class MainAppCtrl implements Initializable {
     
     private static Atom[] atoms;
     
+    private LinkedList<Solution> solutions = null;
+    public Task<Void> algorithmTask;
+    
     public static Atom[] getAtoms() {
         return atoms;
     }
@@ -114,47 +119,69 @@ public class MainAppCtrl implements Initializable {
                 String[] input = ((SelectionSceneCtrl) controller).parseInput();
                 //String[] input = {"H", "6", "C", "3"};
                 String inputStr = getInputStr(input);
-                //TODO: Run the call algorithm on separate thread
-                // https://stackoverflow.com/questions/44398611/running-a-process-in-a-separate-thread-so-rest-of-java-fx-application-is-usable
+                
                 loadSubscene(LOADING_STR);
-                LinkedList<Solution> solutions = callAlgorithm(inputStr);
-                if (solutions.isEmpty()) {
-                    System.out.println("No solutions found!!");
-                    
-                    Alert alert = new Alert(AlertType.WARNING, "These atoms yielded no solutions!");
-                    alert.setTitle("No Solutions Found!!!");
-                    alert.show();
-                    
-                    loadSubscene(SELECTION_STR);
-                    
-                    return;
-                }
-                loadSubscene(RESULTS_STR);
-                // Get atom list
-                String[] atomList = solutions.getFirst().getNames();
-                solutions.removeFirst();
-                // Get metal list
-                String[] metalList = solutions.getFirst().getNames();
-                solutions.removeFirst();
-                Atom[] metalAtoms = new Atom[metalList.length];
                 
-                int offset = 0;
-                for (int i = 0; i < metalList.length; i++) {
-                    for (int j = offset; j < atoms.length; j++) {
-                        if (atoms[j].getSymbol().equals(metalList[i])) {
-                            metalAtoms[i] = atoms[j];
-                            offset = j;
-                            break;
-                        }
+                //call the algorithm on a seperate thread
+                algorithmTask = new Task<Void>() {
+                    @Override
+                    protected Void call() {
+                        solutions = callAlgorithm(inputStr);
+                        
+                        return null;
                     }
-                }
+                };
                 
-                //System.out.println(Arrays.toString(atomList));
-                ((ResultSceneCtrl) controller).resultList(solutions, atomList, metalAtoms);
+                algorithmTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+                    @Override
+                    public void handle(WorkerStateEvent event) {
+                        if (solutions.isEmpty()) {
+                            System.out.println("No solutions found!!");
+
+                            Alert alert = new Alert(AlertType.WARNING, "These atoms yielded no solutions!");
+                            alert.setTitle("No Solutions Found!!!");
+                            alert.show();
+
+                            loadSubscene(SELECTION_STR);
+
+                            return;
+                        }
+                        loadSubscene(RESULTS_STR);
+                        // Get atom list
+                        String[] atomList = solutions.getFirst().getNames();
+                        solutions.removeFirst();
+                        // Get metal list
+                        String[] metalList = solutions.getFirst().getNames();
+                        solutions.removeFirst();
+                        Atom[] metalAtoms = new Atom[metalList.length];
+
+                        int offset = 0;
+                        for (int i = 0; i < metalList.length; i++) {
+                            for (int j = offset; j < atoms.length; j++) {
+                                if (atoms[j].getSymbol().equals(metalList[i])) {
+                                    metalAtoms[i] = atoms[j];
+                                    offset = j;
+                                    break;
+                                }
+                            }
+                        }
+
+                        //System.out.println(Arrays.toString(atomList));
+                        ((ResultSceneCtrl) controller).resultList(solutions, atomList, metalAtoms);
+                        
+                        algorithmTask = null;
+                    }
+                });
+                
+                Thread thread = new Thread(algorithmTask);
+                thread.setDaemon(true);
+                thread.start();
                 
             } 
             else { // If you're in the Selection scene and Enter is pressed, go back to the Selection Scene
                 //TODO: Ask user for confirmation to go back
+                if (algorithmTask != null)
+                    algorithmTask.cancel();
                 loadSubscene(SELECTION_STR);
             } 
         }
