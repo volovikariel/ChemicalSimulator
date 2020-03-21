@@ -68,7 +68,9 @@ public class TabTemplateCtrl implements Initializable {
     double prevYAng = 0;
     
     PerspectiveCamera camera;
-        
+    
+    private Label label;
+    
     private Group atomGroup = new Group();
     
     /**
@@ -189,6 +191,8 @@ public class TabTemplateCtrl implements Initializable {
         if (atomList[currRow].equals("H")) {
             Sphere temp = new Sphere(40);
             temp.setMaterial(new PhongMaterial(Color.web(atoms[0].getColor())));
+            temp.setId("H");
+            addHover(temp);
             returnList.add(temp);
             
             if (prevRow != -1) {
@@ -254,6 +258,8 @@ public class TabTemplateCtrl implements Initializable {
         boolean isFirst = prevRow == -1 && amountFound == 0;
         for (int i = 0; i < matrix.length; i++) {
             if (matrix[currRow][i] != 0) {
+                temp.setId(atomList[currRow]);
+                addHover(temp);
                 numBonds = matrix[currRow][i];
                 if (i != prevRow && !prevs.contains(i)) {
                     double[] transVec = new double[3];
@@ -635,7 +641,7 @@ public class TabTemplateCtrl implements Initializable {
             int numBonds = 0;
             if (i != loopIndices.length - 1)
                 numBonds = matrix[loopIndices[i]][loopIndices[i + 1]];
-            else
+            else 
                 numBonds = matrix[loopIndices[i]][loopIndices[0]];
             
             int bondCount = 0;          //see how many lone pairs
@@ -660,6 +666,8 @@ public class TabTemplateCtrl implements Initializable {
             }
             
             Sphere tempSphere = new Sphere(50);
+            tempSphere.setId(atomList[i]);
+            addHover(tempSphere);
             tempSphere.setMaterial(new PhongMaterial(Color.web(color)));
             
             transVec = new double[] {sideLen, 0, 0};
@@ -738,7 +746,6 @@ public class TabTemplateCtrl implements Initializable {
                         sphere.setTranslateX(sphere.getTranslateX() + attackVec[0] + transVec[0]);
                         sphere.setTranslateY(sphere.getTranslateY() + attackVec[1] + transVec[1]);
                         sphere.setTranslateZ(sphere.getTranslateZ() + attackVec[2] + transVec[2]);
-
                         returnedList.add(sphere);
                     }
                 }
@@ -746,7 +753,6 @@ public class TabTemplateCtrl implements Initializable {
             
             returnedList.add(tempSphere);
         }
-        
         return returnedList;
     }
     
@@ -760,5 +766,25 @@ public class TabTemplateCtrl implements Initializable {
         SnapshotParameters spa = new SnapshotParameters();
         spa.setTransform(Transform.scale(2, 2));
         return lewisCanvasID.snapshot(spa, null);
+    }
+    
+    public void addHover(Node s) {
+        s.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                label = new Label();
+                System.out.println(s.getId());
+                label.setText(s.getId());
+                label.setFont(new Font(20));
+                label.setTranslateY(realView.getHeight()/3);
+                bindAnchor.getChildren().add(label);
+            }
+        });
+        s.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                bindAnchor.getChildren().remove(label);
+            }
+        });
     }
 }
