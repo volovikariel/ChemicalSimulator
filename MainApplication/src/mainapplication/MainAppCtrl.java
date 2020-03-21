@@ -24,6 +24,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.SubScene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -33,6 +34,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.transform.Transform;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -54,9 +56,12 @@ public class MainAppCtrl implements Initializable {
     @FXML
     private MenuBar menuBar;
     
-    private static MenuItem takeFullPicture;
-    private static MenuItem takeLewisPicture;
-    private static MenuItem take3DPicture;
+    @FXML
+    private MenuItem takeFullPicture;
+    @FXML
+    private MenuItem takeLewisPicture;
+    @FXML
+    private MenuItem take3DPicture;
     
     @FXML
     private SubScene subScene;
@@ -181,6 +186,9 @@ public class MainAppCtrl implements Initializable {
                         ((ResultSceneCtrl) controller).resultList(solutions, atomList, metalAtoms);
                         
                         algorithmTask = null;
+                        
+                        take3DPicture.setDisable(false);
+                        takeLewisPicture.setDisable(false);
                     }
                 });
                 
@@ -194,7 +202,6 @@ public class MainAppCtrl implements Initializable {
                 if (algorithmTask != null)
                     algorithmTask.cancel();
                 loadSubscene(SELECTION_STR);
-                setMenuItems(true);
             } 
         }
         else if (Character.isLetterOrDigit(keyEvent.getCharacter().charAt(0)) && isSelectionScene) {
@@ -225,79 +232,6 @@ public class MainAppCtrl implements Initializable {
         subScene.setRoot(subPane);
         loadSubscene(SELECTION_STR);
         ((SelectionSceneCtrl) controller).setAtoms(atoms);
-        // Setting up menuitems and making 2 of them disabled
-        takeFullPicture = new MenuItem("Full Picture...");
-        take3DPicture = new MenuItem("3D Picture...");
-        takeLewisPicture = new MenuItem("Lewis Picture...");
-        setMenuItems(true);
-        menuBar.getMenus().get(0).getItems().addAll(takeFullPicture, take3DPicture, takeLewisPicture);
-        // Picture of the entire scene
-        takeFullPicture.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    WritableImage wi = new WritableImage((int)parentScene.getWidth(), (int)parentScene.getHeight());
-                    WritableImage snapshot = parentScene.snapshot(wi);
-                    
-                    FileChooser fileChooser = new FileChooser();
-                    fileChooser.setTitle("Save Picture As...");
-                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
-                    File output = fileChooser.showSaveDialog(parentScene.getWindow());
-                    
-                    if(!output.exists() && output != null) {
-                        output.mkdirs();
-                        ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", output);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        // Broken, Jorge will fix it
-        takeLewisPicture.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    WritableImage wi = new WritableImage((int)parentScene.getWidth(), (int)parentScene.getHeight());
-                    WritableImage snapshot = parentScene.snapshot(wi);
-                    
-                    FileChooser fileChooser = new FileChooser();
-                    fileChooser.setTitle("Save Picture As...");
-                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
-                    File output = fileChooser.showSaveDialog(parentScene.getWindow());
-                    
-                    if(!output.exists() && output != null) {
-                        output.mkdirs();
-                        ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", output);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        // Picture of the 3D section
-        take3DPicture.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    WritableImage wi = new WritableImage((int) (TabTemplateCtrl.realView).getWidth(), (int)(TabTemplateCtrl.realView).getHeight());
-                    WritableImage snapshot = (TabTemplateCtrl.realView).snapshot(null, wi);
-                    
-                    FileChooser fileChooser = new FileChooser();
-                    fileChooser.setTitle("Save Picture As...");
-                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
-                    File output = fileChooser.showSaveDialog(parentScene.getWindow());
-                    
-                    if(!output.exists() && output != null) {
-                        output.mkdirs();
-                        ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", output);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        
     }
     
     public void loadScene() {
@@ -325,6 +259,8 @@ public class MainAppCtrl implements Initializable {
     }
     
     private void loadSubscene(String subsceneFile) {
+        take3DPicture.setDisable(true);
+        takeLewisPicture.setDisable(true);
         isSelectionScene = subsceneFile.equals(SELECTION_STR);
         FXMLLoader loader = new FXMLLoader(getClass().getResource(subsceneFile));
         try {
@@ -467,8 +403,60 @@ public class MainAppCtrl implements Initializable {
         return returnStr;
     }
     
-    public static void setMenuItems(boolean isDisabled) {
-        take3DPicture.setDisable(isDisabled);
-        takeLewisPicture.setDisable(isDisabled);
+    @FXML
+    void saveScene(ActionEvent event) {
+        try {
+            WritableImage snapshot = parentScene.snapshot(null);
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save Picture As...");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
+            File output = fileChooser.showSaveDialog(parentScene.getWindow());
+
+            if(output != null) {
+                output.mkdirs();
+                ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", output);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @FXML
+    void saveThreeDim(ActionEvent event) {
+        try {
+            WritableImage snapshot = ((ResultSceneCtrl) controller).screenShotThreeD();
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save Picture As...");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
+            File output = fileChooser.showSaveDialog(parentScene.getWindow());
+
+            if(output != null) {
+                output.mkdirs();
+                ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", output);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @FXML
+    void saveLewis(ActionEvent event) {
+        try {
+            WritableImage snapshot = ((ResultSceneCtrl) controller).screenShotLewis();
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save Picture As...");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
+            File output = fileChooser.showSaveDialog(parentScene.getWindow());
+
+            if(output != null) {
+                output.mkdirs();
+                ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", output);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }    

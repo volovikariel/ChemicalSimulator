@@ -2,6 +2,7 @@ package mainapplication;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -10,6 +11,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.WritableImage;
 
 /**
  * Controller for the result scene FXML.
@@ -25,6 +27,8 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
     @FXML
     private TabPane resultID;
     
+    private HashMap<Integer, TabTemplateCtrl> controllers;
+    
     /**
      * Method that creates each individual Tab inside of the TabPane.
      * Each Tab corresponds to a separate solution.
@@ -33,6 +37,7 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
      * @param metalList the list of metals
      */
     public void resultList(LinkedList<Solution> list, String[] atomList, Atom[] metalList) {
+        controllers = new HashMap<>();
         for (int i = 0; i < list.size(); i++) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("TabTemplate.fxml"));
             Parent root = null;
@@ -54,12 +59,22 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
             controller.set3D(list.get(i).getMatrix(), atomList, list.get(i).getLoop());
             
             resultID.getTabs().add(newTab);
+            
+            controllers.put(i, controller);
         }
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
-    }    
+    }
     
+    public WritableImage screenShotThreeD() {
+        TabTemplateCtrl ctrl = controllers.get(resultID.getSelectionModel().getSelectedIndex());
+        return ctrl.screenShotThreeD();
+    }
+    
+    public WritableImage screenShotLewis() {
+        TabTemplateCtrl ctrl = controllers.get(resultID.getSelectionModel().getSelectedIndex());
+        return ctrl.screenShotLewis();
+    }
 }

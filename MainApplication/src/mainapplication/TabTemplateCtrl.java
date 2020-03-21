@@ -13,10 +13,12 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -28,6 +30,7 @@ import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 
 /**
@@ -43,7 +46,7 @@ public class TabTemplateCtrl implements Initializable {
     int[][] matrix;
     String[] atomList;
     
-    public static SubScene realView;
+    private SubScene realView;
     Atom[] atoms;
     
     @FXML
@@ -507,8 +510,7 @@ public class TabTemplateCtrl implements Initializable {
         realView.setCamera(camera);
         
         atoms = MainAppCtrl.getAtoms();
-        // Enable the ability to take screenshots of the 3D and Lewis Structure part
-        MainAppCtrl.setMenuItems(false);
+        
         // Handle the scrolling for 3D
         bindAnchor.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override 
@@ -746,5 +748,17 @@ public class TabTemplateCtrl implements Initializable {
         }
         
         return returnedList;
+    }
+    
+    public WritableImage screenShotThreeD() {
+        SnapshotParameters spa = new SnapshotParameters();
+        spa.setTransform(Transform.scale(2, 2));
+        return realView.snapshot(spa, null);
+    }
+    
+    public WritableImage screenShotLewis() {
+        SnapshotParameters spa = new SnapshotParameters();
+        spa.setTransform(Transform.scale(2, 2));
+        return lewisCanvasID.snapshot(spa, null);
     }
 }
