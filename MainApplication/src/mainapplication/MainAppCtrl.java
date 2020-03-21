@@ -15,22 +15,28 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javax.imageio.ImageIO;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -47,6 +53,11 @@ public class MainAppCtrl implements Initializable {
     
     @FXML
     private MenuBar menuBar;
+    
+    private static MenuItem takeFullPicture;
+    private static MenuItem takeLewisPicture;
+    private static MenuItem take3DPicture;
+    
     @FXML
     private SubScene subScene;
     
@@ -183,6 +194,7 @@ public class MainAppCtrl implements Initializable {
                 if (algorithmTask != null)
                     algorithmTask.cancel();
                 loadSubscene(SELECTION_STR);
+                setMenuItems(true);
             } 
         }
         else if (Character.isLetterOrDigit(keyEvent.getCharacter().charAt(0)) && isSelectionScene) {
@@ -213,6 +225,79 @@ public class MainAppCtrl implements Initializable {
         subScene.setRoot(subPane);
         loadSubscene(SELECTION_STR);
         ((SelectionSceneCtrl) controller).setAtoms(atoms);
+        // Setting up menuitems and making 2 of them disabled
+        takeFullPicture = new MenuItem("Full Picture...");
+        take3DPicture = new MenuItem("3D Picture...");
+        takeLewisPicture = new MenuItem("Lewis Picture...");
+        setMenuItems(true);
+        menuBar.getMenus().get(0).getItems().addAll(takeFullPicture, take3DPicture, takeLewisPicture);
+        // Picture of the entire scene
+        takeFullPicture.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    WritableImage wi = new WritableImage((int)parentScene.getWidth(), (int)parentScene.getHeight());
+                    WritableImage snapshot = parentScene.snapshot(wi);
+                    
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("Save Picture As...");
+                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
+                    File output = fileChooser.showSaveDialog(parentScene.getWindow());
+                    
+                    if(!output.exists() && output != null) {
+                        output.mkdirs();
+                        ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", output);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        // Broken, Jorge will fix it
+        takeLewisPicture.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    WritableImage wi = new WritableImage((int)parentScene.getWidth(), (int)parentScene.getHeight());
+                    WritableImage snapshot = parentScene.snapshot(wi);
+                    
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("Save Picture As...");
+                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
+                    File output = fileChooser.showSaveDialog(parentScene.getWindow());
+                    
+                    if(!output.exists() && output != null) {
+                        output.mkdirs();
+                        ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", output);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        // Picture of the 3D section
+        take3DPicture.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    WritableImage wi = new WritableImage((int) (TabTemplateCtrl.realView).getWidth(), (int)(TabTemplateCtrl.realView).getHeight());
+                    WritableImage snapshot = (TabTemplateCtrl.realView).snapshot(null, wi);
+                    
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("Save Picture As...");
+                    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
+                    File output = fileChooser.showSaveDialog(parentScene.getWindow());
+                    
+                    if(!output.exists() && output != null) {
+                        output.mkdirs();
+                        ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", output);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        
     }
     
     public void loadScene() {
@@ -380,5 +465,10 @@ public class MainAppCtrl implements Initializable {
             returnStr +=  " " + element;
         }
         return returnStr;
+    }
+    
+    public static void setMenuItems(boolean isDisabled) {
+        take3DPicture.setDisable(isDisabled);
+        takeLewisPicture.setDisable(isDisabled);
     }
 }    

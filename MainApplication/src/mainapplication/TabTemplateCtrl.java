@@ -43,10 +43,7 @@ public class TabTemplateCtrl implements Initializable {
     int[][] matrix;
     String[] atomList;
     
-    /**
-     *
-     */
-    public SubScene realView;
+    public static SubScene realView;
     Atom[] atoms;
     
     @FXML
@@ -510,7 +507,8 @@ public class TabTemplateCtrl implements Initializable {
         realView.setCamera(camera);
         
         atoms = MainAppCtrl.getAtoms();
-        
+        // Enable the ability to take screenshots of the 3D and Lewis Structure part
+        MainAppCtrl.setMenuItems(false);
         // Handle the scrolling for 3D
         bindAnchor.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override 
