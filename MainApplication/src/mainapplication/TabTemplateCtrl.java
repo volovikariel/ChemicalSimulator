@@ -514,9 +514,8 @@ public class TabTemplateCtrl implements Initializable {
         camera = new PerspectiveCamera(false);
         camera.setFieldOfView(70);
         realView.setCamera(camera);
-        
         atoms = MainAppCtrl.getAtoms();
-        
+        bindAnchor.getChildren().get(0).requestFocus();
         // Handle the scrolling for 3D
         bindAnchor.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override 

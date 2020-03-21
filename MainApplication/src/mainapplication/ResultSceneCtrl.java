@@ -40,6 +40,7 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
      * @param metalList the list of metals
      */
     public void resultList(LinkedList<Solution> list, String[] atomList, Atom[] metalList) {
+        resultID.requestFocus();
         controllers = new HashMap<>();
         for (int i = 0; i < list.size(); i++) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("TabTemplate.fxml"));
