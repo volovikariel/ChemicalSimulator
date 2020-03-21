@@ -5,11 +5,13 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
-import javafx.scene.paint.Paint;
 
 /**
- *
- * @author cstuser
+ * POJO class for the elements in the CSV.
+ * 
+ * @author Ariel Volovik
+ * @author Jorge Marcano
+ * @author Samy Arab
  */
 public class TableElement implements Serializable{
     private String elementName;
