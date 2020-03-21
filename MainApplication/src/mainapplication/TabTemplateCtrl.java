@@ -773,7 +773,6 @@ public class TabTemplateCtrl implements Initializable {
             @Override
             public void handle(MouseEvent event) {
                 label = new Label();
-                System.out.println(s.getId());
                 label.setText(s.getId());
                 label.setFont(new Font(20));
                 label.setTranslateY(realView.getHeight()/3);

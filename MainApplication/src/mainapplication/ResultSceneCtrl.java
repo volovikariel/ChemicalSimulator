@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -12,6 +13,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.WritableImage;
+import org.controlsfx.control.NotificationPane;
+import org.controlsfx.control.Notifications;
 
 /**
  * Controller for the result scene FXML.
@@ -62,6 +65,8 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
             
             controllers.put(i, controller);
         }
+        // Notifying the user that the algorithm has finished its job
+        Notifications.create().title("Chemical Simulator").text("Done!").showInformation();
     }
 
     @Override
