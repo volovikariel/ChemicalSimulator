@@ -411,7 +411,6 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
      * @return the concentrated version of the ArrayList
      */
     public ArrayList<String> concentrateStr(ArrayList<String> alName) {
-        System.out.println("ALNAME: " + alName);
         ArrayList<String> alFinished = new ArrayList<>();
         
         boolean firstTime = true;
@@ -442,7 +441,6 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         if (numTimesFound != 0)
             alFinished.add("" + numTimesFound);
         
-        System.out.println("ALFINISHED: " + alFinished);
         return alFinished;
     }
 

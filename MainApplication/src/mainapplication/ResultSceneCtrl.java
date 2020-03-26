@@ -61,7 +61,7 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
             //String[] temp = {"H", "H", "H", "H", "C", "C"};
             //controller.setLewisStructure(list.get(i).getMatrix(), atomList);
             controller.set3D(list.get(i).getMatrix(), atomList, list.get(i).getLoop());
-            
+            controller.set2D(list.get(i).getMatrix(), atomList, list.get(i).getLoop());
             resultID.getTabs().add(newTab);
             
             controllers.put(i, controller);

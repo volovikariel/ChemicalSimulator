@@ -184,7 +184,7 @@ public class MainAppCtrl implements Initializable {
 
                         //System.out.println(Arrays.toString(atomList));
                         ((ResultSceneCtrl) controller).resultList(solutions, atomList, metalAtoms);
-                        
+
                         algorithmTask = null;
                         
                         take3DPicture.setDisable(false);

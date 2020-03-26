@@ -22,11 +22,14 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
@@ -53,7 +56,7 @@ public class TabTemplateCtrl implements Initializable {
     StackPane bindAnchor;
     
     @FXML
-    Canvas lewisCanvasID;
+    Pane lewisPaneID;
     
     final int BOND_SIZE = 125;
     
@@ -72,6 +75,7 @@ public class TabTemplateCtrl implements Initializable {
     private Label label;
     
     private Group atomGroup = new Group();
+    private Group lewisAtomGroup = new Group();
     
     /**
      * [NOT FINISHED DOC]
@@ -80,11 +84,11 @@ public class TabTemplateCtrl implements Initializable {
      * @param atomList 
      */
     public void setLewisStructure(int [][] solution, String[] atomList) {
-        matrix = solution;
-        int [][] triMatrix = new int [matrix.length - 1][matrix.length - 1];
-        int elementCount = matrix.length; //rows
-        int bondCount = 0;
-        int bonds = 0;
+//        matrix = solution;
+//        int [][] triMatrix = new int [matrix.length - 1][matrix.length - 1];
+//        int elementCount = matrix.length; //rows
+//        int bondCount = 0;
+//        int bonds = 0;
         
         
         //iterates through the list of atoms
@@ -99,33 +103,33 @@ public class TabTemplateCtrl implements Initializable {
         
         //this is only the upper half of the matrix which contains the solution once
 
-        for (int row = 0; row < matrix.length; row++) {
-            for (int col = 1; col < matrix[row].length; col++) {
-                triMatrix[row][col] = matrix[row][col];
-            }
-        }
-        bondCount = triMatrix.length;       
-        
-        for (int row = 0; row < triMatrix.length; row++) {
-            System.out.println(atomList[row]); //debugging
-            
-            for (int col = 0; col < triMatrix[row].length; col++) {
-                System.out.println(atomList[col]); //debugging
-                
-                if (triMatrix[row][col] != 0) {
-                    System.out.println("(" + col + ", " + row + ")"); //debugging
-                    
-                    for (int [] rows : triMatrix) {
-                        bonds = bondCount - rows.length; //bonds made by that element (for angles)
-                    }
-
-                    String tempElement = atomList[row];
-                    String tempElement2 = atomList[bondCount - col];
-                    
-                    printLewis(tempElement, tempElement2, bonds);
-                }
-            }
-        }
+//        for (int row = 0; row < matrix.length; row++) {
+//            for (int col = 1; col < matrix[row].length; col++) {
+//                triMatrix[row][col] = matrix[row][col];
+//            }
+//        }
+//        bondCount = triMatrix.length;       
+//        
+//        for (int row = 0; row < triMatrix.length; row++) {
+//            System.out.println(atomList[row]); //debugging
+//            
+//            for (int col = 0; col < triMatrix[row].length; col++) {
+//                System.out.println(atomList[col]); //debugging
+//                
+//                if (triMatrix[row][col] != 0) {
+//                    System.out.println("(" + col + ", " + row + ")"); //debugging
+//                    
+//                    for (int [] rows : triMatrix) {
+//                        bonds = bondCount - rows.length; //bonds made by that element (for angles)
+//                    }
+//
+//                    String tempElement = atomList[row];
+//                    String tempElement2 = atomList[bondCount - col];
+//                    
+//                    printLewis(tempElement, tempElement2, bonds);
+//                }
+//            }
+//        }
     }
     
     /**
@@ -135,17 +139,149 @@ public class TabTemplateCtrl implements Initializable {
      * @param element2 an element being drawn
      * @param bonds the numbers of bonds being drawn
      */
-    public void printLewis(String element, String element2, int bonds) {
-        GraphicsContext gc = lewisCanvasID.getGraphicsContext2D();
-
-        gc.strokeText(element, 150 + 20 * Math.cos((double) bonds), 175);
-        gc.strokeText(element2, 150 + 20 *(360 / Math.cos((double) bonds)), 175);
-
-        Paint p = Color.BLACK;
-        gc.strokeLine(160, 150, 175 * Math.cos((double) bonds), 150);
+    public void printLewis(String element, String element2, int bonds)  {
+//        GraphicsContext gc = lewisCanvasID.getGraphicsContext2D();
+//
+//        gc.strokeText(element, 150 + 20 * Math.cos((double) bonds), 175);
+//        gc.strokeText(element2, 150 + 20 *(360 / Math.cos((double) bonds)), 175);
+//
+//        Paint p = Color.BLACK;
+//        gc.strokeLine(160, 150, 175 * Math.cos((double) bonds), 150);
 
     }
     
+    public void set2D(int [][] solution, String[] atomList, int[] loop) {
+        matrix = solution;
+        this.atomList = atomList;
+        // Labels & Lines
+        ArrayList<Node> finalList;
+                
+//        if (loop.length != 0)
+//            finalList = doLoop2D(loop);
+//        else
+            finalList = getRelativeLocation2D(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
+            
+        // Stroke text & Line for each node
+        lewisAtomGroup.getChildren().addAll(finalList);
+        lewisPaneID.getChildren().addAll(lewisAtomGroup);
+    }
+    
+     public ArrayList<Node> getRelativeLocation2D(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
+        prevs.add(currRow);
+        
+        ArrayList<Node> returnList = new ArrayList<>();
+        
+        if (atomList[currRow].equals("H")) {
+            Label label = new Label("H");
+            returnList.add(label);
+            
+            if (prevRow != -1) {
+                return returnList;
+            }
+            
+            for (int i = 0; i < matrix.length; i++) {
+                if (matrix[currRow][i] != 0) {
+                    
+                    double[] transVec = {BOND_SIZE, 0, 0};
+                    Line line = new Line(0, 0, transVec[0], transVec[1]);
+                    returnList.add(line);
+                    ArrayList<Node> recursion = getRelativeLocation2D(i, currRow, transVec, prevs);
+                    
+                    for (Node node : recursion) {
+                        node.setTranslateX(node.getTranslateX() + transVec[0]);
+                        node.setTranslateY(node.getTranslateY() + transVec[1]);
+                        node.setTranslateZ(node.getTranslateZ() + transVec[2]);
+                        returnList.add(node);
+                    }
+                }
+            }
+            return returnList;
+        }
+        
+        int bondCount = 0;          //see how many lone pairs
+        int thingsBondedCount = 0;  //get steric number
+
+        for (int el : matrix[currRow]) {
+            if (el != 0) {
+                bondCount += el;
+                thingsBondedCount++;
+            }
+        }
+
+        int lonePairs = 4 - bondCount;
+        int stericNumber = thingsBondedCount + lonePairs;
+       
+        Label temp = new Label(atomList[currRow]);
+        returnList.add(temp);
+        
+        int amountFound = 0;
+        int numBonds = 0;
+        boolean isFirst = prevRow == -1 && amountFound == 0;
+        for (int i = 0; i < matrix.length; i++) {
+            if (matrix[currRow][i] != 0) {
+                numBonds = matrix[currRow][i];
+                if (i != prevRow && !prevs.contains(i)) {
+                    double[] transVec = new double[3];
+                    
+                    switch (stericNumber) {
+                        case 2:
+                            //the initial link is 180 degress from where u come from
+                            //transVec = makeRoation(vec, Math.PI, Math.PI, Math.PI);
+                            transVec = vec;
+                            break;
+                        case 3:
+                            transVec = makeRoation(vec, 0, 0, Math.PI / 3 + amountFound * 4 * Math.PI / 3);
+                            break;
+                        case 4:
+                            double rads = Math.toRadians(90);
+                            transVec = new double[] {0, BOND_SIZE, 0};
+                            switch (amountFound) {
+                                // \ -> /
+//                                case 1:
+//                                    transVec = makeRot(transVec, axis, Math.toRadians(120));
+//                                    break;
+//                                // / -> |
+//                                case 2:
+//                                    transVec = makeRot(transVec, axis, Math.toRadians(240));
+//                                    break;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    
+                    
+                    // Add Line
+                    double translateModif = 0;
+                    for(int j = 0; j < numBonds; j++) {
+                        if(numBonds == 3) {
+                            translateModif = j-1;
+                        } 
+                        else if (numBonds == 2) {
+                            translateModif = j-0.5;
+                        }
+                        Line line = new Line(0, 0, transVec[0], transVec[1]);
+                        line.getTransforms().add(new Translate(translateModif*transVec[0]/9, 0, 0));
+                        returnList.add(line);
+                    }
+                    ArrayList<Node> recursion = getRelativeLocation2D(i, currRow, transVec, prevs);
+
+                    for (Node node : recursion) {
+                        node.setTranslateX(node.getTranslateX() + transVec[0]);
+                        node.setTranslateY(node.getTranslateY() + transVec[1]);
+                        node.setTranslateZ(node.getTranslateZ() + transVec[2]);
+
+                        returnList.add(node);
+                    }
+                    
+                    amountFound++;
+                }
+            }
+        }
+        
+        return returnList;
+    }
+         
     /**
      * Method which sets up and displays the 3D representation of the chemical compound.
      * @param solution a solution matrix
@@ -764,7 +900,7 @@ public class TabTemplateCtrl implements Initializable {
     public WritableImage screenShotLewis() {
         SnapshotParameters spa = new SnapshotParameters();
         spa.setTransform(Transform.scale(2, 2));
-        return lewisCanvasID.snapshot(spa, null);
+        return lewisPaneID.snapshot(spa, null);
     }
     
     public void addHover(Node s) {
