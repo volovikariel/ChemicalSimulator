@@ -3,7 +3,6 @@ package mainapplication;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 import javafx.event.EventHandler;
@@ -14,10 +13,12 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.SubScene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -26,14 +27,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
-import javafx.scene.shape.Shape3D;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 
 /**
- * Main entry point of the JavaFX application
+ * Controller for the TabTemplate FXML.
+ * The Controller is in charge for the specific Tab is it associated to.
  * 
  * @author Ariel Volovik
  * @author Jorge Marcano
@@ -44,7 +46,7 @@ public class TabTemplateCtrl implements Initializable {
     int[][] matrix;
     String[] atomList;
     
-    public SubScene realView;
+    private SubScene realView;
     Atom[] atoms;
     
     @FXML
@@ -65,10 +67,18 @@ public class TabTemplateCtrl implements Initializable {
     double prevXAng = 0;
     double prevYAng = 0;
     
-    public PerspectiveCamera camera;
-        
+    PerspectiveCamera camera;
+    
+    private Label label;
+    
     private Group atomGroup = new Group();
     
+    /**
+     * [NOT FINISHED DOC]
+     * Method which sets up the Lewis structure for a single solution.
+     * @param solution the solution matrix
+     * @param atomList 
+     */
     public void setLewisStructure(int [][] solution, String[] atomList) {
         matrix = solution;
         this.atomList = atomList;
@@ -181,10 +191,15 @@ public class TabTemplateCtrl implements Initializable {
     public void scaleLewis(GraphicsContext gc) {
         gc = lewisCanvasID.getGraphicsContext2D();
         
-        
-    }
+    }   
     
     
+    /**
+     * Method which sets up and displays the 3D representation of the chemical compound.
+     * @param solution a solution matrix
+     * @param atomList a list of non-metals
+     * @param loop the indexes of the rows which are part of a loop
+     */
     public void set3D(int [][] solution, String[] atomList, int[] loop) {
         matrix = solution;
         this.atomList = atomList;
@@ -208,6 +223,14 @@ public class TabTemplateCtrl implements Initializable {
         realView.setRoot(atomGroup);
     }
     
+    /**
+     * Method which builds the 3D representation of the chemical compound.
+     * @param currRow the current row
+     * @param prevRow the row from which this method was called
+     * @param vec the attack vector
+     * @param prevs the list of all the previous rows
+     * @return an ArrayList of Nodes (Spheres and Cylinders)
+     */
     public ArrayList<Node> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
         prevs.add(currRow);
         
@@ -216,6 +239,8 @@ public class TabTemplateCtrl implements Initializable {
         if (atomList[currRow].equals("H")) {
             Sphere temp = new Sphere(40);
             temp.setMaterial(new PhongMaterial(Color.web(atoms[0].getColor())));
+            temp.setId("H");
+            addHover(temp);
             returnList.add(temp);
             
             if (prevRow != -1) {
@@ -281,6 +306,8 @@ public class TabTemplateCtrl implements Initializable {
         boolean isFirst = prevRow == -1 && amountFound == 0;
         for (int i = 0; i < matrix.length; i++) {
             if (matrix[currRow][i] != 0) {
+                temp.setId(atomList[currRow]);
+                addHover(temp);
                 numBonds = matrix[currRow][i];
                 if (i != prevRow && !prevs.contains(i)) {
                     double[] transVec = new double[3];
@@ -392,7 +419,13 @@ public class TabTemplateCtrl implements Initializable {
         
         return returnAxis;
     }
-    
+    /**
+     * Method which rotates a vector about a given axis.
+     * @param input the vector which gets rotated
+     * @param axis the axis about which you make a rotation
+     * @param rad the angle by which you rotate (in radians)
+     * @return the modified input vector
+     */
     double[] makeRot(double[] input, double[] axis, double rad) {
 //        double[][] W = {{0, -axis[2], axis[1]}, {axis[2], 0, -axis[0]}, {-axis[1], axis[0], 0}};
 //        double[][] I = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
@@ -467,6 +500,14 @@ public class TabTemplateCtrl implements Initializable {
         return returnVec;
     }
     
+    /**
+     * Method which rotates an inputted vector by the X axis, then the Y axis, and finally by the Z axis.
+     * @param input the inputted vector
+     * @param x the angle (in radians) by which the vector gets rotated about the X axis 
+     * @param y the angle (in radians) by which the vector gets rotated about the Y axis 
+     * @param z the angle (in radians) by which the vector gets rotated about the Z axis 
+     * @return the modified input vector
+     */
     double[] makeRoation(double[] input, double x, double y, double z) {
         double[] result = new double[3];
         
@@ -509,9 +550,6 @@ public class TabTemplateCtrl implements Initializable {
         return result;
     }
     
-    /**
-     * Initializes the controller class.
-     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         realView = new SubScene(bindAnchor, 100, 100, true, SceneAntialiasing.BALANCED);
@@ -524,9 +562,8 @@ public class TabTemplateCtrl implements Initializable {
         camera = new PerspectiveCamera(false);
         camera.setFieldOfView(70);
         realView.setCamera(camera);
-        
         atoms = MainAppCtrl.getAtoms();
-        
+        bindAnchor.getChildren().get(0).requestFocus();
         // Handle the scrolling for 3D
         bindAnchor.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override 
@@ -545,6 +582,10 @@ public class TabTemplateCtrl implements Initializable {
         });
     }
     
+    /**
+     * Handler which allows for the detection of the initial mouse press.
+     * This allows the mouse drag handler to work properly.
+     */
     @FXML
     public void handleMouseClick(MouseEvent event) {
         if (event.getButton() == MouseButton.SECONDARY) {
@@ -563,6 +604,9 @@ public class TabTemplateCtrl implements Initializable {
         }
     }
             
+    /**
+     * Handler which allows for the rotation and translation of the 3D group of atoms.
+     */
     @FXML
     public void handleMouseDrag(MouseEvent event) {
         if (event.getButton() == MouseButton.SECONDARY) {
@@ -588,7 +632,12 @@ public class TabTemplateCtrl implements Initializable {
             initYAng = event.getY();
         }
     }
-
+    
+    /**
+     * Method which places a cylinder and properly orients it based on the vector provided.
+     * @param transVec the translate vector by which the cylinder orients itself
+     * @return the Cylinder
+     */
     private Cylinder getCylinder(double[] transVec) {
         double length = 1;
         for (double num : transVec)
@@ -614,6 +663,11 @@ public class TabTemplateCtrl implements Initializable {
         return cylinder;
     }
     
+    /**
+     * Method which creates the 3D structure if there's a loop inside of the solution.
+     * @param loopIndices the indexes of the rows which are part of a loop
+     * @return an ArrayList of Nodes (Spheres and Cylinders)
+     */
     private ArrayList<Node> doLoop(int[] loopIndices) {
         
         ArrayList<Node> returnedList = new ArrayList<>();
@@ -634,7 +688,7 @@ public class TabTemplateCtrl implements Initializable {
             int numBonds = 0;
             if (i != loopIndices.length - 1)
                 numBonds = matrix[loopIndices[i]][loopIndices[i + 1]];
-            else
+            else 
                 numBonds = matrix[loopIndices[i]][loopIndices[0]];
             
             int bondCount = 0;          //see how many lone pairs
@@ -659,6 +713,8 @@ public class TabTemplateCtrl implements Initializable {
             }
             
             Sphere tempSphere = new Sphere(50);
+            tempSphere.setId(atomList[i]);
+            addHover(tempSphere);
             tempSphere.setMaterial(new PhongMaterial(Color.web(color)));
             
             transVec = new double[] {sideLen, 0, 0};
@@ -737,7 +793,6 @@ public class TabTemplateCtrl implements Initializable {
                         sphere.setTranslateX(sphere.getTranslateX() + attackVec[0] + transVec[0]);
                         sphere.setTranslateY(sphere.getTranslateY() + attackVec[1] + transVec[1]);
                         sphere.setTranslateZ(sphere.getTranslateZ() + attackVec[2] + transVec[2]);
-
                         returnedList.add(sphere);
                     }
                 }
@@ -745,7 +800,37 @@ public class TabTemplateCtrl implements Initializable {
             
             returnedList.add(tempSphere);
         }
-        
         return returnedList;
+    }
+    
+    public WritableImage screenShotThreeD() {
+        SnapshotParameters spa = new SnapshotParameters();
+        spa.setTransform(Transform.scale(2, 2));
+        return realView.snapshot(spa, null);
+    }
+    
+    public WritableImage screenShotLewis() {
+        SnapshotParameters spa = new SnapshotParameters();
+        spa.setTransform(Transform.scale(2, 2));
+        return lewisCanvasID.snapshot(spa, null);
+    }
+    
+    public void addHover(Node s) {
+        s.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                label = new Label();
+                label.setText(s.getId());
+                label.setFont(new Font(20));
+                label.setTranslateY(realView.getHeight()/3);
+                bindAnchor.getChildren().add(label);
+            }
+        });
+        s.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                bindAnchor.getChildren().remove(label);
+            }
+        });
     }
 }
