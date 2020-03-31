@@ -57,8 +57,6 @@ public class MainAppCtrl implements Initializable {
     private MenuBar menuBar;
     
     @FXML
-    private MenuItem takeFullPicture;
-    @FXML
     private MenuItem takeLewisPicture;
     @FXML
     private MenuItem take3DPicture;

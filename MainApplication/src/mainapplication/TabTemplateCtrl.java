@@ -275,19 +275,25 @@ public class TabTemplateCtrl implements Initializable {
             }
         }
 
-        int lonePairs = 4 - bondCount;
-        int stericNumber = thingsBondedCount + lonePairs;
-       
+        
         String color = null;
         int formalCharge = bondCount;
+        int lonePairs = 0;
+        //int atomicNumber = 0;
         for (int i = 0; i < atoms.length; i++) {
             if (atomList[currRow].equals(atoms[i].getSymbol()))
             {
+                //atomicNumber = i + 1;
                 color = atoms[i].getColor();
-                formalCharge -= i > 2 ? 8 - atoms[i].getShells() : 2 - atoms[i].getShells();
+                //formalCharge -= i > 2 ? 8 - atoms[i].getShells() : 2 - atoms[i].getShells();
+                lonePairs = i + 1 <= 10 ? 4 - bondCount : (int) Math.ceil((atoms[i].getShells() - bondCount) / 2.0);
+                formalCharge = atoms[i].getShells() - 2 * lonePairs - bondCount;
                 break;
             }
         }
+        //lonePairs = 4 - bondCount;
+        int stericNumber = thingsBondedCount + lonePairs;
+        
         Sphere temp = new Sphere(50);
         temp.setMaterial(new PhongMaterial(Color.web(color)));
         returnList.add(temp);
@@ -310,36 +316,7 @@ public class TabTemplateCtrl implements Initializable {
                 addHover(temp);
                 numBonds = matrix[currRow][i];
                 if (i != prevRow && !prevs.contains(i)) {
-                    double[] transVec = new double[3];
-                    
-                    switch (stericNumber) {
-                        case 2:
-                            //the initial link is 180 degress from where u come from
-                            //transVec = makeRoation(vec, Math.PI, Math.PI, Math.PI);
-                            transVec = vec;
-                            break;
-                        case 3:
-                            transVec = makeRoation(vec, 0, 0, Math.PI / 3 + amountFound * 4 * Math.PI / 3);
-                            break;
-                        case 4:
-                            double rads = Math.toRadians(180 - 109.5);
-                            double[] axis = normalize(vec);
-                            double[] rotAxis = getAxis(axis, new double[] {0, 0, 1});
-                            transVec = makeRot(vec, rotAxis, -rads);
-                            switch (amountFound) {
-                                // \ -> /
-                                case 1:
-                                    transVec = makeRot(transVec, axis, Math.toRadians(120));
-                                    break;
-                                // / -> |
-                                case 2:
-                                    transVec = makeRot(transVec, axis, Math.toRadians(240));
-                                    break;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
+                    double[] transVec = getTransVec(stericNumber, amountFound, vec);
                     
                     //if first element, must make special case,
                     //update the transVec to be simply where you "came from"
@@ -832,5 +809,67 @@ public class TabTemplateCtrl implements Initializable {
                 bindAnchor.getChildren().remove(label);
             }
         });
+    }
+    
+    double[] getTransVec(int steric, int count, double[] attackVec) {
+        double[] transVec = attackVec;
+        
+        double[] axis = normalize(attackVec);
+                    
+        switch (steric) {
+            case 2:                     //This is the linear case, same as input vec
+                break;
+            case 3:                     //This is the trigonal planar case
+                transVec = makeRoation(attackVec, 0, 0, Math.PI / 3 + count * 4 * Math.PI / 3);
+                break;
+            case 4:                     //This is the tetrahedral case
+                //gets the first case
+                double rads = Math.toRadians(180 - 109.5);
+                double[] rotAxis = getAxis(axis, new double[] {0, 0, 1});
+                transVec = makeRot(attackVec, rotAxis, -rads);
+                //modifies the first case depending on how many
+                transVec = makeRot(transVec, axis, Math.toRadians(count * 120));
+                break;
+            case 5:                     //This is the trigonal bipyramidal case
+                //the first case is just across, so same vec
+                if (count == 0)
+                    return transVec;
+                
+                //otherwise must make trigonal planar 90 degress from input
+                double[] firstAxis = getAxis(axis, new double[] {0, 0, 1});
+                transVec = makeRot(attackVec, firstAxis, -Math.PI / 2.0);
+                //must get a turn 0, 120, 240
+                transVec = makeRot(transVec, axis, Math.toRadians((count - 1) * 120));
+                break;
+            case 6:                     //This is the Octohedral case
+                //the first case is just across, so same vec
+                if (count == 0)
+                    return transVec;
+                
+                //otherwise must make a square by making 2 opposites then 2 more opposites
+                double[] firstTrunAxis = getAxis(axis, new double[] {0, 0, 1});
+                transVec = makeRot(attackVec, firstTrunAxis, -Math.PI / 2.0);
+                //must get a turn 0, 180, 90, 270
+                transVec = makeRot(transVec, axis, Math.toRadians((count - 1) * 180 + ((count - 1) / 2) * 90));
+                break;
+            case 7:                     //This is the pentagonal bipyramidal case
+                //the last case is just across, so same vec
+                if (count == 6)
+                    return transVec;
+                
+                //otherwise must make a square by making 2 opposites then 2 more opposites
+                double[] firstTurnAxis = getAxis(axis, new double[] {0, 0, 1});
+                transVec = makeRot(attackVec, firstTurnAxis, -Math.PI / 2.0);
+                //must get a turn 0, 180, 90, 270
+                transVec = makeRot(transVec, axis, Math.toRadians(count * 72));
+                break;
+            case 1:                     //This is a useless case since it will deal with it later
+                break;
+            default:                    //This means an invalid steric number was given
+                System.out.println("Invalid steric number:" + steric);
+                break;
+        }
+        
+        return transVec;
     }
 }

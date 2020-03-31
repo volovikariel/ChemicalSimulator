@@ -8,6 +8,8 @@
 
 #include "../inc/memory.h"
 
+#define MAX_BONDS 6
+
 void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList);
 void attempt(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList, Atom* currAtom);
 void ionizeSolutions(Link* solutionList, Atom* metalList, int metalListSize);
@@ -355,8 +357,11 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
     {
         currAtom = (Atom*) currAtomLink->valuePtr;
 
-        //if currAtom has less than 4 bonds, can fit in octet
+        //if it is hydrogen or helium, then maxBond is 1
+        //if it is in the first row, then max is 4
+        //otherwise the max is 6
         int maxBonds = (currAtom->atomicNumber > 2) ? 4 : 1;
+        maxBonds = (currAtom->atomicNumber > 10) ? MAX_BONDS : maxBonds;
         if (currAtom->totalBondCount - currAtom->bondCount < maxBonds)
             attempt(atomList, atomListSize, currAtomVisit, solutionList, currAtom);
 
@@ -385,8 +390,12 @@ void attempt(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* soluti
           continue;
 
       //if other atom doesnt have bonds left
+      //if it is hydrogen or helium, then maxBond is 1
+      //if it is in the first row, then max is 4
+      //otherwise the max is 6
       int maxBonds = (atomList[i].atomicNumber > 2) ? 4 : 1;
-      if (atomList[i].totalBondCount - atomList[i].bondCount == maxBonds)
+      maxBonds = (atomList[i].atomicNumber > 10) ? MAX_BONDS : maxBonds;
+      if (atomList[i].totalBondCount - atomList[i].bondCount >= maxBonds)
           continue;
 
       //if other atom isnt connected to anything
