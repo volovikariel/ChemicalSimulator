@@ -22,11 +22,13 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
@@ -53,7 +55,7 @@ public class TabTemplateCtrl implements Initializable {
     StackPane bindAnchor;
     
     @FXML
-    Canvas lewisCanvasID;
+    Pane lewisPane;
     
     final int BOND_SIZE = 125;
     
@@ -79,120 +81,221 @@ public class TabTemplateCtrl implements Initializable {
      * @param solution the solution matrix
      * @param atomList 
      */
-    public void setLewisStructure(int [][] solution, String[] atomList) {
+    public void setLewis(int [][] solution, String[] atomList, int[] loops) {
         matrix = solution;
         this.atomList = atomList;
         ArrayList<Node> finalList;
-        int [][] triMatrix = new int [matrix.length][matrix.length];
-        int elementCount = matrix.length; //rows
-        int bondCount = matrix.length;
-        int bonds = 0;
         
-        finalList = printLewis(0, -1, bondCount, new LinkedList<>());
+        if (loops.length != 0)
+            finalList = doLoop2D(loops);
+        else
+            finalList = getRelativeLewis(0, -1, new double[] {100, 0},new LinkedList<>());
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        //iterates through the list of atoms
-//        for (int i = 0; i < atomList.length; i++) {
-//            String tempElement = atomList[i];
-//            
-//            gc.strokeText(tempElement, 150 + 20*i, 175);
-//            
-//            Paint p = Color.BLACK;
-//            gc.strokeLine(i+100, 150, 175*i, 150);
-//        }
-//        
-//        //this is only the upper half of the matrix which contains the solution once
-//
-//        for (int row = 0; row < matrix.length - 1; row++) {
-//            System.out.println("[" + row + "]");
-//            for (int col = matrix.length - (matrix.length - ++row); col < matrix[row].length; col++) {
-//                System.out.println("(" + col + ")");
-//                triMatrix[row][col] = matrix[row][col];
-//                System.out.println(triMatrix[row][col]);
-//            }
-//        }
-//        bondCount = triMatrix.length;       
-//        
-//        for (int row = 0; row < triMatrix.length; row++) {
-//            System.out.println(atomList[row]); //debugging
-//            
-//            for (int col = 0; col < triMatrix[row].length; col++) {
-//                System.out.println(atomList[col]); //debugging
-//                
-//                if (triMatrix[row][col] != 0) {
-//                    System.out.println("(" + col + ", " + row + ")"); //debugging
-//                    
-//                    for (int [] rows : triMatrix) {
-//                        bonds = bondCount - rows.length; //bonds made by that element (for angles)
-//                    }
-//
-//                    String tempElement = atomList[row];
-//                    String tempElement2 = atomList[bondCount - col];
-//                    
-//                    printLewis(tempElement, tempElement2, bonds);
-//                }
-//            }
-//        }
+        for(Node node : finalList) {
+            node.setTranslateX(node.getTranslateX() + 100);
+            node.setTranslateY(node.getTranslateY() + 300);
+        }
+        lewisPane.getChildren().add(new Group(finalList));
+        System.out.println("Final List Lewis: " + finalList);
     }
     
-    
-    public ArrayList<Node> printLewis(int currRow, int prevRow, int bonds, LinkedList<Integer> prevs) {
-        GraphicsContext gc = lewisCanvasID.getGraphicsContext2D();
-        
-        
+    public ArrayList<Node> getRelativeLewis(int currRow, int prevRow, double[] translateVec, LinkedList<Integer> prevs) {
         prevs.add(currRow);
         
         ArrayList<Node> returnList = new ArrayList<>();
         
-        if (atomList[currRow].equals("H")) {
-            gc.strokeText("H", 150 + 20 * Math.cos((double) bonds), 175);
-            Paint p = Color.BLACK;
-            gc.strokeLine(160, 150, 175 * Math.cos((double) bonds), 150);
+        if(atomList[currRow].equals("H")) {
+            returnList.add(new Label("H"));
             
-            if (prevRow != -1) {
+            if(prevRow != -1) 
                 return returnList;
-            }
             
-            for (int i = 0; i < matrix.length; i++) {
-                if (matrix[currRow][i] != 0) {
-                    
-                    ArrayList<Node> recursion = printLewis(i, currRow, bonds, prevs);
-                    
+            for(int i = 0; i < matrix.length; i++) {
+                if(matrix[currRow][i] != 0) {
+                    Rectangle rectangle = new Rectangle(Math.sqrt(Math.pow(translateVec[0], 2) + Math.pow(translateVec[1], 2)), 1);
+                    // Do transformations to the rectangle here (???)
+                    returnList.add(rectangle);
+                    ArrayList<Node> recursiveCall = getRelativeLewis(i, currRow, translateVec, prevs);
+                    for(Node node : recursiveCall) {
+                        node.setTranslateX(node.getTranslateX() + translateVec[0]);
+                        node.setTranslateY(node.getTranslateY() + translateVec[1]);
+                    }
                 }
             }
             return returnList;
         }
-
+        
+        int thingsToBondWith = 0;
+        for (int el : matrix[currRow]) {
+            if (el != 0) 
+                thingsToBondWith++;
+        }
+        Label label = new Label(atomList[currRow]);
+        returnList.add(label);
+        int amountFound = 0;
         int numBonds = 0;
-        for (int i = 0; i < matrix.length; i++) {
-            if (matrix[currRow][i] != 0) {
+        for(int i = 0; i < matrix.length; i++) {
+            if(matrix[currRow][i] != 0) {
                 numBonds = matrix[currRow][i];
-                if (i != prevRow && !prevs.contains(i)) {
+                if(i != prevRow && !prevs.contains(i)) {
+                    double[] translateLoop = new double[2];
+                    switch(thingsToBondWith) {
+                    case 2: // O - >O< - O
+                        translateLoop = translateVec;
+                        break;
+                    //     O
+                    //     |
+                    //O - >O< - O  
+                    case 3: 
+                        if(amountFound == 0) {
+                            translateLoop = new double[] {0, 100};
+                        } else if(amountFound == 1) {
+                            translateLoop = new double[] {100, 0};
+                        }
+                    default:
+                        translateLoop = translateVec;
+                        break;
+                    }
+                    // Add the lines
+                    double translateModif = 0;
+                    for(int j = 0; j < numBonds; j++) {
+                        if(numBonds == 3) {
+                            translateModif = j-1;
+                        } 
+                        else if (numBonds == 2) {
+                            translateModif = j-0.5;
+                        }
+                        Rectangle rectangle = new Rectangle(Math.sqrt(Math.pow(translateLoop[0], 2) + Math.pow(translateLoop[1], 2)), 1);
+                        rectangle.getTransforms().add(new Translate(0, 5 + translateModif*5));
+                        returnList.add(rectangle);
+                    }
+                    ArrayList<Node> recursion = getRelativeLewis(i, currRow, translateLoop, prevs);
+
+                    for (Node node : recursion) {
+                        node.setTranslateX(node.getTranslateX() + translateLoop[0]);
+                        node.setTranslateY(node.getTranslateY() + translateLoop[1]);
+                        returnList.add(node);
+                    }
                     
-                    ArrayList<Node> recursion = printLewis(i, currRow, bonds, prevs);
+                    amountFound++;
                 }
             }
         }
-        
         return returnList;
     }
     
-    
-    public void scaleLewis(GraphicsContext gc) {
-        gc = lewisCanvasID.getGraphicsContext2D();
+    private ArrayList<Node> doLoop2D(int[] loopIndices) {
+        ArrayList<Node> returnedList = new ArrayList<>();
+        LinkedList<Integer> previous = new LinkedList<>();
         
-    }   
-    
+        for (int num : loopIndices)
+            previous.add(num);
+        
+        double[] translateVec;
+        double[] rectangleVec;
+        double angleFromCenter = Math.toRadians(360/loopIndices.length);
+        double angleAtCorners = Math.toRadians(180 - 360/loopIndices.length);
+        
+        double sideLen = BOND_SIZE/ Math.sqrt(2 - 2 * Math.cos(angleFromCenter));
+        
+        for(int i = 0; i < loopIndices.length; i++) {
+            
+            int numBonds = 0;
+            if (i != loopIndices.length - 1)
+                numBonds = matrix[loopIndices[i]][loopIndices[i + 1]];
+            else 
+                numBonds = matrix[loopIndices[i]][loopIndices[0]];
+            
+            int bondCount = 0;          //see how many lone pairs
+            int thingsBondedCount = 0;  //get steric number
+
+            for (int el : matrix[loopIndices[i]]) {
+                if (el != 0) {
+                    bondCount += el;
+                    thingsBondedCount++;
+                }
+            }
+
+            Label label = new Label(atomList[loopIndices[i]]);
+            translateVec = new double[] {sideLen, 0, 0};
+            translateVec = makeRoation(translateVec, 0, 0, angleFromCenter * i);
+            label.setTranslateX(label.getTranslateX() + translateVec[0]);
+            label.setTranslateY(label.getTranslateY() + translateVec[1]);
+            
+            // Add rectangle
+            rectangleVec = new double[] {50, 0, 0};
+            rectangleVec = makeRoation(rectangleVec, 0, 0, angleFromCenter * i);
+            rectangleVec = makeRoation(rectangleVec, 0, 0, Math.PI - angleAtCorners/2);
+            double translateModif = 0;
+            for(int j = 0; j < numBonds; j++) {
+                if(numBonds == 3) {
+                    translateModif = j-1;
+                } 
+                else if (numBonds == 2) {
+                    translateModif = j-0.5;
+                }
+                Rectangle rectangle = new Rectangle(Math.sqrt(Math.pow(translateVec[0], 2) + Math.pow(translateVec[1], 2)), 1);
+                Translate moveToMidpoint = new Translate(translateVec[0] / 2, translateVec[1] / 2);
+                Point3D diff = new Point3D(translateVec[0], translateVec[1], 0);
+                Point3D axisOfRot = diff.crossProduct(new Point3D(0, 1, 0));
+                double angle = Math.acos(diff.normalize().dotProduct(new Point3D(0, 1, 0)));
+                Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRot);
+
+                rectangle.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
+                returnedList.add(rectangle);
+            }
+            
+            //call the recursive fct to get everything else connected to this element
+            //find everything connected to this atom
+            int amountFound = 0;
+            for (int j = 0; j < matrix.length; j++) {
+                if (matrix[loopIndices[i]][j] != 0 && !previous.contains(j)) {
+                    numBonds = matrix[loopIndices[i]][j];
+                    
+                    double[] attackVec = {50, 0};
+                    attackVec = makeRoation(attackVec, 0, 0, angleFromCenter * i);
+                    
+                    //if there is not only one other thing
+                    if (thingsBondedCount != 3) {
+                        double[] axis = getAxis(attackVec, new double[] {0, 0, 1});
+                        attackVec = makeRot(attackVec, axis, (2 * Math.PI / 3) * (amountFound - 0.5));
+                        amountFound++;
+                    }
+                    
+                    translateModif = 0;
+                    for(int k = 0; k < numBonds; k++) {
+                        if(numBonds == 3) {
+                            translateModif = k-1;
+                        } 
+                        else if (numBonds == 2) {
+                            translateModif = k-0.5;
+                        }
+                        Rectangle rectangle = new Rectangle(Math.sqrt(Math.pow(translateVec[0], 2) + Math.pow(translateVec[1], 2)), 1);
+                        Translate moveToMidpoint = new Translate(translateVec[0] / 2, translateVec[1] / 2);
+                        Point3D diff = new Point3D(translateVec[0], translateVec[1], 0);
+                        Point3D axisOfRot = diff.crossProduct(new Point3D(0, 1, 0));
+                        double angle = Math.acos(diff.normalize().dotProduct(new Point3D(0, 1, 0)));
+                        Rotate rotateAroundCenter = new Rotate(-Math.toDegrees(angle), axisOfRot);
+
+                        rectangle.getTransforms().addAll(moveToMidpoint, rotateAroundCenter);
+                        returnedList.add(rectangle);
+                    }
+                    
+                    //call recursive fct
+                    ArrayList<Node> recursion = getRelativeLewis(j, loopIndices[i], attackVec, previous);
+
+                    for (Node node : recursion) {
+                        node.setTranslateX(node.getTranslateX() + attackVec[0] + translateVec[0]);
+                        node.setTranslateY(node.getTranslateY() + attackVec[1] + translateVec[1]);
+                        returnedList.add(node);
+                    }
+                }
+            }
+            
+            returnedList.add(label);
+        }
+        return returnedList;
+    }
     
     /**
      * Method which sets up and displays the 3D representation of the chemical compound.
@@ -812,7 +915,7 @@ public class TabTemplateCtrl implements Initializable {
     public WritableImage screenShotLewis() {
         SnapshotParameters spa = new SnapshotParameters();
         spa.setTransform(Transform.scale(2, 2));
-        return lewisCanvasID.snapshot(spa, null);
+        return lewisPane.snapshot(spa, null);
     }
     
     public void addHover(Node s) {

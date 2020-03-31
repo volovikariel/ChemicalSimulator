@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
@@ -10,11 +9,7 @@
    <children>
       <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <items>
-            <Pane fx:id="lewisPaneID" prefHeight="350.0" prefWidth="186.0">
-               <children>
-                  <Canvas fx:id="lewisCanvasID" height="200.0" width="200.0" />
-               </children>
-            </Pane>
+            <Pane fx:id="lewisPane" prefHeight="350.0" prefWidth="186.0" />
             <StackPane fx:id="bindAnchor" onMouseDragged="#handleMouseDrag" onMousePressed="#handleMouseClick" prefHeight="150.0" prefWidth="200.0" />               
          </items>
       </SplitPane>
