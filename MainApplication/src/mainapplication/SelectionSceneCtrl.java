@@ -171,10 +171,13 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     public void appendInput(String text) {
         txtManual.setVisible(true);
         String currText = txtManual.getText();
-        if (currText.isEmpty() || Character.isDigit(currText.charAt(currText.length() - 1)))
-            txtManual.setText(txtManual.getText() + text.toUpperCase());
-        else
-            txtManual.setText(txtManual.getText() + text);
+        if (currText.isEmpty() || Character.isDigit(currText.charAt(currText.length() - 1))) {
+            if(text.length() == 1) {
+                txtManual.setText(txtManual.getText() + text.toUpperCase());
+                return;
+            }
+        }
+        txtManual.setText(txtManual.getText() + text);
     }
     
     /**
@@ -182,43 +185,47 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
      * This method gets called both when the user presses backspace and when they right click and element to remove it.
      */
     public void removeElement() {
-        if(txtManual.getLength() >= 1) {  
-            
-            LinkedList<String> llSymbols = splitString(txtManual.getText());
-            
-            ArrayList<String> alFormatted = addOnes(llSymbols);
-            if(alFormatted.isEmpty()) 
-                return;
-            String[] arrayStrings = getAtoms(alFormatted.toArray(new String[alFormatted.size()]));
-            
-            String last = arrayStrings[arrayStrings.length - 1];
-            
-            for(Node el : paneSimulation.getChildren()) {
-                if(el instanceof VBox) {
-                    String symbolName = ((Label)(((VBox)el).getChildren().get(1))).getText();
-                    if (symbolName.equals(last)) {
-                        paneSimulation.getChildren().remove(el);
-                        break;
-                    }
-                }
-            }
-            
-            ArrayList<String> alName = new ArrayList<>(Arrays.asList(arrayStrings));
-            ArrayList<String> alFinished;
-            if(alName.size() > 10) {
-                String size = alName.size() + "";
-                alFinished = concentrateStr(new ArrayList<>(alName.subList(0, Integer.parseInt(size.substring(0,size.length() - 1)))));
+        if(txtManual.getLength() >= 1) {
+            if(Character.isDigit(txtManual.getText().charAt(0))) {
+                txtManual.setText("");
             }
             else {
-                alFinished = concentrateStr(new ArrayList<String>(alName.subList(0, alName.size()-1)));
+                LinkedList<String> llSymbols = splitString(txtManual.getText());
+
+                ArrayList<String> alFormatted = addOnes(llSymbols);
+                if(alFormatted.isEmpty()) 
+                    return;
+                String[] arrayStrings = getAtoms(alFormatted.toArray(new String[alFormatted.size()]));
+
+                String last = arrayStrings[arrayStrings.length - 1];
+
+                for(Node el : paneSimulation.getChildren()) {
+                    if(el instanceof VBox) {
+                        String symbolName = ((Label)(((VBox)el).getChildren().get(1))).getText();
+                        if (symbolName.equals(last)) {
+                            paneSimulation.getChildren().remove(el);
+                            break;
+                        }
+                    }
+                }
+
+                ArrayList<String> alName = new ArrayList<>(Arrays.asList(arrayStrings));
+                ArrayList<String> alFinished;
+                if(alName.size() > 10) {
+                    String size = alName.size() + "";
+                    alFinished = concentrateStr(new ArrayList<>(alName.subList(0, Integer.parseInt(size.substring(0,size.length() - 1)))));
+                }
+                else {
+                    alFinished = concentrateStr(new ArrayList<String>(alName.subList(0, alName.size()-1)));
+                }
+
+                last = "";
+                for (String temp : alFinished)
+                    if (!temp.equals("1"))
+                        last += temp;
+
+                txtManual.setText(last);
             }
-            
-            last = "";
-            for (String temp : alFinished)
-                if (!temp.equals("1"))
-                    last += temp;
-            
-            txtManual.setText(last);
         }
     }
     
@@ -395,6 +402,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         
         //if there is a 0, then one element wasnt found
         //since the array is sorted, 0 would be the first element
+        System.out.println(Arrays.toString(arrayDoneSorting));
         if (arrayDoneSorting[0] <= 0)
             return new String[0];
         

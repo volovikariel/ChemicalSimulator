@@ -210,7 +210,7 @@ public class MainAppCtrl implements Initializable {
             ((SelectionSceneCtrl) controller).appendInput(keyEvent.getCharacter());
         }
         else if (keyEvent.getCharacter().charAt(0) == BACKSPACE) {
-            // Removes a character at a time
+            // Removes a character at a time            
             ((SelectionSceneCtrl) controller).removeElement();
         }
     }
