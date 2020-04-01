@@ -392,6 +392,12 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         // [O,1,H,1,O,1] -> [O,H,O] -> [1,8,8]
         String[] arrayToSortSymbols = getAtoms(alFormatted.toArray(new String[alFormatted.size()]));
         int[] arrayDoneSorting = sortArray(arrayToSortSymbols);
+        
+        //if there is a 0, then one element wasnt found
+        //since the array is sorted, 0 would be the first element
+        if (arrayDoneSorting[0] <= 0)
+            return new String[0];
+        
         // [1,8,8] -> [H,O,O]
         ArrayList<String> alName = numToSymbol(arrayDoneSorting);
         // [H,O,O] -> [H,1,O,2]
@@ -483,7 +489,6 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 paneSimulation.getChildren().removeAll(paneSimulation.getChildren());
                 paneSimulation.getChildren().add(txtManual);
                 txtManual.setVisible(false);
-                arrayToSortNumbers[i] = -1;
             }
         }
         
