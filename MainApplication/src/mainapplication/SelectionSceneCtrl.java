@@ -11,6 +11,8 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
@@ -176,11 +178,10 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
      * This method gets called both when the user presses backspace and when they right click and element to remove it.
      */
     public void removeElement() {
-        //TODO: Make it so that if the user inputs 25, a backspace makes it go back to 2 instead of 24.
         if(txtManual.getLength() >= 1) {  
             
             LinkedList<String> llSymbols = splitString(txtManual.getText());
-        
+            
             ArrayList<String> alFormatted = addOnes(llSymbols);
 
             String[] arrayStrings = getAtoms(alFormatted.toArray(new String[alFormatted.size()]));
@@ -383,7 +384,6 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         LinkedList<String> llSymbols = splitString(text);
         // [O,H,O] -> [O,1,H,1,O,1]
         ArrayList<String> alFormatted = addOnes(llSymbols);
-        //TODO: Figure out what alFormatted is for
         // [O,1,H,1,O,1] -> [O,H,O] -> [1,8,8]
         String[] arrayToSortSymbols = getAtoms(alFormatted.toArray(new String[alFormatted.size()]));
         int[] arrayDoneSorting = sortArray(arrayToSortSymbols);
@@ -469,7 +469,15 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
             
             
             if(arrayToSortNumbers[i] == 0) {
-                System.out.println("Element: " + arrayToSortSymbols[i] + " not found.");
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Inputted Element(s) Not Recognized");
+                alert.setHeaderText("Element \"" + arrayToSortSymbols[i] + "\" not found.");
+                alert.show();
+                txtManual.setText("");
+                vboxes = new ArrayList<>();
+                paneSimulation.getChildren().removeAll(paneSimulation.getChildren());
+                paneSimulation.getChildren().add(txtManual);
+                txtManual.setVisible(false);
                 arrayToSortNumbers[i] = -1;
             }
         }
@@ -501,6 +509,18 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
      * @return the same LinkedList but with ones added after each element of which there is one of
      */
     public ArrayList<String> addOnes(LinkedList<String> llSymbols) {
+        System.out.println(llSymbols);
+        if(Character.isDigit(llSymbols.getLast().charAt(0))) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Inputted Element(s) Poorly Formatted");
+                alert.setHeaderText("Inpute elements poorly formatted. Remember to write C2H4OO, not C2H4oo");
+                alert.show();
+                txtManual.setText("");
+                vboxes = new ArrayList<>();
+                paneSimulation.getChildren().removeAll(paneSimulation.getChildren());
+                paneSimulation.getChildren().add(txtManual);
+                txtManual.setVisible(false);
+        }
         ArrayList<String> alFormatted = new ArrayList<>();        
         // Formatting the output and checking if the total number of atoms exceeds the limit (20)
         for(int i = 0; i < llSymbols.size(); i++) {
