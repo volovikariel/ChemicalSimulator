@@ -198,8 +198,14 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
             }
             
             ArrayList<String> alName = new ArrayList<>(Arrays.asList(arrayStrings));
-            
-            ArrayList<String> alFinished = concentrateStr(new ArrayList<String>(alName.subList(0, alName.size()-1)));
+            ArrayList<String> alFinished;
+            if(alName.size() > 10) {
+                String size = alName.size() + "";
+                alFinished = concentrateStr(new ArrayList<>(alName.subList(0, Integer.parseInt(size.substring(0,size.length() - 1)))));
+            }
+            else {
+                alFinished = concentrateStr(new ArrayList<String>(alName.subList(0, alName.size()-1)));
+            }
             
             last = "";
             for (String temp : alFinished)
@@ -352,10 +358,8 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         //String tempStr = txtManual.getText().replaceFirst(elementName, "");
         String[] atomList = getAtoms(parseInput());
         ArrayList<String> atomsArray = new ArrayList<>(Arrays.asList(atomList));
-        System.out.println(Arrays.toString(atomList));
         
         atomsArray.remove(elementName);
-        System.out.println(atomsArray);
         
         ArrayList<String> alFinished = concentrateStr(atomsArray);
                 
@@ -585,6 +589,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     }
     
     static public String[] getAtoms(String[] input) {
+        System.out.println("Input: " + Arrays.toString(input));
         int size = 0;
         for(int i = 1; i < input.length; i+=2) {
             size += Integer.parseInt(input[i]);
