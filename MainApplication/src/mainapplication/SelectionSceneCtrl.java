@@ -187,7 +187,8 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
             LinkedList<String> llSymbols = splitString(txtManual.getText());
             
             ArrayList<String> alFormatted = addOnes(llSymbols);
-
+            if(alFormatted.isEmpty()) 
+                return;
             String[] arrayStrings = getAtoms(alFormatted.toArray(new String[alFormatted.size()]));
             
             String last = arrayStrings[arrayStrings.length - 1];
@@ -395,7 +396,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         ArrayList<String> alName = numToSymbol(arrayDoneSorting);
         // [H,O,O] -> [H,1,O,2]
         ArrayList<String> alFinished = concentrateStr(alName);
-
+        
         return alFinished.toArray(new String[alFinished.size()]);
     }
     
@@ -513,19 +514,20 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
      * @return the same LinkedList but with ones added after each element of which there is one of
      */
     public ArrayList<String> addOnes(LinkedList<String> llSymbols) {
-        System.out.println(llSymbols);
-        if(Character.isDigit(llSymbols.getLast().charAt(0))) {
+        ArrayList<String> alFormatted = new ArrayList<>();
+        // If the input is 222 or something of the sort
+        if(!llSymbols.isEmpty() && llSymbols.get(0).isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Inputted Element(s) Poorly Formatted");
-                alert.setHeaderText("Inpute elements poorly formatted. Remember to write C2H4OO, not C2H4oo");
-                alert.show();
-                txtManual.setText("");
-                vboxes = new ArrayList<>();
-                paneSimulation.getChildren().removeAll(paneSimulation.getChildren());
-                paneSimulation.getChildren().add(txtManual);
-                txtManual.setVisible(false);
+            alert.setTitle("No Inputted Element Found");
+            alert.setHeaderText("No Element found.");
+            alert.show();
+            txtManual.setText("");
+            vboxes = new ArrayList<>();
+            paneSimulation.getChildren().removeAll(paneSimulation.getChildren());
+            paneSimulation.getChildren().add(txtManual);
+            txtManual.setVisible(false);
+            return alFormatted;
         }
-        ArrayList<String> alFormatted = new ArrayList<>();        
         // Formatting the output and checking if the total number of atoms exceeds the limit (20)
         for(int i = 0; i < llSymbols.size(); i++) {
             // If it's the last - must be letter
