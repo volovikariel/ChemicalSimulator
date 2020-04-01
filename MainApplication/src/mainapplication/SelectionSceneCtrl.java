@@ -170,7 +170,11 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
 
     public void appendInput(String text) {
         txtManual.setVisible(true);
-        txtManual.setText(txtManual.getText() + text);
+        String currText = txtManual.getText();
+        if (currText.isEmpty() || Character.isDigit(currText.charAt(currText.length() - 1)))
+            txtManual.setText(txtManual.getText() + text.toUpperCase());
+        else
+            txtManual.setText(txtManual.getText() + text);
     }
     
     /**

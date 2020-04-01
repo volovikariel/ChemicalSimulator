@@ -58,7 +58,7 @@ public class TabTemplateCtrl implements Initializable {
     Pane lewisPane;
 
     final int BOND_SIZE = 125;
-    final int LEWIS_BOND_SIZE = 50;
+    final int LEWIS_BOND_SIZE = 40;
     final int LEWIS_OFFSET = 20;
 
     double initX;
