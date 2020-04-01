@@ -131,6 +131,10 @@ public class MainAppCtrl implements Initializable {
         else if (keyEvent.getCharacter().charAt(0) == ENTER) {
             if (isSelectionScene) { // Parse input if it's in the selection scene and Enter is pressed
                 String[] input = ((SelectionSceneCtrl) controller).parseInput();
+                
+                if (input.length == 0)
+                    return;
+                
                 //String[] input = {"H", "6", "C", "3"};
                 String inputStr = getInputStr(input);
                 
