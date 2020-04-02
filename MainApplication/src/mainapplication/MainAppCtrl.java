@@ -39,6 +39,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javax.imageio.ImageIO;
+import javax.management.Notification;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -60,6 +61,8 @@ public class MainAppCtrl implements Initializable {
     private MenuItem takeLewisPicture;
     @FXML
     private MenuItem take3DPicture;
+    @FXML
+    private MenuItem menuHelp;
     
     @FXML
     private SubScene subScene;
@@ -462,6 +465,40 @@ public class MainAppCtrl implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    @FXML 
+    void showHelp(ActionEvent event) {
+        Alert help = new Alert(AlertType.INFORMATION);
+        help.setTitle("Help Information");
+        help.getDialogPane().setMinWidth(550);
+        help.setHeaderText("Information");
+        help.setGraphic(null);
+        help.setContentText("Notice: The menu is accessed from the top of the window."
+                + "\n\n[Proceed]:"
+                + "\n\t-ENTER (requires Elements to have been added)"
+                + "\n\n[Add Elements]:"
+                + "\n\t-Drag and Drop from the periodic table to the top portion of the screen"
+                + "\n\t-Typing them, for instance: H2O"
+                + "\n\n[Remove An Element]:"
+                + "\n\t-If the elements are on the top portion of the screen, RIGHT CLICK the specific element"
+                + "\n\t-Press Backspace"
+                + "\n\n[Remove All Elements]:"
+                + "\n\t-Access the menu EDIT-> CLEAR SCREEN"
+                + "\n\n[Save Picture File]:"
+                + "\n\t-Access the menu SAVE, then select what you want to save:"
+                + "\n\t\t Save Screen"
+                + "\n\t\t\t or "
+                + "\n\t\t Save 3D"
+                + "\n\t\t\t or"
+                + "\n\t\t Save Lewis"
+                + "\n\n[Go Back To Selection]:"
+                + "\n\t-Press ENTER once the solutions have loaded"
+                + "\n\n[Move Lewis or 3D]:"
+                + "\n\t-Hold right click over the object and drag the cursor"
+                + "\n\n[Rotate 3D]"
+                + "\n\t-Hold left click over the object and drag the cursor");
+        help.show();
     }
     
     @FXML
