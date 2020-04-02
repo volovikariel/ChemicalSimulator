@@ -57,10 +57,13 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
             Tab newTab = new Tab("" + (i + 1));
             newTab.setContent(root);
             
+            Solution current = list.get(i);
+            
             //controller.sendSolution(list.get(i));
             //String[] temp = {"H", "H", "H", "H", "C", "C"};
-            controller.setLewis(list.get(i).getMatrix(), atomList, list.get(i).getLoop());
-            controller.set3D(list.get(i).getMatrix(), atomList, list.get(i).getLoop());
+            controller.setLewis(current.getMatrix(), atomList, current.getLoop());
+            controller.set3D(current.getMatrix(), atomList, current.getLoop());
+            controller.setScore(current.getScore());
             
             resultID.getTabs().add(newTab);
             

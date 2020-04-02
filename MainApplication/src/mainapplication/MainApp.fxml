@@ -17,10 +17,13 @@
       </SubScene>
        <MenuBar fx:id="menuBar" blendMode="SRC_ATOP" prefHeight="29.0" prefWidth="616.0" style="-fx-background-color: Gray;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" StackPane.alignment="TOP_CENTER">
         <menus>
-          <Menu mnemonicParsing="false" text="File" />
+          <Menu mnemonicParsing="false" text="File">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#handleClose" text="Exit" />
+               </items></Menu>
           <Menu mnemonicParsing="false" text="Edit">
             <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
+              <MenuItem mnemonicParsing="false" text="Clear Screen" />
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="Save">
@@ -28,6 +31,13 @@
                 <MenuItem fx:id="takeFullPicture" mnemonicParsing="false" onAction="#saveScene" text="Save Screen" />
                   <MenuItem fx:id="take3DPicture" disable="true" mnemonicParsing="false" onAction="#saveThreeDim" text="Save 3D" />
                   <MenuItem fx:id="takeLewisPicture" disable="true" mnemonicParsing="false" onAction="#saveLewis" text="Save Lewis" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Help" />
+                  <MenuItem mnemonicParsing="false" text="Shortcuts" />
+                  <MenuItem mnemonicParsing="false" text="About" />
               </items>
             </Menu>
         </menus>

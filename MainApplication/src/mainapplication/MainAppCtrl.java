@@ -153,7 +153,8 @@ public class MainAppCtrl implements Initializable {
                 algorithmTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        if (solutions.isEmpty()) {
+                        
+                        if (solutions.size() <= 2) {
                             System.out.println("No solutions found!!");
 
                             Alert alert = new Alert(AlertType.WARNING, "These atoms yielded no solutions!");
@@ -164,6 +165,7 @@ public class MainAppCtrl implements Initializable {
 
                             return;
                         }
+                        
                         loadSubscene(RESULTS_STR);
                         // Get atom list
                         String[] atomList = solutions.getFirst().getNames();
@@ -460,5 +462,10 @@ public class MainAppCtrl implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    @FXML
+    void handleClose(ActionEvent event) {
+        ((Stage) (parentScene.getWindow())).close();
     }
 }    

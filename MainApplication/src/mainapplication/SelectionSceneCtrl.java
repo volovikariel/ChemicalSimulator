@@ -166,6 +166,13 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 event.consume();
             }
         });
+        
+        splitPane.getDividers().get(0).positionProperty().addListener( new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                splitPane.getDividers().get(0).setPosition(0.5);
+            }
+        });
     }
 
     public void appendInput(String text) {

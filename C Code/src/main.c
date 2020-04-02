@@ -8,7 +8,7 @@
 
 #include "../inc/memory.h"
 
-#define MAX_BONDS 6
+#define MAX_BONDS 8
 
 void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList);
 void attempt(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList, Atom* currAtom);

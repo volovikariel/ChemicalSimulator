@@ -9,6 +9,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point3D;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
@@ -56,6 +57,9 @@ public class TabTemplateCtrl implements Initializable {
 
     @FXML
     Pane lewisPane;
+    
+    @FXML
+    Label lblScore;
 
     final int BOND_SIZE = 125;
     final int LEWIS_BOND_SIZE = 40;
@@ -108,6 +112,7 @@ public class TabTemplateCtrl implements Initializable {
         if(atomList[currRow].equals("H")) {
             Label temp = new Label("H");
             temp.setFont(new Font(40));
+            temp.setAlignment(Pos.CENTER);
             returnList.add(temp);            
 
             if(prevRow != -1)
@@ -165,6 +170,7 @@ public class TabTemplateCtrl implements Initializable {
         
         Label label = new Label(atomList[currRow]);
         label.setFont(new Font(40));
+        label.setAlignment(Pos.CENTER);
         returnList.add(label);
         
         //if theres formal charge, add a label
@@ -268,6 +274,7 @@ public class TabTemplateCtrl implements Initializable {
 
             Label lblLetter = new Label(atomList[loopIndices[i]]);
             lblLetter.setFont(new Font(40));
+            lblLetter.setAlignment(Pos.CENTER);
 
             returnedList.add(lblLetter);
 
@@ -456,6 +463,8 @@ public class TabTemplateCtrl implements Initializable {
 
         Sphere temp = new Sphere(50);
         temp.setMaterial(new PhongMaterial(Color.web(color)));
+        temp.setId(atomList[currRow]);
+        addHover(temp);
         returnList.add(temp);
         //if theres formal charge, add a label
         if (formalCharge != 0) {
@@ -472,8 +481,6 @@ public class TabTemplateCtrl implements Initializable {
         boolean isFirst = prevRow == -1 && amountFound == 0;
         for (int i = 0; i < matrix.length; i++) {
             if (matrix[currRow][i] != 0) {
-                temp.setId(atomList[currRow]);
-                addHover(temp);
                 numBonds = matrix[currRow][i];
                 if (i != prevRow && !prevs.contains(i)) {
                     double[] transVec = getTransVec(stericNumber, amountFound, vec);
@@ -1088,5 +1095,9 @@ public class TabTemplateCtrl implements Initializable {
         rectangle.getTransforms().add(rotateAroundCenter);
         
         return rectangle;
+    }
+
+    void setScore(int score) {
+        lblScore.setText("Score: " + score);
     }
 }
