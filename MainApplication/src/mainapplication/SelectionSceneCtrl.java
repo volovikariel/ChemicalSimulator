@@ -172,7 +172,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         txtManual.setVisible(true);
         String currText = txtManual.getText();
         if (currText.isEmpty() || Character.isDigit(currText.charAt(currText.length() - 1)))
-            txtManual.setText(txtManual.getText() + text.toUpperCase());
+            txtManual.setText(txtManual.getText() + Character.toUpperCase(text.charAt(0)) + text.substring(1));
         else
             txtManual.setText(txtManual.getText() + text);
     }
