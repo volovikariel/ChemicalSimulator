@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 import javafx.animation.KeyFrame;
@@ -21,6 +22,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -38,6 +40,7 @@ import javafx.scene.transform.Transform;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.util.Pair;
 import javax.imageio.ImageIO;
 import javax.management.Notification;
 import org.apache.commons.csv.CSVFormat;
@@ -94,6 +97,11 @@ public class MainAppCtrl implements Initializable {
     private LinkedList<Solution> solutions = null;
     public Task<Void> algorithmTask;
     
+    private Runtime run;
+    public Process proc = null;
+    
+    private ArrayList<Pair<Group, Group>> groups = null;
+    
     public static Atom[] getAtoms() {
         return atoms;
     }
@@ -149,14 +157,6 @@ public class MainAppCtrl implements Initializable {
                     protected Void call() {
                         solutions = callAlgorithm(inputStr);
                         
-                        return null;
-                    }
-                };
-                
-                algorithmTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-                    @Override
-                    public void handle(WorkerStateEvent event) {
-                        
                         if (solutions.size() <= 2) {
                             System.out.println("No solutions found!!");
 
@@ -165,11 +165,12 @@ public class MainAppCtrl implements Initializable {
                             alert.show();
 
                             loadSubscene(SELECTION_STR);
-
-                            return;
+                            
+                            groups = null;
+                            
+                            return null;
                         }
-                        
-                        loadSubscene(RESULTS_STR);
+                            
                         // Get atom list
                         String[] atomList = solutions.getFirst().getNames();
                         solutions.removeFirst();
@@ -189,14 +190,52 @@ public class MainAppCtrl implements Initializable {
                             }
                         }
 
+                        //get all the groups
+                         groups = new ArrayList<>(solutions.size());
+
+                        for (int i = 0; i < solutions.size(); i++) {
+                            groups.add(i, TabTemplateCtrl.loadGroups(solutions.get(i).getMatrix(), atomList, solutions.get(i).getLoop()));
+                        }
+                        
+                        return null;
+                    }
+                };
+                
+                algorithmTask.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+                    @Override
+                    public void handle(WorkerStateEvent event) {
+                        
+                        if (groups == null)
+                            return;
+                        
+                        loadSubscene(RESULTS_STR);
+
                         //System.out.println(Arrays.toString(atomList));
-                        ((ResultSceneCtrl) controller).resultList(solutions, atomList, metalAtoms);
+                        ((ResultSceneCtrl) controller).setTabs(groups, solutions);
                         
                         algorithmTask = null;
                         
                         take3DPicture.setDisable(false);
                         takeLewisPicture.setDisable(false);
                     }
+                });
+                
+                algorithmTask.setOnCancelled(new EventHandler<WorkerStateEvent>() {
+                    @Override
+                    public void handle(WorkerStateEvent event) {
+                        proc.destroyForcibly();
+                        proc = null;
+                    }
+                    
+                });
+                
+                algorithmTask.setOnFailed(new EventHandler<WorkerStateEvent>() {
+                    @Override
+                    public void handle(WorkerStateEvent event) {
+                        proc.destroyForcibly();
+                        proc = null;
+                    }
+                    
                 });
                 
                 Thread thread = new Thread(algorithmTask);
@@ -297,11 +336,10 @@ public class MainAppCtrl implements Initializable {
             Path currentRelativePath = Paths.get("");
             String s = currentRelativePath.toAbsolutePath().toString();
             File dir = new File(s);
-            Runtime run = Runtime.getRuntime();
+            run = Runtime.getRuntime();
             
             // Runs the executable specific to the operating system
             String osName = System.getProperty("os.name").toLowerCase();
-            Process proc;
             if (osName.contains("win"))
                 proc = run.exec(String.format("b.exe%s", input), null, dir);
             else if (osName.contains("mac"))

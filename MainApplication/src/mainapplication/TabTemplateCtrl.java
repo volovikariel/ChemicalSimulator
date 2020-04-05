@@ -35,6 +35,7 @@ import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
+import javafx.util.Pair;
 
 /**
  * Controller for the TabTemplate FXML.
@@ -61,9 +62,9 @@ public class TabTemplateCtrl implements Initializable {
     @FXML
     Label lblScore;
 
-    final int BOND_SIZE = 125;
-    final int LEWIS_BOND_SIZE = 40;
-    final int LEWIS_OFFSET = 20;
+    final static int BOND_SIZE = 125;
+    final static int LEWIS_BOND_SIZE = 40;
+    final static int LEWIS_OFFSET = 20;
 
     double initX;
     double initY;
@@ -88,24 +89,26 @@ public class TabTemplateCtrl implements Initializable {
      * @param solution the solution matrix
      * @param atomList
      */
-    public void setLewis(int [][] solution, String[] atomList, int[] loops) {
-        matrix = solution;
-        this.atomList = atomList;
+    public static Group setLewis(int [][] solution, String[] atomList, int[] loops) {
+        Group returnGroup = new Group();
         ArrayList<Node> finalList;
 
         if (loops.length != 0)
-            finalList = doLoop2D(loops);
+            finalList = doLoop2D(loops, solution, atomList);
         else
-            finalList = getRelativeLewis(0, -1, new double[] {LEWIS_BOND_SIZE + 2 * LEWIS_OFFSET, 0, 0},new LinkedList<>());
+            finalList = getRelativeLewis(0, -1, new double[] {LEWIS_BOND_SIZE + 2 * LEWIS_OFFSET, 0, 0},new LinkedList<>(), solution, atomList);
 
         
-        lewisGroup.getChildren().add(new Group(finalList));
-        lewisPane.getChildren().add(lewisGroup);
+        returnGroup.getChildren().add(new Group(finalList));
+        
+        return returnGroup;
+        
         //System.out.println("Final List Lewis: " + finalList);
     }
 
-    public ArrayList<Node> getRelativeLewis(int currRow, int prevRow, double[] translateVec, LinkedList<Integer> prevs) {
+    public static ArrayList<Node> getRelativeLewis(int currRow, int prevRow, double[] translateVec, LinkedList<Integer> prevs, int[][] matrix, String[] atomList) {
         prevs.add(currRow);
+        Atom[] atoms = MainAppCtrl.getAtoms();
 
         ArrayList<Node> returnList = new ArrayList<>();
 
@@ -132,7 +135,7 @@ public class TabTemplateCtrl implements Initializable {
                     
                     returnList.add(rectangle);
                     
-                    ArrayList<Node> recursiveCall = getRelativeLewis(i, currRow, translateVec, prevs);
+                    ArrayList<Node> recursiveCall = getRelativeLewis(i, currRow, translateVec, prevs, matrix, atomList);
                     
                     for(Node node : recursiveCall) {
                         node.setTranslateX(node.getTranslateX() + translateVec[0]);
@@ -211,7 +214,7 @@ public class TabTemplateCtrl implements Initializable {
                         returnList.add(rectangle);
                     }
                     
-                    ArrayList<Node> recursion = getRelativeLewis(i, currRow, translateLoop, prevs);
+                    ArrayList<Node> recursion = getRelativeLewis(i, currRow, translateLoop, prevs, matrix, atomList);
 
                     for (Node node : recursion) {
                         node.setTranslateX(node.getTranslateX() + translateLoop[0]);
@@ -226,7 +229,9 @@ public class TabTemplateCtrl implements Initializable {
         return returnList;
     }
 
-    private ArrayList<Node> doLoop2D(int[] loopIndices) {
+    private static ArrayList<Node> doLoop2D(int[] loopIndices, int[][] matrix, String[] atomList) {
+        Atom[] atoms = MainAppCtrl.getAtoms();
+        
         ArrayList<Node> returnedList = new ArrayList<>();
         LinkedList<Integer> previous = new LinkedList<>();
 
@@ -356,7 +361,7 @@ public class TabTemplateCtrl implements Initializable {
                     }
 
                     //call recursive fct
-                    ArrayList<Node> recursion = getRelativeLewis(j, loopIndices[i], attackVec, previous);
+                    ArrayList<Node> recursion = getRelativeLewis(j, loopIndices[i], attackVec, previous, matrix, atomList);
 
                     for (Node node : recursion) {
                         node.setTranslateX(node.getTranslateX() + attackVec[0] + translateVec[0]);
@@ -375,19 +380,46 @@ public class TabTemplateCtrl implements Initializable {
      * @param atomList a list of non-metals
      * @param loop the indexes of the rows which are part of a loop
      */
-    public void set3D(int [][] solution, String[] atomList, int[] loop) {
-        matrix = solution;
-        this.atomList = atomList;
+    public static Group set3D(int [][] solution, String[] atomList, int[] loop) {
+        Group returnGroup = new Group();
 
         ArrayList<Node> finalList;
 
         if (loop.length != 0)
-            finalList = doLoop(loop);
+            finalList = doLoop(loop, solution, atomList);
         else
-            finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>());
+            finalList = getRelativeLocation(0, -1, new double[] {BOND_SIZE, 0, 0}, new LinkedList<>(), solution, atomList);
 
-        atomGroup.getChildren().addAll(finalList);
+        returnGroup.getChildren().addAll(finalList);
+        
+        return returnGroup;
+    }
+    
+    public static Pair<Group, Group> loadGroups(int [][] solution, String[] atomList, int[] loop) {
+        Group group3D = set3D(solution, atomList, loop);
+        
+        Group groupLewis = setLewis(solution, atomList, loop);
+        
+        return new Pair<>(group3D, groupLewis);
+    }
+    
+    public void setNodes(Pair<Group, Group> groups) {
+        atomGroup = groups.getKey();
+        lewisGroup = groups.getValue();
+        
+        //add the hovers
+        for (Node node :atomGroup.getChildren())
+            if (node instanceof Sphere)
+                addHover((Sphere) node);
+        
         realView.setRoot(atomGroup);
+        
+        lewisPane.getChildren().add(lewisGroup);
+        
+        atomGroup.layoutXProperty().bind(realView.widthProperty().divide(2));
+        atomGroup.layoutYProperty().bind(realView.heightProperty().divide(2));
+        lewisGroup.layoutXProperty().bind(lewisPane.widthProperty().divide(2));
+        lewisGroup.layoutYProperty().bind(lewisPane.heightProperty().divide(2));
     }
 
     /**
@@ -398,8 +430,10 @@ public class TabTemplateCtrl implements Initializable {
      * @param prevs the list of all the previous rows
      * @return an ArrayList of Nodes (Spheres and Cylinders)
      */
-    public ArrayList<Node> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs) {
+    public static ArrayList<Node> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs, int[][] matrix, String[] atomList) {
         prevs.add(currRow);
+        
+        Atom[] atoms = MainAppCtrl.getAtoms();
 
         ArrayList<Node> returnList = new ArrayList<>();
 
@@ -407,7 +441,6 @@ public class TabTemplateCtrl implements Initializable {
             Sphere temp = new Sphere(40);
             temp.setMaterial(new PhongMaterial(Color.web(atoms[0].getColor())));
             temp.setId("H");
-            addHover(temp);
             returnList.add(temp);
 
             if (prevRow != -1) {
@@ -419,7 +452,7 @@ public class TabTemplateCtrl implements Initializable {
                     double[] transVec = {BOND_SIZE, 0, 0};
                     Cylinder bond = getCylinder(transVec);
                     returnList.add(bond);
-                    ArrayList<Node> recursion = getRelativeLocation(i, currRow, transVec, prevs);
+                    ArrayList<Node> recursion = getRelativeLocation(i, currRow, transVec, prevs, matrix, atomList);
 
                     for (Node sphere : recursion) {
                         sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
@@ -464,7 +497,6 @@ public class TabTemplateCtrl implements Initializable {
         Sphere temp = new Sphere(50);
         temp.setMaterial(new PhongMaterial(Color.web(color)));
         temp.setId(atomList[currRow]);
-        addHover(temp);
         returnList.add(temp);
         //if theres formal charge, add a label
         if (formalCharge != 0) {
@@ -506,7 +538,7 @@ public class TabTemplateCtrl implements Initializable {
                         bond.getTransforms().add(new Translate(translateModif*transVec[0]/3, translateModif*transVec[1] * -1/4, translateModif*transVec[2]/6));
                         returnList.add(bond);
                     }
-                    ArrayList<Node> recursion = getRelativeLocation(i, currRow, transVec, prevs);
+                    ArrayList<Node> recursion = getRelativeLocation(i, currRow, transVec, prevs, matrix, atomList);
 
                     for (Node sphere : recursion) {
                         sphere.setTranslateX(sphere.getTranslateX() + transVec[0]);
@@ -524,7 +556,7 @@ public class TabTemplateCtrl implements Initializable {
         return returnList;
     }
 
-    double[] getAxis(double[] a, double[] b) {
+    static double[] getAxis(double[] a, double[] b) {
         double[] returnAxis = new double[3];
 
         returnAxis[0] = a[1] * b[2] - a[2] * b[1];
@@ -546,7 +578,7 @@ public class TabTemplateCtrl implements Initializable {
         return returnAxis;
     }
 
-    double[] normalize(double [] a) {
+    static double[] normalize(double [] a) {
         double[] returnAxis = new double[3];
 
         double length = 0;
@@ -570,7 +602,7 @@ public class TabTemplateCtrl implements Initializable {
      * @param rad the angle by which you rotate (in radians)
      * @return the modified input vector
      */
-    double[] makeRot(double[] input, double[] axis, double rad) {
+    static double[] makeRot(double[] input, double[] axis, double rad) {
 //        double[][] W = {{0, -axis[2], axis[1]}, {axis[2], 0, -axis[0]}, {-axis[1], axis[0], 0}};
 //        double[][] I = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 //
@@ -652,7 +684,7 @@ public class TabTemplateCtrl implements Initializable {
      * @param z the angle (in radians) by which the vector gets rotated about the Z axis
      * @return the modified input vector
      */
-    double[] makeRoation(double[] input, double x, double y, double z) {
+    static double[] makeRoation(double[] input, double x, double y, double z) {
         double[] result = new double[3];
 
         double[][] xRot = {{1, 0, 0},{0, Math.cos(x), -Math.sin(x)},{0, Math.sin(x), Math.cos(x)}};
@@ -701,10 +733,7 @@ public class TabTemplateCtrl implements Initializable {
         realView.setManaged(false);
         realView.heightProperty().bind(bindAnchor.heightProperty());
         realView.widthProperty().bind(bindAnchor.widthProperty());
-        atomGroup.layoutXProperty().bind(realView.widthProperty().divide(2));
-        atomGroup.layoutYProperty().bind(realView.heightProperty().divide(2));
-        lewisGroup.layoutXProperty().bind(lewisPane.widthProperty().divide(2));
-        lewisGroup.layoutYProperty().bind(lewisPane.heightProperty().divide(2));
+        
         camera = new PerspectiveCamera(false);
         camera.setFieldOfView(70);
         realView.setCamera(camera);
@@ -815,7 +844,7 @@ public class TabTemplateCtrl implements Initializable {
      * @param transVec the translate vector by which the cylinder orients itself
      * @return the Cylinder
      */
-    private Cylinder getCylinder(double[] transVec) {
+    private static Cylinder getCylinder(double[] transVec) {
         double length = 0;
         for (double num : transVec)
             length += num * num;
@@ -845,7 +874,8 @@ public class TabTemplateCtrl implements Initializable {
      * @param loopIndices the indexes of the rows which are part of a loop
      * @return an ArrayList of Nodes (Spheres and Cylinders)
      */
-    private ArrayList<Node> doLoop(int[] loopIndices) {
+    private static ArrayList<Node> doLoop(int[] loopIndices, int[][] matrix, String[] atomList) {
+        Atom[] atoms = MainAppCtrl.getAtoms();
 
         ArrayList<Node> returnedList = new ArrayList<>();
         LinkedList<Integer> previous = new LinkedList<>();
@@ -894,7 +924,6 @@ public class TabTemplateCtrl implements Initializable {
 
             Sphere tempSphere = new Sphere(50);
             tempSphere.setId(atomList[i]);
-            addHover(tempSphere);
             tempSphere.setMaterial(new PhongMaterial(Color.web(color)));
 
             transVec = new double[] {sideLen, 0, 0};
@@ -967,7 +996,7 @@ public class TabTemplateCtrl implements Initializable {
                     }
 
                     //call recursive fct
-                    ArrayList<Node> recursion = getRelativeLocation(j, loopIndices[i], attackVec, previous);
+                    ArrayList<Node> recursion = getRelativeLocation(j, loopIndices[i], attackVec, previous, matrix, atomList);
 
                     for (Node sphere : recursion) {
                         sphere.setTranslateX(sphere.getTranslateX() + attackVec[0] + transVec[0]);
@@ -1014,7 +1043,7 @@ public class TabTemplateCtrl implements Initializable {
         });
     }
 
-    double[] getTransVec(int steric, int count, double[] attackVec) {
+    static double[] getTransVec(int steric, int count, double[] attackVec) {
         double[] transVec = attackVec;
 
         double[] axis = normalize(attackVec);
@@ -1076,7 +1105,7 @@ public class TabTemplateCtrl implements Initializable {
         return transVec;
     }
 
-    private Rectangle getRectangle(double[] transVec) {
+    private static Rectangle getRectangle(double[] transVec) {
         Point3D comingVec = new Point3D(transVec[0], transVec[1], transVec[2]);
         comingVec = comingVec.normalize();
         

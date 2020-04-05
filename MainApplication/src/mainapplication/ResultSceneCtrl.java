@@ -2,6 +2,7 @@ package mainapplication;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
@@ -9,10 +10,12 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.WritableImage;
+import javafx.util.Pair;
 import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.Notifications;
 
@@ -64,6 +67,37 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
             controller.setLewis(current.getMatrix(), atomList, current.getLoop());
             controller.set3D(current.getMatrix(), atomList, current.getLoop());
             controller.setScore(current.getScore());
+            
+            resultID.getTabs().add(newTab);
+            
+            controllers.put(i, controller);
+        }
+        // Notifying the user that the algorithm has finished its job
+        Notifications.create().title("Chemical Simulator").text("Done!").showInformation();
+    }
+    
+    public void setTabs(ArrayList<Pair<Group, Group>> groups, LinkedList<Solution> list) {
+        resultID.requestFocus();
+        controllers = new HashMap<>();
+        for (int i = 0; i < groups.size(); i++) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("TabTemplate.fxml"));
+            Parent root = null;
+            TabTemplateCtrl controller;
+            try {
+                root = loader.load();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                continue;
+            }
+            
+            controller = (TabTemplateCtrl) loader.getController();
+            Tab newTab = new Tab("" + (i + 1));
+            newTab.setContent(root);
+            
+            Solution current = list.get(i);
+            
+            controller.setScore(current.getScore());
+            controller.setNodes(groups.get(i));
             
             resultID.getTabs().add(newTab);
             

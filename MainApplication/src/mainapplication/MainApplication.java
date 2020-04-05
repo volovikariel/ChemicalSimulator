@@ -47,5 +47,10 @@ public class MainApplication extends Application {
     public static void main(String[] args) {
         launch(args);
     }  
-        
+    
+    @Override
+    public void stop() {
+        if (controller.proc != null)
+            controller.proc.destroyForcibly();
+    }
 }
