@@ -505,6 +505,7 @@ public class MainAppCtrl implements Initializable {
         }
     }
     
+    
     @FXML 
     void showHelp(ActionEvent event) {
         Alert help = new Alert(AlertType.INFORMATION);
