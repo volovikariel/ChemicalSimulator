@@ -16,7 +16,7 @@
           <Region />
         </root>
       </SubScene>
-       <MenuBar fx:id="menuBar" blendMode="SRC_ATOP" prefHeight="29.0" prefWidth="616.0" style="-fx-background-color: Gray;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" StackPane.alignment="TOP_CENTER">
+       <MenuBar fx:id="menuBar" blendMode="SRC_ATOP" prefHeight="29.0" prefWidth="616.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" StackPane.alignment="TOP_CENTER">
         <menus>
           <Menu mnemonicParsing="false" text="File">
                <items>

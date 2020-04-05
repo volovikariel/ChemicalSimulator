@@ -1,0 +1,26 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 4-Apr-2020, 11:38:55 PM
+    Author     : samyarab
+*/
+
+#menuBar{
+   -fx-background-color: steelblue; 
+}
+
+.searchTxtBox {
+    -fx-padding: 7px;
+    -fx-font-size: 13px;
+    -fx-text-align: left;
+    -fx-border-style: none;
+    -fx-border-width: 1px;
+    -fx-box-shadow: 2px 2px 7px 0px rgba(42, 42, 42, .33);
+    -fx-font-family: sans-serif;
+    -fx-border-color: steelblue;
+    -fx-border-radius: 10px;
+}
+
