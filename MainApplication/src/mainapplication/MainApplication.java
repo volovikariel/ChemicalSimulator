@@ -38,6 +38,7 @@ public class MainApplication extends Application {
         Parent root = loader.load();
         controller = loader.getController();
         this.scene = new Scene(root, 1280, 960);
+        this.scene.getStylesheets().add(getClass().getResource("appDesign.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
         

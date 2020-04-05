@@ -15,7 +15,7 @@
         <items>
           <AnchorPane fx:id="paneSimulation" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
-                  <TextField fx:id="txtManual" alignment="BOTTOM_RIGHT" depthTest="ENABLE" editable="false" focusTraversable="false" layoutX="454.0" layoutY="170.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                  <TextField fx:id="txtManual" alignment="BOTTOM_RIGHT" depthTest="ENABLE" editable="false" focusTraversable="false" layoutX="454.0" layoutY="170.0" styleClass="searchTxtBox" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
                      <font>
                         <Font size="11.0" />
                      </font>
