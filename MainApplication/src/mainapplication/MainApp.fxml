@@ -22,11 +22,6 @@
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#handleClose" text="Exit" />
                </items></Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Clear Screen" />
-            </items>
-          </Menu>
             <Menu mnemonicParsing="false" text="Save">
               <items>
                 <MenuItem fx:id="takeFullPicture" mnemonicParsing="false" onAction="#saveScene" text="Save Screen" />

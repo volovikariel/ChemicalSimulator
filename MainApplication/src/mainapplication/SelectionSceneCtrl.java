@@ -7,11 +7,13 @@ import java.util.LinkedList;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
@@ -53,6 +55,8 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     GridPane gridPane;
     @FXML
     AnchorPane paneSimulation;
+    @FXML 
+    Button btnClear;
     
     Atom[] atoms;
     
@@ -658,5 +662,12 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
 
     void setAtoms(Atom[] atoms) {
         this.atoms = atoms;
+    }
+    
+    @FXML
+    public void clearScreen(ActionEvent event) {
+        txtManual.setText("");
+        paneSimulation.getChildren().removeAll(paneSimulation.getChildren());
+        paneSimulation.getChildren().addAll(txtManual, btnClear);
     }
 }

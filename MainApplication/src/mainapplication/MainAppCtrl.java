@@ -505,6 +505,7 @@ public class MainAppCtrl implements Initializable {
         }
     }
     
+    
     @FXML 
     void showHelp(ActionEvent event) {
         Alert help = new Alert(AlertType.INFORMATION);
@@ -522,7 +523,7 @@ public class MainAppCtrl implements Initializable {
                 + "\n\t-If the elements are on the top portion of the screen, RIGHT CLICK the specific element"
                 + "\n\t-Press Backspace"
                 + "\n\n[Remove All Elements]:"
-                + "\n\t-Access the menu EDIT-> CLEAR SCREEN"
+                + "\n\t-Press the \"Clear All\" button in the top left portion of the screen"
                 + "\n\n[Save Picture File]:"
                 + "\n\t-Access the menu SAVE, then select what you want to save:"
                 + "\n\t\t Save Screen"
