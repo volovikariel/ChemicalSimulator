@@ -199,18 +199,14 @@ public class TabTemplateCtrl implements Initializable {
                     Point3D offsetVec = (new Point3D(translateLoop[0], translateLoop[1], translateLoop[2])).normalize();
                     double translateModif = 0;
                     for(int k = 0; k < numBonds; k++) {
-                        if(numBonds == 3) {
-                            translateModif = k-1;
-                        }
-                        else if (numBonds == 2) {
-                            translateModif = k-0.5;
-                        }
+                        translateModif = k - (numBonds - 1) / 2.0;
+                        
                         Rectangle rectangle = getRectangle(translateLoop);
 
                         //calculate offset -> seperation from center + center of label
                         rectangle.setTranslateX(rectangle.getTranslateX() + LEWIS_OFFSET * offsetVec.getX() + 20);
                         rectangle.setTranslateY(rectangle.getTranslateY() + LEWIS_OFFSET * offsetVec.getY() + 30);
-                        rectangle.getTransforms().add(new Translate(translateModif*translateLoop[0]/3, translateModif*translateLoop[1] * -1/4));
+                        rectangle.getTransforms().add(new Translate(10 * translateModif, 0));
                         returnList.add(rectangle);
                     }
                     
@@ -304,18 +300,14 @@ public class TabTemplateCtrl implements Initializable {
             Point3D offsetVec = (new Point3D(rectangleVec[0], rectangleVec[1], rectangleVec[2])).normalize();
             double translateModif = 0;
             for(int j = 0; j < numBonds; j++) {
-                if(numBonds == 3) {
-                    translateModif = j-1;
-                }
-                else if (numBonds == 2) {
-                    translateModif = j-0.5;
-                }
+                translateModif = j - (numBonds - 1) / 2.0;
+                
                 Rectangle rectangle = getRectangle(rectangleVec);
                 
                 //calculate offset -> location + seperation from center + center of label
                 rectangle.setTranslateX(rectangle.getTranslateX() + translateVec[0] + LEWIS_OFFSET * offsetVec.getX() + 20);
                 rectangle.setTranslateY(rectangle.getTranslateY() + translateVec[1] + LEWIS_OFFSET * offsetVec.getY() + 30);
-                rectangle.getTransforms().add(new Translate(translateModif*translateVec[0]/3, translateModif*translateVec[1] * -1/4));
+                rectangle.getTransforms().add(new Translate(10 * translateModif, 0));
                 returnedList.add(rectangle);
             }
 
@@ -345,18 +337,14 @@ public class TabTemplateCtrl implements Initializable {
                     offsetVec = (new Point3D(attackVec[0], attackVec[1], attackVec[2])).normalize();
                     translateModif = 0;
                     for(int k = 0; k < numBonds; k++) {
-                        if(numBonds == 3) {
-                            translateModif = k-1;
-                        }
-                        else if (numBonds == 2) {
-                            translateModif = k-0.5;
-                        }
+                        translateModif = k - (numBonds - 1) / 2.0;
+                        
                         Rectangle rectangle = getRectangle(attackVec);
 
                         //calculate offset -> location + seperation from center + center of label
                         rectangle.setTranslateX(rectangle.getTranslateX() + translateVec[0] + LEWIS_OFFSET * offsetVec.getX() + 20);
                         rectangle.setTranslateY(rectangle.getTranslateY() + translateVec[1] + LEWIS_OFFSET * offsetVec.getY() + 30);
-                        rectangle.getTransforms().add(new Translate(translateModif*attackVec[0]/3, translateModif*attackVec[1] * -1/4));
+                        rectangle.getTransforms().add(new Translate(10 * translateModif, 0));
                         returnedList.add(rectangle);
                     }
 
@@ -528,14 +516,11 @@ public class TabTemplateCtrl implements Initializable {
                     //add cylinder
                     double translateModif = 0;
                     for(int j = 0; j < numBonds; j++) {
-                        if(numBonds == 3) {
-                            translateModif = j-1;
-                        }
-                        else if (numBonds == 2) {
-                            translateModif = j-0.5;
-                        }
+                        translateModif = j - (numBonds - 1) / 2.0;
+                        
                         Cylinder bond = getCylinder(transVec);
-                        bond.getTransforms().add(new Translate(translateModif*transVec[0]/3, translateModif*transVec[1] * -1/4, translateModif*transVec[2]/6));
+                        //bond.getTransforms().add(new Translate(translateModif*transVec[0]/3, translateModif*transVec[1] * -1/4, translateModif*transVec[2]/6));
+                        bond.getTransforms().add(new Translate(20 * translateModif, 0, 0));
                         returnList.add(bond);
                     }
                     ArrayList<Node> recursion = getRelativeLocation(i, currRow, transVec, prevs, matrix, atomList);
@@ -948,17 +933,14 @@ public class TabTemplateCtrl implements Initializable {
             cylVec = makeRoation(cylVec, 0, 0, Math.PI - angleAtCorners/2);
             double translateModif = 0;
             for(int j = 0; j < numBonds; j++) {
-                if(numBonds == 3) {
-                    translateModif = j-1;
-                }
-                else if (numBonds == 2) {
-                    translateModif = j-0.5;
-                }
+                translateModif = j - (numBonds - 1) / 2.0;
+                        
                 Cylinder cylinder = getCylinder(cylVec);
                 cylinder.setTranslateX(cylinder.getTranslateX() + transVec[0]);
                 cylinder.setTranslateY(cylinder.getTranslateY() + transVec[1]);
                 cylinder.setTranslateZ(cylinder.getTranslateZ() + transVec[2]);
-                cylinder.getTransforms().add(new Translate(translateModif*transVec[0]/3, translateModif*transVec[1] * -1/4, translateModif*transVec[2]/6));
+                //cylinder.getTransforms().add(new Translate(translateModif*transVec[0]/3, translateModif*transVec[1]/3, translateModif*transVec[2]/3));
+                cylinder.getTransforms().add(new Translate(20 * translateModif, 0, 0));
                 returnedList.add(cylinder);
             }
 
@@ -991,7 +973,8 @@ public class TabTemplateCtrl implements Initializable {
                         cylinder.setTranslateX(cylinder.getTranslateX() + transVec[0]);
                         cylinder.setTranslateY(cylinder.getTranslateY() + transVec[1]);
                         cylinder.setTranslateZ(cylinder.getTranslateZ() + transVec[2]);
-                        cylinder.getTransforms().add(new Translate(translateModif*attackVec[0]/3, translateModif*attackVec[1] * -1/4, translateModif*attackVec[2]/6));
+                        //cylinder.getTransforms().add(new Translate(translateModif*attackVec[0]/3, translateModif*attackVec[1] * -1/4, translateModif*attackVec[2]/6));
+                        cylinder.getTransforms().add(new Translate(20 * translateModif, 0, 0));
                         returnedList.add(cylinder);
                     }
 
