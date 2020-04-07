@@ -864,7 +864,7 @@ public class TabTemplateCtrl implements Initializable {
      */
     @FXML
     public void handleMouseClick(MouseEvent event) {
-        if (event.getButton() == MouseButton.SECONDARY) {
+        if (event.getButton() == MouseButton.PRIMARY) {
             initX = event.getX();
             initY = event.getY();
 
@@ -875,7 +875,7 @@ public class TabTemplateCtrl implements Initializable {
             startTransX = movingGroup.translateXProperty().get();
             startTransY = movingGroup.translateYProperty().get();
         }
-        else if (event.getButton() == MouseButton.PRIMARY) {
+        else if (event.getButton() == MouseButton.SECONDARY) {
             initXAng = event.getX();
             initYAng = event.getY();
         }
@@ -886,25 +886,16 @@ public class TabTemplateCtrl implements Initializable {
      */
     @FXML
     public void handleMouseDrag(MouseEvent event) {
-        if (event.getButton() == MouseButton.SECONDARY) {
+        if (event.getButton() == MouseButton.PRIMARY) {
             movingGroup.translateXProperty().set(event.getX() - initX + startTransX);
             movingGroup.translateYProperty().set(event.getY() - initY + startTransY);
         }
-        else if (event.getButton() == MouseButton.PRIMARY) {
+        else if (event.getButton() == MouseButton.SECONDARY) {
 
             Rotate rotX = new Rotate((event.getX() - initXAng) * 360/ 200, new Point3D(0, 1, 0));
             Rotate rotY = new Rotate((event.getY() - initYAng) * 360/ 200, new Point3D(1, 0, 0));
             if (covalentGroup3D != null)
                 covalentGroup3D.getTransforms().addAll(rotX, rotY);
-
-//            root.setRotationAxis(Rotate.Y_AXIS);
-//            prevXAng += (event.getX() - initXAng) * 360/ 100;
-//            root.setRotate(prevXAng);
-//
-
-//            root.setRotationAxis(Rotate.X_AXIS);
-//            prevYAng += (event.getY() - initYAng) * 360/ 100;
-//            root.setRotate(prevYAng);
 
             initXAng = event.getX();
             initYAng = event.getY();
