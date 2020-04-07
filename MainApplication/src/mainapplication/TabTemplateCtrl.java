@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -32,6 +35,7 @@ import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
@@ -119,9 +123,9 @@ public class TabTemplateCtrl implements Initializable {
         ArrayList<Node> returnList = new ArrayList<>();
 
         if(atomList[currRow].equals("H")) {
-            Label temp = new Label("H");
+            Text temp = new Text("H");
             temp.setFont(new Font(40));
-            temp.setAlignment(Pos.CENTER);
+//            temp.setAlignment(Pos.CENTER);
             returnList.add(temp);            
 
             if(prevRow != -1)
@@ -185,9 +189,9 @@ public class TabTemplateCtrl implements Initializable {
             }
         }
         
-        Label label = new Label(atomList[currRow]);
+        Text label = new Text(atomList[currRow]);
         label.setFont(new Font(40));
-        label.setAlignment(Pos.CENTER);
+//        label.setAlignment(Pos.CENTER);
         returnList.add(label);
         
         //if theres formal charge, add a label
@@ -287,9 +291,9 @@ public class TabTemplateCtrl implements Initializable {
                 }
             }
 
-            Label lblLetter = new Label(atomList[loopIndices[i]]);
+            Text lblLetter = new Text(atomList[loopIndices[i]]);
             lblLetter.setFont(new Font(40));
-            lblLetter.setAlignment(Pos.CENTER);
+//            lblLetter.setAlignment(Pos.CENTER);
 
             returnedList.add(lblLetter);
 
@@ -418,28 +422,52 @@ public class TabTemplateCtrl implements Initializable {
         Group ions3D = getIons3d(metalList);
 
         Group lewis = new Group(tempCovalent.getValue());
-        lewis.getChildren().addAll(ionsLewis.getChildren());
+        
         Group model3d = new Group(tempCovalent.getKey());
         
-        // Adding the ions in their respective positions
-        Group ions3DTranslated = new Group();
-        int numIons = ions3D.getChildren().size();
+        ArrayList<Node> childrenLewis = new ArrayList<>(ionsLewis.getChildren());
+
+        ArrayList<Node> children3d = new ArrayList<>(ions3D.getChildren());
+
+        lewis.getChildren().addAll(childrenLewis);
+        model3d.getChildren().addAll(children3d);
+        
+        // Adding the ions 3D
+        int numIons = children3d.size();
         double angle = Math.toRadians(360/numIons);
-        double translation = Math.sqrt((ions3D.getBoundsInParent().getWidth() * ions3D.getBoundsInParent().getWidth())/4 + (ions3D.getBoundsInParent().getHeight() * ions3D.getBoundsInParent().getHeight())/4);
-        for(Node ionGroup : ions3D.getChildren()) {
-            if(ionGroup instanceof Group) {
-                for(int i = 0; i < ((Group) ionGroup).getChildren().size(); i++) {
-                    Node node = ((Group) ionGroup).getChildren().get(i);
-                    if(node instanceof Sphere) {
-                        node.setTranslateX((Math.sin(angle) * i) * translation);
-                        node.setTranslateY((Math.cos(angle) * i) * translation);
-                    }
-                }
+        Bounds bounds = tempCovalent.getKey().getBoundsInParent();
+        double magnitudeCovalent = Math.sqrt((bounds.getWidth() * bounds.getWidth())/4 + (bounds.getHeight() * bounds.getHeight())/4);
+        double magnitudeTranslation;
+        for(int i = 0; i < numIons; i++){
+            Node ionGroup = children3d.get(i);
+            if(ionGroup instanceof Group) { 
+                magnitudeTranslation = magnitudeCovalent;
+                bounds = ionGroup.getBoundsInParent();
+                magnitudeTranslation += Math.sqrt((bounds.getWidth() * bounds.getWidth())/4 + (bounds.getHeight() * bounds.getHeight())/4);
+                ionGroup.setTranslateX((Math.sin(angle * i)) * magnitudeTranslation);
+                ionGroup.setTranslateY(-(Math.cos(angle * i)) * magnitudeTranslation);
             }
         }
         
-        
-        model3d.getChildren().addAll(ions3D.getChildren());
+//        bounds = tempCovalent.getValue().getBoundsInParent();
+        System.out.println(bounds.toString());
+        double covalentWidth = tempCovalent.getValue().prefWidth(-1)/2;
+        double covalentHeight = tempCovalent.getValue().prefHeight(-1)/2;
+        double ionWidth;
+        double ionHeight;
+        magnitudeCovalent = Math.sqrt((covalentWidth * covalentWidth) + (covalentHeight * covalentHeight));
+        for(int i = 0; i < numIons; i++){
+            Node ionGroup = childrenLewis.get(i);
+            if(ionGroup instanceof Group) { 
+                magnitudeTranslation = magnitudeCovalent;
+//                bounds = ionGroup.getBoundsInParent();
+                ionWidth = ionGroup.prefWidth(-1)/2;
+                ionHeight = ionGroup.prefHeight(-1)/2;
+                magnitudeTranslation += Math.sqrt((ionWidth * ionWidth)+ (ionHeight * ionHeight));
+                ionGroup.setTranslateX((Math.sin(angle * i)) * magnitudeTranslation);
+                ionGroup.setTranslateY(-(Math.cos(angle * i)) * magnitudeTranslation);
+            }
+        }
         Pair<Group, Group> listGroups = new Pair<>(model3d, lewis);
         
         return listGroups;
@@ -464,14 +492,14 @@ public class TabTemplateCtrl implements Initializable {
         }
         
         for (Node node : lewisGroup.getChildren()) {
-            if (node instanceof Label)
+            if (node instanceof Text)
                 addHoverLewis(node);
             if (node instanceof Group) {
                 if (node.getId() != null && node.getId().equals("Cov"))
                     covalentGroupLewis = (Group) node;
                 
                 for (Node node2 : ((Group) node).getChildren())
-                    if (node2 instanceof Label)
+                    if (node2 instanceof Text)
                         addHoverLewis(node2);
             }
         }
@@ -509,7 +537,7 @@ public class TabTemplateCtrl implements Initializable {
         //Must create a label for each ion element
         for (Atom atom : metalAtoms) {
             Group ion = new Group();
-            Label temp = new Label(atom.getSymbol());
+            Text temp = new Text(atom.getSymbol());
             temp.setFont(new Font(40));
             
             ion.getChildren().addAll(temp);
