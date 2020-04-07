@@ -420,6 +420,25 @@ public class TabTemplateCtrl implements Initializable {
         Group lewis = new Group(tempCovalent.getValue());
         lewis.getChildren().addAll(ionsLewis.getChildren());
         Group model3d = new Group(tempCovalent.getKey());
+        
+        // Adding the ions in their respective positions
+        Group ions3DTranslated = new Group();
+        int numIons = ions3D.getChildren().size();
+        double angle = Math.toRadians(360/numIons);
+        double translation = Math.sqrt((ions3D.getBoundsInParent().getWidth() * ions3D.getBoundsInParent().getWidth())/4 + (ions3D.getBoundsInParent().getHeight() * ions3D.getBoundsInParent().getHeight())/4);
+        for(Node ionGroup : ions3D.getChildren()) {
+            if(ionGroup instanceof Group) {
+                for(int i = 0; i < ((Group) ionGroup).getChildren().size(); i++) {
+                    Node node = ((Group) ionGroup).getChildren().get(i);
+                    if(node instanceof Sphere) {
+                        node.setTranslateX((Math.sin(angle) * i) * translation);
+                        node.setTranslateY((Math.cos(angle) * i) * translation);
+                    }
+                }
+            }
+        }
+        
+        
         model3d.getChildren().addAll(ions3D.getChildren());
         Pair<Group, Group> listGroups = new Pair<>(model3d, lewis);
         
