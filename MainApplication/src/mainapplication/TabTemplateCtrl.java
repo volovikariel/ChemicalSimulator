@@ -82,6 +82,9 @@ public class TabTemplateCtrl implements Initializable {
 
     private Group atomGroup = new Group();
     private Group lewisGroup = new Group();
+    
+    private Group currSelectedGroup = null;
+    private Group movingGroup = null;
 
     /**
      * [NOT FINISHED DOC]
@@ -120,6 +123,14 @@ public class TabTemplateCtrl implements Initializable {
 
             if(prevRow != -1)
                 return returnList;
+            
+            if (matrix.length == 1) {
+                Label chargelbl = new Label("1");
+                returnList.add(chargelbl);
+                chargelbl.setTranslateX(30);
+                chargelbl.setTranslateY(0);
+                chargelbl.setFont(new Font(20));
+            }
 
             for(int i = 0; i < matrix.length; i++) {
                 if(matrix[currRow][i] != 0) {
@@ -391,14 +402,38 @@ public class TabTemplateCtrl implements Initializable {
         return new Pair<>(group3D, groupLewis);
     }
     
+    public static Pair<Group, Group> doAll(int [][] solution, String[] atomList, int[] loop, Atom[] metalList) {
+        Pair<Group, Group> tempCovalent;
+        if (solution.length != 0)   
+            tempCovalent = loadGroups(solution, atomList, loop);
+        else
+            tempCovalent = new Pair<>(new Group(), new Group());
+
+        Group ionsLewis = getIonsLewis(metalList);
+        Group ions3D = getIons3d(metalList);
+
+        Group lewis = new Group(tempCovalent.getValue());
+        lewis.getChildren().addAll(ionsLewis.getChildren());
+        Group model3d = new Group(tempCovalent.getKey());
+        model3d.getChildren().addAll(ions3D.getChildren());
+        Pair<Group, Group> listGroups = new Pair<>(model3d, lewis);
+        
+        return listGroups;
+    }
+    
     public void setNodes(Pair<Group, Group> groups) {
         atomGroup = groups.getKey();
         lewisGroup = groups.getValue();
         
         //add the hovers
-        for (Node node :atomGroup.getChildren())
+        for (Node node : atomGroup.getChildren()) {
             if (node instanceof Sphere)
                 addHover((Sphere) node);
+            else if (node instanceof Group)
+                for (Node node2 : ((Group) node).getChildren())
+                    if (node2 instanceof Sphere)
+                        addHover((Sphere) node2);
+        }
         
         realView.setRoot(atomGroup);
         
@@ -408,6 +443,37 @@ public class TabTemplateCtrl implements Initializable {
         atomGroup.layoutYProperty().bind(realView.heightProperty().divide(2));
         lewisGroup.layoutXProperty().bind(lewisPane.widthProperty().divide(2));
         lewisGroup.layoutYProperty().bind(lewisPane.heightProperty().divide(2));
+    }
+    
+    public static Group getIons3d(Atom[] metalAtoms) {
+        Group returnGroup = new Group();
+        
+        //Must create a sphere for each ion element
+        for (Atom atom : metalAtoms) {
+            Group ion = new Group();
+            Sphere temp = new Sphere(50);
+            temp.setMaterial(new PhongMaterial(Color.web(atom.getColor())));
+            temp.setId(atom.getSymbol());
+            
+            ion.getChildren().addAll(temp);
+            returnGroup.getChildren().add(ion);
+        }
+        
+        return returnGroup;
+    }
+    
+    public static Group getIonsLewis(Atom[] metalAtoms) {
+        Group returnGroup = new Group();
+        
+        //Must create a label for each ion element
+        for (Atom atom : metalAtoms) {
+            Label temp = new Label(atom.getSymbol());
+            temp.setFont(new Font(40));
+            
+            returnGroup.getChildren().add(temp);
+        }
+        
+        return returnGroup;
     }
 
     /**
@@ -433,6 +499,16 @@ public class TabTemplateCtrl implements Initializable {
 
             if (prevRow != -1) {
                 return returnList;
+            }
+            
+            //if there is only one
+            if (atomList.length == 1) {
+                Label label = new Label("1");
+                returnList.add(label);
+                label.setTranslateX(30);
+                label.setTranslateY(-60);
+                label.setTranslateZ(-30);
+                label.setFont(new Font(40));
             }
 
             for (int i = 0; i < matrix.length; i++) {
@@ -768,11 +844,12 @@ public class TabTemplateCtrl implements Initializable {
             initX = event.getX();
             initY = event.getY();
 
-            //startTransX = root.getTranslateX();
-            //startTransY = root.getTranslateY();
+            movingGroup = currSelectedGroup;
+            if (movingGroup == null)
+                movingGroup = lewisGroup;
 
-            startTransX = atomGroup.translateXProperty().get();
-            startTransY = atomGroup.translateYProperty().get();
+            startTransX = movingGroup.translateXProperty().get();
+            startTransY = movingGroup.translateYProperty().get();
         }
         else if (event.getButton() == MouseButton.PRIMARY) {
             initXAng = event.getX();
@@ -814,14 +891,18 @@ public class TabTemplateCtrl implements Initializable {
         initX = event.getX();
         initY = event.getY();
         
-        startTransX = lewisGroup.translateXProperty().get();
-        startTransY = lewisGroup.translateYProperty().get();
+        movingGroup = currSelectedGroup;
+        if (movingGroup == null)
+            movingGroup = lewisGroup;
+        
+        startTransX = movingGroup.translateXProperty().get();
+        startTransY = movingGroup.translateYProperty().get();
     }
 
     @FXML
     public void handleMouseDragLewis(MouseEvent event) {
-        lewisGroup.translateXProperty().set(event.getX() - initX + startTransX);
-        lewisGroup.translateYProperty().set(event.getY() - initY + startTransY);
+        movingGroup.translateXProperty().set(event.getX() - initX + startTransX);
+        movingGroup.translateYProperty().set(event.getY() - initY + startTransY);
     }
 
     /**
@@ -1016,12 +1097,14 @@ public class TabTemplateCtrl implements Initializable {
                 label.setFont(new Font(20));
                 label.setTranslateY(realView.getHeight()/3);
                 bindAnchor.getChildren().add(label);
+                currSelectedGroup = (Group) s.getParent();
             }
         });
         s.setOnMouseExited(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 bindAnchor.getChildren().remove(label);
+                currSelectedGroup = null;
             }
         });
     }

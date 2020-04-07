@@ -100,8 +100,8 @@ int main(int argc, char *argv[])
     //get a list of solutions for the covalent part
     iterator(atomList, sizeCovalent, startLink, solLink);
 
-    if (sizeIonic > 0)
-      ionizeSolutions(solLink, metalList, sizeIonic);
+    //if (sizeIonic > 0)
+    //  ionizeSolutions(solLink, metalList, sizeIonic);
 
     //print all the solutions
     //start with the list of atoms

@@ -98,7 +98,7 @@ void printSolution(Solution* solution, int atomListSize, int metalListSize)
       printf("\n");
   }
 
-  if (metalListSize > 0)
+  /*if (metalListSize > 0)
   {
     //print the ratio list, including the covalent parts ratio
     for (int i = 0; i < metalListSize + 1; i++)
@@ -107,7 +107,7 @@ void printSolution(Solution* solution, int atomListSize, int metalListSize)
     }
 
     printf("\n");
-  }
+}*/
 
   //print the loopArr
   if (solution->loopArr != NULL)

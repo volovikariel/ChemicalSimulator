@@ -177,7 +177,11 @@ public class MainAppCtrl implements Initializable {
                         // Get metal list
                         String[] metalList = solutions.getFirst().getNames();
                         solutions.removeFirst();
-                        Atom[] metalAtoms = new Atom[metalList.length];
+                        Atom[] metalAtoms;
+                        if (metalList[0].isEmpty())
+                            metalAtoms = new Atom[0];
+                        else
+                            metalAtoms = new Atom[metalList.length];
 
                         int offset = 0;
                         for (int i = 0; i < metalList.length; i++) {
@@ -194,7 +198,7 @@ public class MainAppCtrl implements Initializable {
                          groups = new ArrayList<>(solutions.size());
 
                         for (int i = 0; i < solutions.size(); i++) {
-                            groups.add(i, TabTemplateCtrl.loadGroups(solutions.get(i).getMatrix(), atomList, solutions.get(i).getLoop()));
+                            groups.add(i, TabTemplateCtrl.doAll(solutions.get(i).getMatrix(), atomList, solutions.get(i).getLoop(), metalAtoms));
                         }
                         
                         return null;
@@ -217,6 +221,8 @@ public class MainAppCtrl implements Initializable {
                         
                         take3DPicture.setDisable(false);
                         takeLewisPicture.setDisable(false);
+                        
+                        groups = null;
                     }
                 });
                 
@@ -363,14 +369,14 @@ public class MainAppCtrl implements Initializable {
                     return solutionSet;
                 }
                 
-                if(s.contains("+ ")) {
+                else if(s.contains("+ ")) {
                     solutionSet.add(new Solution(s.substring(2, s.length()).split(" ")));
                 }
-                if(s.contains("- ")) {
+                else if(s.contains("- ")) {
                     solutionSet.add(new Solution(s.substring(2, s.length()).split(" ")));
                 }
 
-                if (s.equals(">>>>")) {
+                else if (s.equals(">>>>")) {
                 	if (isReading) {
                 		System.out.println("ERROR, new matrix started without ending last one");
                 		return null;
@@ -378,14 +384,17 @@ public class MainAppCtrl implements Initializable {
 
                 	isReading = true;
                 	currMatrixLine = -1;
-                	matrixSize = 1;
+                	matrixSize = -1;
                         loopInfo = null;
                 }
                 else if (isReading) {
                 	if (s.equals("<<<<")) {
-                		solutionSet.add(new Solution(tempArray, tempScore, loopInfo));
+                            if (matrixSize == -1)
+                		solutionSet.add(new Solution(new int[0][0], tempScore, new int[0]));
+                            else
+                                solutionSet.add(new Solution(tempArray, tempScore, loopInfo));
 
-                		isReading = false;
+                            isReading = false;
                 	}
                 	else {
                                 if (currMatrixLine == -1) {
