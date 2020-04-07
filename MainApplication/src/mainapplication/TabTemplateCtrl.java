@@ -83,6 +83,9 @@ public class TabTemplateCtrl implements Initializable {
     private Group atomGroup = new Group();
     private Group lewisGroup = new Group();
     
+    private Group covalentGroup3D;
+    private Group covalentGroupLewis;
+    
     private Group currSelectedGroup = null;
     private Group movingGroup = null;
 
@@ -396,8 +399,10 @@ public class TabTemplateCtrl implements Initializable {
     
     public static Pair<Group, Group> loadGroups(int [][] solution, String[] atomList, int[] loop) {
         Group group3D = set3D(solution, atomList, loop);
+        group3D.setId("Cov");
         
         Group groupLewis = setLewis(solution, atomList, loop);
+        groupLewis.setId("Cov");
         
         return new Pair<>(group3D, groupLewis);
     }
@@ -408,7 +413,7 @@ public class TabTemplateCtrl implements Initializable {
             tempCovalent = loadGroups(solution, atomList, loop);
         else
             tempCovalent = new Pair<>(new Group(), new Group());
-
+        
         Group ionsLewis = getIonsLewis(metalList);
         Group ions3D = getIons3d(metalList);
 
@@ -429,10 +434,21 @@ public class TabTemplateCtrl implements Initializable {
         for (Node node : atomGroup.getChildren()) {
             if (node instanceof Sphere)
                 addHover((Sphere) node);
-            else if (node instanceof Group)
+            else if (node instanceof Group) {
                 for (Node node2 : ((Group) node).getChildren())
                     if (node2 instanceof Sphere)
                         addHover((Sphere) node2);
+            
+                if (node.getId() != null && node.getId().equals("Cov"))
+                    covalentGroup3D = (Group) node;
+            }
+        }
+        
+        for (Node node : lewisGroup.getChildren()) {
+            if (node instanceof Group) {
+                if (node.getId() != null && node.getId().equals("Cov"))
+                    covalentGroupLewis = (Group) node;
+            }
         }
         
         realView.setRoot(atomGroup);
@@ -863,14 +879,15 @@ public class TabTemplateCtrl implements Initializable {
     @FXML
     public void handleMouseDrag(MouseEvent event) {
         if (event.getButton() == MouseButton.SECONDARY) {
-            atomGroup.translateXProperty().set(event.getX() - initX + startTransX);
-            atomGroup.translateYProperty().set(event.getY() - initY + startTransY);
+            movingGroup.translateXProperty().set(event.getX() - initX + startTransX);
+            movingGroup.translateYProperty().set(event.getY() - initY + startTransY);
         }
         else if (event.getButton() == MouseButton.PRIMARY) {
 
             Rotate rotX = new Rotate((event.getX() - initXAng) * 360/ 200, new Point3D(0, 1, 0));
             Rotate rotY = new Rotate((event.getY() - initYAng) * 360/ 200, new Point3D(1, 0, 0));
-            atomGroup.getTransforms().addAll(rotX, rotY);
+            if (covalentGroup3D != null)
+                covalentGroup3D.getTransforms().addAll(rotX, rotY);
 
 //            root.setRotationAxis(Rotate.Y_AXIS);
 //            prevXAng += (event.getX() - initXAng) * 360/ 100;
