@@ -96,7 +96,7 @@ public class TabTemplateCtrl implements Initializable {
      * @param atomList
      */
     public static Group setLewis(int [][] solution, String[] atomList, int[] loops) {
-        Group returnGroup = new Group();
+        Group returnGroup;
         ArrayList<Node> finalList;
 
         if (loops.length != 0)
@@ -105,7 +105,7 @@ public class TabTemplateCtrl implements Initializable {
             finalList = getRelativeLewis(0, -1, new double[] {LEWIS_BOND_SIZE + 2 * LEWIS_OFFSET, 0, 0},new LinkedList<>(), solution, atomList);
 
         
-        returnGroup.getChildren().add(new Group(finalList));
+        returnGroup = new Group(finalList);
         
         return returnGroup;
         
@@ -464,9 +464,15 @@ public class TabTemplateCtrl implements Initializable {
         }
         
         for (Node node : lewisGroup.getChildren()) {
+            if (node instanceof Label)
+                addHoverLewis(node);
             if (node instanceof Group) {
                 if (node.getId() != null && node.getId().equals("Cov"))
                     covalentGroupLewis = (Group) node;
+                
+                for (Node node2 : ((Group) node).getChildren())
+                    if (node2 instanceof Label)
+                        addHoverLewis(node2);
             }
         }
         
@@ -502,10 +508,12 @@ public class TabTemplateCtrl implements Initializable {
         
         //Must create a label for each ion element
         for (Atom atom : metalAtoms) {
+            Group ion = new Group();
             Label temp = new Label(atom.getSymbol());
             temp.setFont(new Font(40));
             
-            returnGroup.getChildren().add(temp);
+            ion.getChildren().addAll(temp);
+            returnGroup.getChildren().add(ion);
         }
         
         return returnGroup;
@@ -881,7 +889,7 @@ public class TabTemplateCtrl implements Initializable {
 
             movingGroup = currSelectedGroup;
             if (movingGroup == null)
-                movingGroup = lewisGroup;
+                movingGroup = atomGroup;
 
             startTransX = movingGroup.translateXProperty().get();
             startTransY = movingGroup.translateYProperty().get();
@@ -1230,5 +1238,20 @@ public class TabTemplateCtrl implements Initializable {
 
     void setScore(int score) {
         lblScore.setText("Score: " + score);
+    }
+
+    private void addHoverLewis(Node s) {
+        s.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                currSelectedGroup = (Group) s.getParent();
+            }
+        });
+        s.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                currSelectedGroup = null;
+            }
+        });
     }
 }
