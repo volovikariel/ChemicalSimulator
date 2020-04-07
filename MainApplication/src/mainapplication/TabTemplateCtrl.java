@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -13,6 +15,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
@@ -36,6 +39,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
@@ -123,9 +127,10 @@ public class TabTemplateCtrl implements Initializable {
         ArrayList<Node> returnList = new ArrayList<>();
 
         if(atomList[currRow].equals("H")) {
-            Text temp = new Text("H");
+            Text temp = new Text(0, 0, "H");
+            temp.setTextOrigin(VPos.TOP);
             temp.setFont(new Font(40));
-//            temp.setAlignment(Pos.CENTER);
+            temp.setTextAlignment(TextAlignment.CENTER);
             returnList.add(temp);            
 
             if(prevRow != -1)
@@ -143,13 +148,13 @@ public class TabTemplateCtrl implements Initializable {
                 if(matrix[currRow][i] != 0) {
                     // Add rectangle
                     double[] rectangleVec = new double[] {1, 0, 0};
-                    Point3D offsetVec = new Point3D(rectangleVec[0], rectangleVec[1], rectangleVec[2]);
+                    Point3D offsetVec = new Point3D(rectangleVec[0], rectangleVec[1], rectangleVec[2]).normalize();
                     
                     Rectangle rectangle = getRectangle(rectangleVec);
 
                     //calculate offset -> seperation from center + center of label
-                    rectangle.setTranslateX(rectangle.getTranslateX() + LEWIS_OFFSET * offsetVec.getX() + 20);
-                    rectangle.setTranslateY(rectangle.getTranslateY() + LEWIS_OFFSET * offsetVec.getY() + 30);
+                    rectangle.setTranslateX(rectangle.getTranslateX() + LEWIS_OFFSET * offsetVec.getX() + temp.prefWidth(-1)/2);
+                    rectangle.setTranslateY(rectangle.getTranslateY() + LEWIS_OFFSET * offsetVec.getY() + temp.prefHeight(-1)/2);
                     
                     returnList.add(rectangle);
                     
@@ -189,9 +194,10 @@ public class TabTemplateCtrl implements Initializable {
             }
         }
         
-        Text label = new Text(atomList[currRow]);
+        Text label = new Text(0, 0, atomList[currRow]);
+        label.setTextOrigin(VPos.TOP);
         label.setFont(new Font(40));
-//        label.setAlignment(Pos.CENTER);
+        label.setTextAlignment(TextAlignment.CENTER);
         returnList.add(label);
         
         //if theres formal charge, add a label
@@ -222,8 +228,8 @@ public class TabTemplateCtrl implements Initializable {
                         Rectangle rectangle = getRectangle(translateLoop);
 
                         //calculate offset -> seperation from center + center of label
-                        rectangle.setTranslateX(rectangle.getTranslateX() + LEWIS_OFFSET * offsetVec.getX() + 20);
-                        rectangle.setTranslateY(rectangle.getTranslateY() + LEWIS_OFFSET * offsetVec.getY() + 30);
+                        rectangle.setTranslateX(rectangle.getTranslateX() + LEWIS_OFFSET * offsetVec.getX() + label.prefWidth(-1)/2);
+                        rectangle.setTranslateY(rectangle.getTranslateY() + LEWIS_OFFSET * offsetVec.getY() + label.prefHeight(-1)/2);
                         rectangle.getTransforms().add(new Translate(10 * translateModif, 0));
                         returnList.add(rectangle);
                     }
@@ -291,16 +297,17 @@ public class TabTemplateCtrl implements Initializable {
                 }
             }
 
-            Text lblLetter = new Text(atomList[loopIndices[i]]);
+            Text lblLetter = new Text(0, 0, atomList[loopIndices[i]]);
+            lblLetter.setTextOrigin(VPos.TOP);
             lblLetter.setFont(new Font(40));
-//            lblLetter.setAlignment(Pos.CENTER);
+            lblLetter.setTextAlignment(TextAlignment.CENTER);
 
             returnedList.add(lblLetter);
 
             translateVec = new double[] {sideLen, 0, 0};
             translateVec = makeRoation(translateVec, 0, 0, angleFromCenter * i);
-            lblLetter.setTranslateX(lblLetter.getTranslateX() + translateVec[0]);
-            lblLetter.setTranslateY(lblLetter.getTranslateY() + translateVec[1]);
+            lblLetter.setTranslateX(translateVec[0]);
+            lblLetter.setTranslateY(translateVec[1]);
 
             //if theres formal charge, add a label
             if (formalCharge != 0) {
@@ -323,8 +330,8 @@ public class TabTemplateCtrl implements Initializable {
                 Rectangle rectangle = getRectangle(rectangleVec);
                 
                 //calculate offset -> location + seperation from center + center of label
-                rectangle.setTranslateX(rectangle.getTranslateX() + translateVec[0] + LEWIS_OFFSET * offsetVec.getX() + 20);
-                rectangle.setTranslateY(rectangle.getTranslateY() + translateVec[1] + LEWIS_OFFSET * offsetVec.getY() + 30);
+                rectangle.setTranslateX(rectangle.getTranslateX() + translateVec[0] + LEWIS_OFFSET * offsetVec.getX() + lblLetter.prefWidth(-1)/2);
+                rectangle.setTranslateY(rectangle.getTranslateY() + translateVec[1] + LEWIS_OFFSET * offsetVec.getY() + lblLetter.prefHeight(-1)/2);
                 rectangle.getTransforms().add(new Translate(10 * translateModif, 0));
                 returnedList.add(rectangle);
             }
@@ -360,8 +367,8 @@ public class TabTemplateCtrl implements Initializable {
                         Rectangle rectangle = getRectangle(attackVec);
 
                         //calculate offset -> location + seperation from center + center of label
-                        rectangle.setTranslateX(rectangle.getTranslateX() + translateVec[0] + LEWIS_OFFSET * offsetVec.getX() + 20);
-                        rectangle.setTranslateY(rectangle.getTranslateY() + translateVec[1] + LEWIS_OFFSET * offsetVec.getY() + 30);
+                        rectangle.setTranslateX(rectangle.getTranslateX() + translateVec[0] + LEWIS_OFFSET * offsetVec.getX() + lblLetter.prefWidth(-1)/2);
+                        rectangle.setTranslateY(rectangle.getTranslateY() + translateVec[1] + LEWIS_OFFSET * offsetVec.getY() + lblLetter.prefHeight(-1)/2);
                         rectangle.getTransforms().add(new Translate(10 * translateModif, 0));
                         returnedList.add(rectangle);
                     }
@@ -432,10 +439,18 @@ public class TabTemplateCtrl implements Initializable {
         lewis.getChildren().addAll(childrenLewis);
         model3d.getChildren().addAll(children3d);
         
+        //center the covalant
+        Bounds bounds = tempCovalent.getKey().getBoundsInParent();
+        double center = bounds.getMinX() + bounds.getMaxX();
+        center /= 2;
+        tempCovalent.getKey().setLayoutX(-center);
+        center = bounds.getMinY() + bounds.getMaxY();
+        center /= 2;
+        tempCovalent.getKey().setLayoutY(-center);
+        
         // Adding the ions 3D
         int numIons = children3d.size();
-        double angle = Math.toRadians(360/numIons);
-        Bounds bounds = tempCovalent.getKey().getBoundsInParent();
+        double angle = (numIons == 0) ? 0 : Math.toRadians(360/numIons);
         double magnitudeCovalent = Math.sqrt((bounds.getWidth() * bounds.getWidth())/4 + (bounds.getHeight() * bounds.getHeight())/4);
         double magnitudeTranslation;
         for(int i = 0; i < numIons; i++){
@@ -449,10 +464,16 @@ public class TabTemplateCtrl implements Initializable {
             }
         }
         
-//        bounds = tempCovalent.getValue().getBoundsInParent();
-        System.out.println(bounds.toString());
-        double covalentWidth = tempCovalent.getValue().prefWidth(-1)/2;
-        double covalentHeight = tempCovalent.getValue().prefHeight(-1)/2;
+        bounds = tempCovalent.getValue().getBoundsInParent();
+        center = bounds.getMinX() + bounds.getMaxX();
+        center /= 2;
+        tempCovalent.getValue().setLayoutX(-center);
+        center = bounds.getMinY() + bounds.getMaxY();
+        center /= 2;
+        tempCovalent.getValue().setLayoutY(-center);
+        
+        double covalentWidth = bounds.getWidth()/2;
+        double covalentHeight = bounds.getHeight()/2;
         double ionWidth;
         double ionHeight;
         magnitudeCovalent = Math.sqrt((covalentWidth * covalentWidth) + (covalentHeight * covalentHeight));
@@ -461,11 +482,12 @@ public class TabTemplateCtrl implements Initializable {
             if(ionGroup instanceof Group) { 
                 magnitudeTranslation = magnitudeCovalent;
 //                bounds = ionGroup.getBoundsInParent();
-                ionWidth = ionGroup.prefWidth(-1)/2;
-                ionHeight = ionGroup.prefHeight(-1)/2;
+                bounds = ionGroup.getBoundsInParent();
+                ionWidth = bounds.getWidth()/2;
+                ionHeight = bounds.getHeight()/2;
                 magnitudeTranslation += Math.sqrt((ionWidth * ionWidth)+ (ionHeight * ionHeight));
-                ionGroup.setTranslateX((Math.sin(angle * i)) * magnitudeTranslation);
-                ionGroup.setTranslateY(-(Math.cos(angle * i)) * magnitudeTranslation);
+                ionGroup.setTranslateX((Math.sin(angle * i)) * magnitudeTranslation - ionWidth);
+                ionGroup.setTranslateY(-(Math.cos(angle * i)) * magnitudeTranslation - ionHeight);
             }
         }
         Pair<Group, Group> listGroups = new Pair<>(model3d, lewis);
@@ -508,10 +530,46 @@ public class TabTemplateCtrl implements Initializable {
         
         lewisPane.getChildren().add(lewisGroup);
         
-        atomGroup.layoutXProperty().bind(realView.widthProperty().divide(2));
-        atomGroup.layoutYProperty().bind(realView.heightProperty().divide(2));
-        lewisGroup.layoutXProperty().bind(lewisPane.widthProperty().divide(2));
-        lewisGroup.layoutYProperty().bind(lewisPane.heightProperty().divide(2));
+        realView.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                atomGroup.setLayoutX(0);
+                Bounds bound = atomGroup.getBoundsInParent();
+                double center = bound.getMinX() + bound.getMaxX();
+                center /= 2;
+                atomGroup.setLayoutX(newValue.doubleValue() / 2 - center);
+            }
+        });
+        realView.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                atomGroup.setLayoutY(0);
+                Bounds bound = atomGroup.getBoundsInParent();
+                double center = bound.getMinY() + bound.getMaxY();
+                center /= 2;
+                atomGroup.setLayoutY(newValue.doubleValue() / 2 - center);
+            }
+        });
+        lewisPane.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                lewisGroup.setLayoutX(0);
+                Bounds bound = lewisGroup.getBoundsInParent();
+                double center = bound.getMinX() + bound.getMaxX();
+                center /= 2;
+                lewisGroup.setLayoutX(newValue.doubleValue() / 2 - center);
+            }
+        });
+        lewisPane.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                lewisGroup.setLayoutY(0);
+                Bounds bound = lewisGroup.getBoundsInParent();
+                double center = bound.getMinY() + bound.getMaxY();
+                center /= 2;
+                lewisGroup.setLayoutY(newValue.doubleValue() / 2 - center);
+            }
+        });
     }
     
     public static Group getIons3d(Atom[] metalAtoms) {
@@ -537,8 +595,10 @@ public class TabTemplateCtrl implements Initializable {
         //Must create a label for each ion element
         for (Atom atom : metalAtoms) {
             Group ion = new Group();
-            Text temp = new Text(atom.getSymbol());
+            Text temp = new Text(0, 0, atom.getSymbol());
+            temp.setTextOrigin(VPos.TOP);
             temp.setFont(new Font(40));
+            temp.setTextAlignment(TextAlignment.CENTER);
             
             ion.getChildren().addAll(temp);
             returnGroup.getChildren().add(ion);
