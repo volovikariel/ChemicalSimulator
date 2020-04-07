@@ -9,7 +9,10 @@ and open the template in the editor.
 */
 
 #menuBar{
-   -fx-background-color: steelblue; 
+    -fx-background-color: ghostwhite; 
+   -fx-border-width: 1px;
+   -fx-border-style: inset;
+   -fx-border-color: gainsboro;   
 }
 
 .searchTxtBox {
@@ -20,7 +23,56 @@ and open the template in the editor.
     -fx-border-width: 1px;
     -fx-box-shadow: 2px 2px 7px 0px rgba(42, 42, 42, .33);
     -fx-font-family: sans-serif;
-    -fx-border-color: steelblue;
+    -fx-border-color: lightgrey;
     -fx-border-radius: 10px;
+    -fx-background-color: ghostwhite;
 }
 
+.tabPane .tab {
+    -fx-background-color: ghostwhite;
+} 
+
+.tabPane .tab button {
+    -fx-background-color: inherit;
+    -fx-float: left;
+    -fx-border: none;
+    -fx-cursor: pointer;
+    -fx-padding: 14px 16px;
+}
+
+/*.tabPane .tab button:hover {
+    -fx-background-color: #ddd;
+}
+
+.tabPane .tab button.active {
+    -fx-background-color: grey;
+}*/
+
+
+.btnClearAll {
+    -fx-background-color: lightgrey;
+    -fx-border-style: none;
+    -fx-padding: 15px 32px;
+    -fx-text-alignment: center;
+    -fx-display-caret: inline-block;
+    -fx-font-size: 15px;
+}
+
+.lblScore {
+    -fx-background-color: lightgrey;
+    -fx-padding: 12px 12px;
+    -fx-font-size: 15px;
+    -fx-text-alignment: center;
+    -fx-display-caret: inline-block;
+}
+
+
+/* 
+TODO: 
+
+-Menubar design: spacing and size
+-Searchbox design: add a button, change the location and add animation if possible
+-Add the overlay for the tutorial explaining the functions of the application
+-Work on the theme/colors
+
+*/
