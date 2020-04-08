@@ -16,7 +16,7 @@
           <Region />
         </root>
       </SubScene>
-       <MenuBar fx:id="menuBar" blendMode="SRC_ATOP" prefHeight="29.0" prefWidth="616.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" StackPane.alignment="TOP_CENTER">
+       <MenuBar fx:id="menuBar" blendMode="SRC_ATOP" prefHeight="29.0" prefWidth="616.0" styleClass="menuBar" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" StackPane.alignment="TOP_CENTER">
         <menus>
           <Menu mnemonicParsing="false" styleClass="menuFile" text="File">
                <items>
@@ -24,19 +24,19 @@
                </items></Menu>
             <Menu mnemonicParsing="false" styleClass="menuSave" text="Save">
               <items>
-                <MenuItem fx:id="takeFullPicture" mnemonicParsing="false" onAction="#saveScene" text="Save Screen" />
-                  <MenuItem fx:id="take3DPicture" disable="true" mnemonicParsing="false" onAction="#saveThreeDim" text="Save 3D" />
-                  <MenuItem fx:id="takeLewisPicture" disable="true" mnemonicParsing="false" onAction="#saveLewis" text="Save Lewis" />
+                <MenuItem fx:id="takeFullPicture" mnemonicParsing="false" onAction="#saveScene" styleClass="menuSaveItem" text="Save Screen" />
+                  <MenuItem fx:id="take3DPicture" disable="true" mnemonicParsing="false" onAction="#saveThreeDim" styleClass="menuSaveItem" text="Save 3D" />
+                  <MenuItem fx:id="takeLewisPicture" disable="true" mnemonicParsing="false" onAction="#saveLewis" styleClass="menuSaveItem" text="Save Lewis" />
               </items>
             </Menu>
             <Menu mnemonicParsing="true" styleClass="menuHelp" text="Help">
               <items>
-                <MenuItem fx:id="menuHelp" mnemonicParsing="false" onAction="#showHelp" text="Help">
+                <MenuItem fx:id="menuHelp" mnemonicParsing="false" onAction="#showHelp" styleClass="menuHelpItem" text="Help">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="F1" control="ANY" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
-                  <MenuItem mnemonicParsing="false" text="Shortcuts" />
-                  <MenuItem mnemonicParsing="false" text="About" />
+                  <MenuItem mnemonicParsing="false" styleClass="menuHelpItem" text="Shortcuts" />
+                  <MenuItem mnemonicParsing="false" styleClass="menuHelpItem" text="About" />
               </items>
             </Menu>
         </menus>

@@ -8,12 +8,60 @@ and open the template in the editor.
     Author     : samyarab
 */
 
-#menuBar{
-    -fx-background-color: ghostwhite; 
+.menuBar {
+   -fx-background-color: ghostwhite; 
    -fx-border-width: 1px;
    -fx-border-style: inset;
    -fx-border-color: gainsboro;   
 }
+
+.menuFile:hover {
+    -fx-background-color: #ddd;
+}
+
+.menuFile:selected {
+    -fx-background-color: #ccc;
+    
+    .menuFileExit:hover {
+        -fx-background-color: #ddd;
+    }
+}
+
+
+.menuHelp:hover {
+    -fx-background-color: #ddd;
+}
+
+.menuHelp:selected {
+    -fx-background-color: #ccc;
+    
+    .menuHelpItem:hover {
+        -fx-background-color: #ddd;
+    }
+
+    .menuHelpItem:selected {
+        -fx-background-color: #ccc;
+    }
+}
+
+
+.menuSave:hover {
+    -fx-background-color: #ddd;
+}
+
+.menuSave:selected {
+    -fx-background-color: #ccc;
+    
+    .menuSaveItem:hover {
+        -fx-background-color: #ddd;
+    }
+
+    .menuSaveItem:selected {
+        -fx-background-color: #ccc;
+    }
+}
+
+
 
 .searchTxtBox {
     -fx-padding: 7px;
@@ -30,24 +78,20 @@ and open the template in the editor.
 
 .tabPane .tab {
     -fx-background-color: ghostwhite;
-} 
-
-.tabPane .tab button {
-    -fx-background-color: inherit;
     -fx-float: left;
     -fx-border: none;
     -fx-cursor: pointer;
-    -fx-padding: 14px 16px;
+    -fx-padding: 14px, 14px;
 }
 
-/*.tabPane .tab button:hover {
+.tabPane .tab:hover {
     -fx-background-color: #ddd;
 }
 
-.tabPane .tab button.active {
-    -fx-background-color: grey;
-}*/
-
+.tabPane .tab:selected {
+    -fx-background-color: #ccc;
+    -fx-border: none;
+}
 
 .btnClearAll {
     -fx-background-color: lightgrey;
@@ -65,6 +109,20 @@ and open the template in the editor.
     -fx-text-alignment: center;
     -fx-display-caret: inline-block;
 }
+
+
+
+
+.tooltip {
+    
+}
+
+
+
+
+
+
+
 
 
 /* 
