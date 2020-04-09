@@ -1,5 +1,7 @@
 package mainapplication;
 
+import mainapplication.model.TableElement;
+import mainapplication.model.Atom;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;

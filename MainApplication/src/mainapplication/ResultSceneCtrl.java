@@ -1,5 +1,7 @@
 package mainapplication;
 
+import mainapplication.model.Solution;
+import mainapplication.model.Atom;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;

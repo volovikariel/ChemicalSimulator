@@ -29,6 +29,11 @@
                   <MenuItem fx:id="takeLewisPicture" disable="true" mnemonicParsing="false" onAction="#saveLewis" styleClass="menuSaveItem" text="Save Lewis" />
               </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Algorithm">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#handleSettings" text="Settings" />
+              </items>
+            </Menu>
             <Menu mnemonicParsing="true" styleClass="menuHelp" text="Help">
               <items>
                 <MenuItem fx:id="menuHelp" mnemonicParsing="false" onAction="#showHelp" styleClass="menuHelpItem" text="Help">

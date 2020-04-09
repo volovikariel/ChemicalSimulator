@@ -1,4 +1,4 @@
-package mainapplication;
+package mainapplication.model;
 
 public class Atom {
     private String symbol;

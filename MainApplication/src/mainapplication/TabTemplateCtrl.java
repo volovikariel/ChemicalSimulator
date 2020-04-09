@@ -1,5 +1,6 @@
 package mainapplication;
 
+import mainapplication.model.Atom;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -189,6 +190,7 @@ public class TabTemplateCtrl implements Initializable {
             {
                 color = atoms[j].getColor();
                 lonePairs = j + 1 <= 10 ? 4 - bondCount : (int) Math.ceil((atoms[j].getShells() - bondCount) / 2.0);
+                lonePairs = j + 1 <= 2 ? 2 - bondCount : lonePairs;
                 formalCharge = atoms[j].getShells() - 2 * lonePairs - bondCount;
                 break;
             }
@@ -292,6 +294,7 @@ public class TabTemplateCtrl implements Initializable {
                 {
                     color = atoms[j].getColor();
                     lonePairs = j + 1 <= 10 ? 4 - bondCount : (int) Math.ceil((atoms[j].getShells() - bondCount) / 2.0);
+                    lonePairs = j + 1 <= 2 ? 2 - bondCount : lonePairs;
                     formalCharge = atoms[j].getShells() - 2 * lonePairs - bondCount;
                     break;
                 }
@@ -682,6 +685,7 @@ public class TabTemplateCtrl implements Initializable {
                 color = atoms[i].getColor();
                 //formalCharge -= i > 2 ? 8 - atoms[i].getShells() : 2 - atoms[i].getShells();
                 lonePairs = i + 1 <= 10 ? 4 - bondCount : (int) Math.ceil((atoms[i].getShells() - bondCount) / 2.0);
+                lonePairs = i + 1 <= 2 ? 2 - bondCount : lonePairs;
                 formalCharge = atoms[i].getShells() - 2 * lonePairs - bondCount;
                 break;
             }
@@ -1106,6 +1110,7 @@ public class TabTemplateCtrl implements Initializable {
                 {
                     color = atoms[j].getColor();
                     lonePairs = j + 1 <= 10 ? 4 - bondCount : (int) Math.ceil((atoms[j].getShells() - bondCount) / 2.0);
+                    lonePairs = j + 1 <= 2 ? 2 - bondCount : lonePairs;
                     formalCharge = atoms[j].getShells() - 2 * lonePairs - bondCount;
                     break;
                 }
@@ -1236,7 +1241,11 @@ public class TabTemplateCtrl implements Initializable {
         double[] transVec = attackVec;
 
         double[] axis = normalize(attackVec);
-        double[] rotAxis = getAxis(axis, new double[] {0, 0, 1});
+        double[] rotAxis;
+        if (Math.abs(attackVec[0]) < 0.0001 && Math.abs(attackVec[1]) < 0.0001)
+            rotAxis = new double[] {1, 0, 0};
+        else
+            rotAxis = getAxis(axis, new double[] {0, 0, 1});
 
         switch (steric) {
             case 2:                     //This is the linear case, same as input vec

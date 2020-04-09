@@ -8,8 +8,6 @@
 
 #include "../inc/memory.h"
 
-#define MAX_BONDS 8
-
 void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList);
 void attempt(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solutionList, Atom* currAtom);
 void ionizeSolutions(Link* solutionList, Atom* metalList, int metalListSize);
@@ -18,16 +16,31 @@ int* saveSolution(Atom* atomList, int atomListSize);
 
 int solCount = 0;
 
+int maximalBonds = 8;
+
 int main(int argc, char *argv[])
 {
 	//example input "---.exe H 2 O 1"
 
-  Element* table = loadTable("res/elements.csv");
+    //get first things, if it is a digit, then it is the maximalBonds
+    if (argc < 2)
+    {
+        printf("You must input something\n");
+        return 8;
+    }
+    int startOff = 1;
+    if (argv[1][0] >= '0' && argv[1][0] <= '9')
+    {
+        maximalBonds = argv[1][0] - '0';
+        startOff++;
+    }
 
-	int currIndx = 0;
-	int sizeCovalent = 0;
-  int sizeIonic = 0;
-	for (int i = 1; i < argc; i+=2) {
+    Element* table = loadTable("res/elements.csv");
+
+    int currIndx = 0;
+    int sizeCovalent = 0;
+    int sizeIonic = 0;
+	for (int i = startOff; i < argc; i+=2) {
 		while (!compareString(table[currIndx].name, argv[i])) {
 			currIndx++;
 
@@ -361,7 +374,9 @@ void iterator(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* solut
         //if it is in the first row, then max is 4
         //otherwise the max is 6
         int maxBonds = (currAtom->atomicNumber > 2) ? 4 : 1;
-        maxBonds = (currAtom->atomicNumber > 10) ? MAX_BONDS : maxBonds;
+        maxBonds = (currAtom->atomicNumber > 10) ? maximalBonds : maxBonds;
+        if (maximalBonds < maxBonds)
+            maxBonds = maximalBonds;
         if (currAtom->totalBondCount - currAtom->bondCount < maxBonds)
             attempt(atomList, atomListSize, currAtomVisit, solutionList, currAtom);
 
@@ -394,7 +409,9 @@ void attempt(Atom* atomList, int atomListSize, Link* currAtomVisit, Link* soluti
       //if it is in the first row, then max is 4
       //otherwise the max is 6
       int maxBonds = (atomList[i].atomicNumber > 2) ? 4 : 1;
-      maxBonds = (atomList[i].atomicNumber > 10) ? MAX_BONDS : maxBonds;
+      maxBonds = (atomList[i].atomicNumber > 10) ? maximalBonds : maxBonds;
+      if (maxBonds > maximalBonds)
+        maxBonds = maximalBonds;
       if (atomList[i].totalBondCount - atomList[i].bondCount >= maxBonds)
           continue;
 

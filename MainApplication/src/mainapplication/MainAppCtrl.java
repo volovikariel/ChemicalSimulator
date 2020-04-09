@@ -1,5 +1,7 @@
 package mainapplication;
 
+import mainapplication.model.Solution;
+import mainapplication.model.Atom;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -11,6 +13,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -38,6 +42,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.transform.Transform;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.Pair;
@@ -101,6 +106,8 @@ public class MainAppCtrl implements Initializable {
     public Process proc = null;
     
     private ArrayList<Pair<Group, Group>> groups = null;
+    
+    private int maxBonds = 8;
     
     public static Atom[] getAtoms() {
         return atoms;
@@ -343,15 +350,19 @@ public class MainAppCtrl implements Initializable {
             String s = currentRelativePath.toAbsolutePath().toString();
             File dir = new File(s);
             run = Runtime.getRuntime();
+                
+            String trueInput = input;
+            if (maxBonds != 8)
+                trueInput = " " + maxBonds + trueInput;
             
             // Runs the executable specific to the operating system
             String osName = System.getProperty("os.name").toLowerCase();
             if (osName.contains("win"))
-                proc = run.exec(String.format("b.exe%s", input), null, dir);
+                proc = run.exec(String.format("b.exe%s", trueInput), null, dir);
             else if (osName.contains("mac"))
-                proc = run.exec(String.format("./b%s", input), null, dir);
+                proc = run.exec(String.format("./b%s", trueInput), null, dir);
             else
-                proc = run.exec(String.format("./b.out%s", input), null, dir);
+                proc = run.exec(String.format("./b.out%s", trueInput), null, dir);
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             String line = null;
@@ -543,14 +554,39 @@ public class MainAppCtrl implements Initializable {
                 + "\n\n[Go Back To Selection]:"
                 + "\n\t-Press ENTER once the solutions have loaded"
                 + "\n\n[Move Lewis or 3D]:"
-                + "\n\t-Hold right click over the object and drag the cursor"
+                + "\n\t-Hold left click over the object and drag the cursor"
                 + "\n\n[Rotate 3D]"
-                + "\n\t-Hold left click over the object and drag the cursor");
+                + "\n\t-Hold right click over the object and drag the cursor");
         help.show();
     }
     
     @FXML
     void handleClose(ActionEvent event) {
         ((Stage) (parentScene.getWindow())).close();
+    }
+    
+    @FXML
+    void handleSettings(ActionEvent event) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("SettingMenu.fxml"));
+        Parent root;
+        try {
+            root = loader.load();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        }
+        
+        SettingMenuCtrl ctrl = (SettingMenuCtrl) loader.getController();
+        ctrl.setParams(maxBonds, this);
+        Stage settingWindow = new Stage();
+        settingWindow.setTitle("Settings");
+        settingWindow.setScene(new Scene(root));
+        settingWindow.initOwner((Stage) (parentScene.getWindow()));
+        settingWindow.initModality(Modality.APPLICATION_MODAL); 
+        settingWindow.showAndWait();
+    }
+    
+    public void applySettings(int maxBonds) {
+        this.maxBonds = maxBonds;
     }
 }    
