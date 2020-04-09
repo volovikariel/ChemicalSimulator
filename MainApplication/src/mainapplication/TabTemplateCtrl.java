@@ -705,7 +705,7 @@ public class TabTemplateCtrl implements Initializable {
 
         int amountFound = 0;
         int numBonds = 0;
-        boolean isFirst = prevRow == -1 && amountFound == 0;
+        boolean isFirst = prevRow == -1;
         for (int i = 0; i < matrix.length; i++) {
             if (matrix[currRow][i] != 0) {
                 numBonds = matrix[currRow][i];
@@ -1236,17 +1236,17 @@ public class TabTemplateCtrl implements Initializable {
         double[] transVec = attackVec;
 
         double[] axis = normalize(attackVec);
+        double[] rotAxis = getAxis(axis, new double[] {0, 0, 1});
 
         switch (steric) {
             case 2:                     //This is the linear case, same as input vec
                 break;
             case 3:                     //This is the trigonal planar case
-                transVec = makeRoation(attackVec, 0, 0, Math.PI / 3 + count * 4 * Math.PI / 3);
+                transVec = makeRot(attackVec, rotAxis, Math.PI / 3 - 2 * count * Math.PI / 3);
                 break;
             case 4:                     //This is the tetrahedral case
                 //gets the first case
                 double rads = Math.toRadians(180 - 109.5);
-                double[] rotAxis = getAxis(axis, new double[] {0, 0, 1});
                 transVec = makeRot(attackVec, rotAxis, -rads);
                 //modifies the first case depending on how many
                 transVec = makeRot(transVec, axis, Math.toRadians(count * 120));
@@ -1257,8 +1257,7 @@ public class TabTemplateCtrl implements Initializable {
                     return transVec;
 
                 //otherwise must make trigonal planar 90 degress from input
-                double[] firstAxis = getAxis(axis, new double[] {0, 0, 1});
-                transVec = makeRot(attackVec, firstAxis, -Math.PI / 2.0);
+                transVec = makeRot(attackVec, rotAxis, -Math.PI / 2.0);
                 //must get a turn 0, 120, 240
                 transVec = makeRot(transVec, axis, Math.toRadians((count - 1) * 120));
                 break;
@@ -1268,8 +1267,7 @@ public class TabTemplateCtrl implements Initializable {
                     return transVec;
 
                 //otherwise must make a square by making 2 opposites then 2 more opposites
-                double[] firstTrunAxis = getAxis(axis, new double[] {0, 0, 1});
-                transVec = makeRot(attackVec, firstTrunAxis, -Math.PI / 2.0);
+                transVec = makeRot(attackVec, rotAxis, -Math.PI / 2.0);
                 //must get a turn 0, 180, 90, 270
                 transVec = makeRot(transVec, axis, Math.toRadians((count - 1) * 180 + ((count - 1) / 2) * 90));
                 break;
@@ -1279,8 +1277,7 @@ public class TabTemplateCtrl implements Initializable {
                     return transVec;
 
                 //otherwise must make a square by making 2 opposites then 2 more opposites
-                double[] firstTurnAxis = getAxis(axis, new double[] {0, 0, 1});
-                transVec = makeRot(attackVec, firstTurnAxis, -Math.PI / 2.0);
+                transVec = makeRot(attackVec, rotAxis, -Math.PI / 2.0);
                 //must get a turn 0, 180, 90, 270
                 transVec = makeRot(transVec, axis, Math.toRadians(count * 72));
                 break;
