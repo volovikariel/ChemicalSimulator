@@ -71,6 +71,8 @@ public class MainAppCtrl implements Initializable {
     private MenuItem take3DPicture;
     @FXML
     private MenuItem menuHelp;
+    @FXML
+    private MenuItem manualMode;
     
     @FXML
     private SubScene subScene;
@@ -202,7 +204,7 @@ public class MainAppCtrl implements Initializable {
                         }
 
                         //get all the groups
-                         groups = new ArrayList<>(solutions.size());
+                        groups = new ArrayList<>(solutions.size());
 
                         for (int i = 0; i < solutions.size(); i++) {
                             groups.add(i, TabTemplateCtrl.doAll(solutions.get(i).getMatrix(), atomList, solutions.get(i).getLoop(), metalAtoms));
@@ -272,6 +274,12 @@ public class MainAppCtrl implements Initializable {
         }
     }
     
+    public void loadSols(ArrayList<Pair<Group, Group>> groups, LinkedList<Solution> solutions) {
+        loadSubscene(RESULTS_STR);
+
+        ((ResultSceneCtrl) controller).setTabs(groups, solutions);
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Parsing CSV
@@ -321,6 +329,7 @@ public class MainAppCtrl implements Initializable {
         take3DPicture.setDisable(true);
         takeLewisPicture.setDisable(true);
         isSelectionScene = subsceneFile.equals(SELECTION_STR);
+        manualMode.setDisable(!isSelectionScene);
         FXMLLoader loader = new FXMLLoader(getClass().getResource(subsceneFile));
         try {
             Parent root = loader.load();
@@ -588,5 +597,27 @@ public class MainAppCtrl implements Initializable {
     
     public void applySettings(int maxBonds) {
         this.maxBonds = maxBonds;
+    }
+    
+    @FXML
+    void handleManual(ActionEvent event) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ManualMenu.fxml"));
+        Parent root;
+        try {
+            root = loader.load();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        }
+        
+        ManualMenuCtrl ctrl = (ManualMenuCtrl) loader.getController();
+        ctrl.setParent(this);
+        Stage manualWindow = new Stage();
+        manualWindow.setResizable(false);
+        manualWindow.setTitle("Manual Input");
+        manualWindow.setScene(new Scene(root));
+        manualWindow.initOwner((Stage) (parentScene.getWindow()));
+        manualWindow.initModality(Modality.APPLICATION_MODAL); 
+        manualWindow.showAndWait();
     }
 }    

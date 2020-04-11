@@ -32,6 +32,7 @@
             <Menu mnemonicParsing="false" text="Algorithm">
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#handleSettings" text="Settings" />
+                  <MenuItem fx:id="manualMode" mnemonicParsing="false" onAction="#handleManual" text="Manual Mode" />
               </items>
             </Menu>
             <Menu mnemonicParsing="true" styleClass="menuHelp" text="Help">
