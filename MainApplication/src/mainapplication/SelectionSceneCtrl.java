@@ -16,7 +16,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
@@ -181,6 +180,13 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         });
     }
 
+    /**
+     * Method which appends the user's text input.
+     * The user's text input isn't appended in some cases, to facilitate the parsing of input.
+     * For example: 
+     * TextField[] + UserInput[2] = [] because a compound cannot start with a digit.
+     * @param text the inputted character or digit.
+     */
     public void appendInput(String text) {
         txtManual.setVisible(true);
         String currText = txtManual.getText();
@@ -209,7 +215,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 if(alFormatted.isEmpty()) 
                     return;
                 String[] arrayStrings = getAtoms(alFormatted.toArray(new String[alFormatted.size()]));
-
+    
                 String last = arrayStrings[arrayStrings.length - 1];
 
                 for(Node el : paneSimulation.getChildren()) {
@@ -640,8 +646,14 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         return llSymbols;
     }
     
+    /**
+     * Method which returns the the atoms individually rather than with the digits.
+     * For example:
+     * [C,2,H,4] -> [C,C,H,H,H,H]
+     * @param input the input with the digits.
+     * @return the re-formatted input.
+     */
     static public String[] getAtoms(String[] input) {
-        System.out.println("Input: " + Arrays.toString(input));
         int size = 0;
         for(int i = 1; i < input.length; i+=2) {
             size += Integer.parseInt(input[i]);
@@ -658,7 +670,6 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 returnStr[offset] = input[i];
             }
         }
-        
         return returnStr;
     }
 
@@ -666,6 +677,10 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         this.atoms = atoms;
     }
     
+    /**
+     * Method with clears the VBoxes and TextField.
+     * It is accessed through the "Clear All" button in the top left of the selection scene.
+     */
     @FXML
     public void clearScreen(ActionEvent event) {
         txtManual.setText("");

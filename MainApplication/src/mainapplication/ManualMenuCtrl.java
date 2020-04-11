@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package mainapplication;
 
 import java.net.URL;
@@ -32,7 +28,8 @@ import mainapplication.model.Atom;
 import mainapplication.model.Solution;
 
 /**
- * FXML Controller class
+ * Controller class for the "Manual" window.
+ * This window allows the user to manually input a solution by entering its adjacency matrix.
  *
  * @author Jorge
  */
@@ -54,7 +51,7 @@ public class ManualMenuCtrl implements Initializable {
     MainAppCtrl parent;
 
     /**
-     * Initializes the controller class.
+     * Initializes the ManualMenu controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -65,9 +62,9 @@ public class ManualMenuCtrl implements Initializable {
     void loadTable(ActionEvent event) {
         try {
             int number = Integer.parseInt(txAtoms.getText());
-            if (number <= 0)
+            if (number <= 0 || number > 20)
                 throw new NumberFormatException();
-            
+
             loaded = true;
             
             RowConstraints tempRow = new RowConstraints();
@@ -128,7 +125,7 @@ public class ManualMenuCtrl implements Initializable {
             Alert help = new Alert(Alert.AlertType.ERROR);
             help.setTitle("Error");
             help.setHeaderText("ERROR");
-            help.setContentText("You must enter a positive whole number!");
+            help.setContentText("You must enter a positive whole number which doesn't exceed 20!");
             help.show();
         }
         

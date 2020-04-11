@@ -13,8 +13,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -27,10 +25,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.SubScene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -40,14 +36,12 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.transform.Transform;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.Pair;
 import javax.imageio.ImageIO;
-import javax.management.Notification;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -274,6 +268,11 @@ public class MainAppCtrl implements Initializable {
         }
     }
     
+    /**
+     * Loads the solutions to their respective tabs once the algorithm has succeeded.
+     * @param groups a Pair which has for Key, what's used for the 3D part, and for Value, what's used for the Lewis part.
+     * @param solutions a List of all the solutions, provided by the algorithm.
+     */
     public void loadSols(ArrayList<Pair<Group, Group>> groups, LinkedList<Solution> solutions) {
         loadSubscene(RESULTS_STR);
 
@@ -301,6 +300,9 @@ public class MainAppCtrl implements Initializable {
         ((SelectionSceneCtrl) controller).setAtoms(atoms);
     }
     
+    /**
+     * Initializes the scene, adds Listeners, and resizes it to make space for the MenuBar.
+     */
     public void loadScene() {
         parentScene = subScene.getScene();
         // Makes the subscene resize with its parent scene
@@ -595,6 +597,12 @@ public class MainAppCtrl implements Initializable {
         settingWindow.showAndWait();
     }
     
+    /**
+     * Applies the maximum number of bonds given by the user within a range.
+     * This limits the amount of possibilities for the algorithm and thus generally shortens computation time.
+     * This method is called by going to the Algorithm -> Settings section in the program.
+     * @param maxBonds the maximum number of bonds.
+     */
     public void applySettings(int maxBonds) {
         this.maxBonds = maxBonds;
     }

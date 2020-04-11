@@ -45,10 +45,10 @@ public class LoadingSceneCtrl implements Initializable, SubSceneController {
     
     private VBox subRoot;
     
-    private final double SCALE = 0.65;
+    private final double SCALE = 0.65; 
     
     /**
-     * Initializes the controller class.
+     * Initializes the Loading Scene controller by adding the 3D molecule to the scene and rotating it.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {

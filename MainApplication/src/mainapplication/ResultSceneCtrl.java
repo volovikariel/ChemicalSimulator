@@ -76,6 +76,11 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
         Notifications.create().title("Chemical Simulator").text("Done!").showInformation();
     }
     
+    /**
+     * Method which creates and adds individual tabs to the TabPane.
+     * @param groups the list of Pairs which which contain as Key, the 3D parts, and as Value, the Lewis parts.
+     * @param list the list of solutions, as calculated by the algorithm.
+     */
     public void setTabs(ArrayList<Pair<Group, Group>> groups, LinkedList<Solution> list) {
         resultID.requestFocus();
         controllers = new HashMap<>();
@@ -111,11 +116,19 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
     public void initialize(URL url, ResourceBundle rb) {
     }
     
+    /**
+     * Method which takes a snapshot of the 3D scene and returns it.
+     * @return the image of the 3D scene.
+     */
     public WritableImage screenShotThreeD() {
         TabTemplateCtrl ctrl = controllers.get(resultID.getSelectionModel().getSelectedIndex());
         return ctrl.screenShotThreeD();
     }
     
+    /**
+     * Method which takes a snapshot of the Lewis scene and returns it.
+     * @return the image of the Lewis scene.
+     */
     public WritableImage screenShotLewis() {
         TabTemplateCtrl ctrl = controllers.get(resultID.getSelectionModel().getSelectedIndex());
         return ctrl.screenShotLewis();
