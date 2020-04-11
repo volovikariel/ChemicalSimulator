@@ -12,6 +12,7 @@ import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import static javafx.event.Event.NULL_SOURCE_TARGET;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -20,6 +21,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -41,6 +43,9 @@ public class ManualMenuCtrl implements Initializable {
     
     @FXML
     TextField txAtoms;
+    
+    @FXML
+    TextField loopField;
     
     boolean loaded = false;
     
@@ -85,9 +90,11 @@ public class ManualMenuCtrl implements Initializable {
                 for (int j = 0; j < number + 1; j++) {
                     TextField temp = new TextField();
                     
-                    if (i == 0 && j == 0) {
+                    if (i != 0 && j != 0)
+                        temp.setText("0");
+                    else if (i == 0 && j == 0) {
                         Label lbl = new Label("Atoms:");
-                        gridTable.add(lbl, i, j);
+                        gridTable.add(lbl, j, i);
                         continue;
                     }
                     
@@ -100,8 +107,16 @@ public class ManualMenuCtrl implements Initializable {
                         public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                             for (int a = 0; a < numbers.length; a++)
                                 for (int b = 0; b < numbers[0].length; b++)
-                                    if (numbers[a][b] != null && numbers[a][b].equals(temp))
-                                        numbers[b][a].setText(newValue.toString());
+                                    if (numbers[a][b] != null && numbers[a][b].equals(temp)) {
+                                        if (a != b) {
+                                            String str = (String) newValue;
+                                            if (oldValue.toString().equals(""))
+                                                str = ((String) newValue).toUpperCase();
+                                            numbers[b][a].setText(str);
+                                        }
+                                        else
+                                            numbers[a][b].setText("0");
+                                    }
                         }
                     });
                     
@@ -148,6 +163,21 @@ public class ManualMenuCtrl implements Initializable {
         String[] names = new String[numbers.length - 1];
         for (int atom = 0; atom < names.length; atom++) {
             names[atom] = numbers[0][atom + 1].getText();
+            
+            boolean found = false;
+            for (Atom el : parent.getAtoms())
+                if (el.getSymbol().equals(names[atom]))
+                    found = true;
+            
+            if (!found) {
+                Alert help = new Alert(Alert.AlertType.ERROR);
+                help.setTitle("Error");
+                help.setHeaderText("ERROR");
+                help.setContentText("You must enter a real element!");
+                help.show();
+
+                return null;
+            }
         }
         
         returnArr.add(new Solution(names));
@@ -170,9 +200,32 @@ public class ManualMenuCtrl implements Initializable {
             }
         }
         
-        returnArr.add(new Solution(matrix, 0, null));
-        
         //TODO: LOOP
+        int[] loop = null;
+        String[] loopIdx = loopField.getText().split(",");
+        if (loopIdx.length > 2) {
+            loop = new int[loopIdx.length];
+            
+            for (int i = 0; i < loop.length; i++) {
+                try {
+                    loop[i] = Integer.parseInt(loopIdx[i].trim());
+                    
+                    if (loop[i] >= numbers.length - 1)
+                        throw new NumberFormatException();
+                } catch (NumberFormatException e) {
+                Alert help = new Alert(Alert.AlertType.ERROR);
+                help.setTitle("Error");
+                help.setHeaderText("ERROR");
+                help.setContentText("You must enter an index!");
+                help.show();
+
+                return null;
+            }
+            }
+        }
+        
+        returnArr.add(new Solution(matrix, 0, loop));
+        
         return returnArr;
     }
 
@@ -180,4 +233,16 @@ public class ManualMenuCtrl implements Initializable {
         this.parent = parent;
     }
     
+    @FXML
+    private void handleKeyTyped(KeyEvent keyEvent) {
+        if (keyEvent.getCharacter().charAt(0) == 13) { //ENTER
+            if (loaded)
+                handleEnter(new ActionEvent(loopField, NULL_SOURCE_TARGET));
+            else
+                loadTable(new ActionEvent());
+        }
+//        else if (keyEvent.getCharacter().charAt(0) == 9) { //TAB
+//            
+//        }
+    }
 }
