@@ -3,19 +3,15 @@ package mainapplication;
 import mainapplication.model.Atom;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point3D;
-import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -23,8 +19,6 @@ import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.SubScene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
@@ -33,7 +27,6 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Rectangle;
@@ -99,10 +92,11 @@ public class TabTemplateCtrl implements Initializable {
     private Group movingGroup = null;
 
     /**
-     * [NOT FINISHED DOC]
      * Method which sets up the Lewis structure for a single solution.
      * @param solution the solution matrix
-     * @param atomList
+     * @param atomList the list of atoms contained in the solution
+     * @param loops the indices of the rows which are part of a loop.
+     * @return the covalent atom Group as a set of Rectangles and Text.
      */
     public static Group setLewis(int [][] solution, String[] atomList, int[] loops) {
         Group returnGroup;
@@ -121,6 +115,16 @@ public class TabTemplateCtrl implements Initializable {
         //System.out.println("Final List Lewis: " + finalList);
     }
 
+    /**
+     * The recursive method which defines the position of an element in relation to the others.
+     * @param currRow the current row of the solution matrix
+     * @param prevRow the row from which this method was called
+     * @param translateVec the translate vector
+     * @param prevs the list of all rows on which the method was called
+     * @param matrix the solution matrix
+     * @param atomList the list of atoms which are part of the solution
+     * @return an ArrayList of nodes, which are Rectangles and Text, to represent the Lewis structure.
+     */
     public static ArrayList<Node> getRelativeLewis(int currRow, int prevRow, double[] translateVec, LinkedList<Integer> prevs, int[][] matrix, String[] atomList) {
         prevs.add(currRow);
         Atom[] atoms = MainAppCtrl.getAtoms();
@@ -395,6 +399,7 @@ public class TabTemplateCtrl implements Initializable {
      * @param solution a solution matrix
      * @param atomList a list of non-metals
      * @param loop the indexes of the rows which are part of a loop
+     * @return 
      */
     public static Group set3D(int [][] solution, String[] atomList, int[] loop) {
         Group returnGroup = new Group();
@@ -411,6 +416,13 @@ public class TabTemplateCtrl implements Initializable {
         return returnGroup;
     }
     
+    /**
+     * 
+     * @param solution
+     * @param atomList
+     * @param loop
+     * @return
+     */
     public static Pair<Group, Group> loadGroups(int [][] solution, String[] atomList, int[] loop) {
         Group group3D = set3D(solution, atomList, loop);
         group3D.setId("Cov");
@@ -421,6 +433,14 @@ public class TabTemplateCtrl implements Initializable {
         return new Pair<>(group3D, groupLewis);
     }
     
+    /**
+     *
+     * @param solution
+     * @param atomList
+     * @param loop
+     * @param metalList
+     * @return
+     */
     public static Pair<Group, Group> doAll(int [][] solution, String[] atomList, int[] loop, Atom[] metalList) {
         Pair<Group, Group> tempCovalent;
         if (solution.length != 0)   
@@ -498,6 +518,10 @@ public class TabTemplateCtrl implements Initializable {
         return listGroups;
     }
     
+    /**
+     *
+     * @param groups
+     */
     public void setNodes(Pair<Group, Group> groups) {
         atomGroup = groups.getKey();
         lewisGroup = groups.getValue();
@@ -575,6 +599,11 @@ public class TabTemplateCtrl implements Initializable {
         });
     }
     
+    /**
+     *
+     * @param metalAtoms
+     * @return
+     */
     public static Group getIons3d(Atom[] metalAtoms) {
         Group returnGroup = new Group();
         
@@ -592,6 +621,11 @@ public class TabTemplateCtrl implements Initializable {
         return returnGroup;
     }
     
+    /**
+     *
+     * @param metalAtoms
+     * @return
+     */
     public static Group getIonsLewis(Atom[] metalAtoms) {
         Group returnGroup = new Group();
         
@@ -616,6 +650,8 @@ public class TabTemplateCtrl implements Initializable {
      * @param prevRow the row from which this method was called
      * @param vec the attack vector
      * @param prevs the list of all the previous rows
+     * @param matrix
+     * @param atomList
      * @return an ArrayList of Nodes (Spheres and Cylinders)
      */
     public static ArrayList<Node> getRelativeLocation(int currRow, int prevRow, double[] vec, LinkedList<Integer> prevs, int[][] matrix, String[] atomList) {
@@ -972,6 +1008,7 @@ public class TabTemplateCtrl implements Initializable {
     /**
      * Handler which allows for the detection of the initial mouse press.
      * This allows the mouse drag handler to work properly.
+     * @param event
      */
     @FXML
     public void handleMouseClick(MouseEvent event) {
@@ -994,6 +1031,7 @@ public class TabTemplateCtrl implements Initializable {
 
     /**
      * Handler which allows for the rotation and translation of the 3D group of atoms.
+     * @param event
      */
     @FXML
     public void handleMouseDrag(MouseEvent event) {
@@ -1204,18 +1242,30 @@ public class TabTemplateCtrl implements Initializable {
         return returnedList;
     }
 
+    /**
+     * Method which allows the taking of a snapshot of the 3D scene.
+     * @return the snapshot of the 3D scene.
+     */
     public WritableImage screenShotThreeD() {
         SnapshotParameters spa = new SnapshotParameters();
         spa.setTransform(Transform.scale(2, 2));
         return realView.snapshot(spa, null);
     }
 
+    /**
+     * Method which allows the taking of a snapshot of the Lewis scene.
+     * @return the snapshot of the Lewis scene.
+     */
     public WritableImage screenShotLewis() {
         SnapshotParameters spa = new SnapshotParameters();
         spa.setTransform(Transform.scale(2, 2));
         return lewisPane.snapshot(spa, null);
     }
 
+    /**
+     * Method which adds the on hover capability for the 3D scene.
+     * @param s the Node to which the on hover capability will be added.
+     */
     public void addHover(Node s) {
         s.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
