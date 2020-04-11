@@ -8,10 +8,11 @@ and open the template in the editor.
     Author     : samyarab
 */
 
+
+
 .menuBar {
    -fx-background-color: ghostwhite; 
    -fx-border-width: 1px;
-   -fx-border-style: inset;
    -fx-border-color: gainsboro;   
 }
 
@@ -21,12 +22,11 @@ and open the template in the editor.
 
 .menuFile:selected {
     -fx-background-color: #ccc;
-    
-    .menuFileExit:hover {
-        -fx-background-color: #ddd;
-    }
 }
 
+.menuFileExit:hover {
+    -fx-background-color: #ddd;
+}
 
 .menuHelp:hover {
     -fx-background-color: #ddd;
@@ -34,16 +34,15 @@ and open the template in the editor.
 
 .menuHelp:selected {
     -fx-background-color: #ccc;
-    
-    .menuHelpItem:hover {
-        -fx-background-color: #ddd;
-    }
-
-    .menuHelpItem:selected {
-        -fx-background-color: #ccc;
-    }
 }
 
+.menuHelpItem:hover {
+    -fx-background-color: #ddd;
+    }
+
+.menuHelpItem:selected {
+    -fx-background-color: #ccc;
+}
 
 .menuSave:hover {
     -fx-background-color: #ddd;
@@ -51,17 +50,15 @@ and open the template in the editor.
 
 .menuSave:selected {
     -fx-background-color: #ccc;
-    
-    .menuSaveItem:hover {
-        -fx-background-color: #ddd;
-    }
-
-    .menuSaveItem:selected {
-        -fx-background-color: #ccc;
-    }
 }
 
+.menuSaveItem:hover {
+    -fx-background-color: #ddd;
+}
 
+.menuSaveItem:selected {
+    -fx-background-color: #ccc;
+}
 
 .searchTxtBox {
     -fx-padding: 7px;
@@ -112,7 +109,6 @@ and open the template in the editor.
 
 
 
-
 .tooltip {
     
 }
@@ -130,7 +126,7 @@ TODO:
 
 -Menubar design: spacing and size
 -Searchbox design: add a button, change the location and add animation if possible
--Add the overlay for the tutorial explaining the functions of the application
+-Add the overlay for the tooltip explaining the functions of the application
 -Work on the theme/colors
 
 */

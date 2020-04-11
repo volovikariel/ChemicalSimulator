@@ -20,6 +20,7 @@ import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
@@ -37,6 +38,7 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.text.TextAlignment;
 
 /**
  * Controller for the selection scene.
@@ -59,6 +61,8 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     AnchorPane paneSimulation;
     @FXML 
     Button btnClear;
+    @FXML
+    Label tooltipDrag;
     
     Atom[] atoms;
     
@@ -179,6 +183,29 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 splitPane.getDividers().get(0).setPosition(0.5);
             }
         });
+        
+        
+        
+        //TOOLTIP
+        
+        Tooltip tipBtnClear = new Tooltip();
+        Tooltip tipTxtManual = new Tooltip();
+        Tooltip tipDragElements = new Tooltip();
+        
+//        tipBtnClear.setId("tipBtnClear");
+//        tiptxtManual.setId("tiptxtManual");
+//        tipDragElments.setId("tipDragElments");
+        
+        btnClear.setTooltip(tipBtnClear);
+        txtManual.setTooltip(tipTxtManual);
+        tooltipDrag.setTooltip(tipDragElements);
+        
+        tipBtnClear.setText("Clear the search or the drop area");
+        tipTxtManual.setText("Insert the desired molecule");
+        tipDragElements.setText("Drag any element from the periodic table and drop here");
+        
+        tooltipDrag.setText("Drag elements from the periodic table and drop here");
+        tooltipDrag.isVisible();
     }
 
     public void appendInput(String text) {
