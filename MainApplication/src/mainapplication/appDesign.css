@@ -109,12 +109,20 @@ and open the template in the editor.
 
 
 
-.tooltip {
-    
+#lblDrag {
+    -fx-font-size: 20px;
+    -fx-text-fill: #666666;
 }
 
+#lblSearch {
+    -fx-font-size: 20px;
+    -fx-text-fill: #666666;
+}
 
-
+#lblOR {
+    -fx-font-size: 20px;
+    -fx-text-fill: #FF6347;
+}
 
 
 

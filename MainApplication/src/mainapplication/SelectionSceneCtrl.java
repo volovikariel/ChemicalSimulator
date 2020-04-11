@@ -1,5 +1,6 @@
 package mainapplication;
 
+import java.awt.Font;
 import mainapplication.model.TableElement;
 import mainapplication.model.Atom;
 import java.net.URL;
@@ -61,7 +62,11 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     @FXML 
     Button btnClear;
     @FXML
-    Label tooltipDrag;
+    Label lblDrag;
+    @FXML
+    Label lblSearch;
+    @FXML
+    Label lblOR;
     
     Atom[] atoms;
     
@@ -144,7 +149,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 
                 newVBox.setPrefWidth(paneSimulation.getWidth() / 18.0);
                 newVBox.setPrefHeight(paneSimulation.getHeight() / 9.0);
-                
+                                
                 newVBox.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {
@@ -173,6 +178,10 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
                 paneSimulation.getChildren().add(newVBox);
                 
                 event.consume();
+                
+                lblDrag.setStyle("-fx-text-fill: transparent;");
+                lblSearch.setStyle("-fx-text-fill: transparent;");
+                lblOR.setStyle("-fx-text-fill: transparent;");
             }
         });
         
@@ -189,23 +198,21 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
         
         Tooltip tipBtnClear = new Tooltip();
         Tooltip tipTxtManual = new Tooltip();
-        Tooltip tipDragElements = new Tooltip();
-        
+//        Tooltip tipDragElements = new Tooltip();
+//        
 //        tipBtnClear.setId("tipBtnClear");
 //        tiptxtManual.setId("tiptxtManual");
 //        tipDragElments.setId("tipDragElments");
         
         btnClear.setTooltip(tipBtnClear);
         txtManual.setTooltip(tipTxtManual);
-        tooltipDrag.setTooltip(tipDragElements);
+        //tooltipDrag.setTooltip(tipDragElements);
         
-        tipBtnClear.setText("Clear the search or the drop area");
+        tipBtnClear.setText("Clear the search and the drop area");
         tipTxtManual.setText("Insert the desired molecule");
-        tipDragElements.setText("Drag any element from the periodic table and drop here");
         
-        tooltipDrag.setText("Drag elements from the periodic table and drop here");
-        tooltipDrag.isVisible();
-    }
+        lblDrag.setText("Drag elements from the periodic table and drop here");
+        }
 
     /**
      * Method which appends the user's text input.
@@ -217,6 +224,10 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     public void appendInput(String text) {
         txtManual.setVisible(true);
         String currText = txtManual.getText();
+        
+        lblDrag.setStyle("-fx-text-fill: transparent;");
+        lblSearch.setStyle("-fx-text-fill: transparent;");
+        lblOR.setStyle("-fx-text-fill: transparent;");
         
         if (currText.isEmpty() && Character.isDigit(text.charAt(0)))
             txtManual.setVisible(false);

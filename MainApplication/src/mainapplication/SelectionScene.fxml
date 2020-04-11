@@ -23,7 +23,9 @@
                      </font>
                   </TextField>
                   <Button fx:id="btnClear" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#clearScreen" styleClass="btnClearAll" stylesheets="@appDesign.css" text="Clear All" />
-                  <Label fx:id="tooltipDrag" layoutX="190.0" layoutY="79.0" prefHeight="38.0" prefWidth="218.0" styleClass="tooltipDrag" />
+                  <Label fx:id="lblDrag" layoutX="413.0" layoutY="102.0" prefHeight="93.0" prefWidth="828.0" styleClass="tooltipDrag" />
+                  <Label fx:id="lblSearch" layoutX="430.0" layoutY="210.0" text="Start typing here" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="170.0" />
+                  <Label fx:id="lblOR" layoutX="338.0" layoutY="94.0" text="OR" AnchorPane.bottomAnchor="115.0" AnchorPane.rightAnchor="300.0" />
                </children></AnchorPane>
           <AnchorPane fx:id="panePeriodic" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
