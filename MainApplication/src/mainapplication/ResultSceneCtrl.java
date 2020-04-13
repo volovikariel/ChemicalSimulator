@@ -133,4 +133,8 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
         TabTemplateCtrl ctrl = controllers.get(resultID.getSelectionModel().getSelectedIndex());
         return ctrl.screenShotLewis();
     }
+
+    int getIndex() {
+        return resultID.getSelectionModel().getSelectedIndex();
+    }
 }

@@ -27,12 +27,14 @@
                 <MenuItem fx:id="takeFullPicture" mnemonicParsing="false" onAction="#saveScene" styleClass="menuSaveItem" text="Save Screen" />
                   <MenuItem fx:id="take3DPicture" disable="true" mnemonicParsing="false" onAction="#saveThreeDim" styleClass="menuSaveItem" text="Save 3D" />
                   <MenuItem fx:id="takeLewisPicture" disable="true" mnemonicParsing="false" onAction="#saveLewis" styleClass="menuSaveItem" text="Save Lewis" />
+                  <MenuItem fx:id="saveMol" mnemonicParsing="false" onAction="#handleSaveMol" text="Save Molecule" />
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Algorithm">
               <items>
-                <MenuItem mnemonicParsing="false" onAction="#handleSettings" text="Settings" />
                   <MenuItem fx:id="manualMode" mnemonicParsing="false" onAction="#handleManual" text="Manual Mode" />
+                  <MenuItem fx:id="miLoadMol" mnemonicParsing="false" onAction="#handleLoadMol" text="Load Molecule" />
+                <MenuItem mnemonicParsing="false" onAction="#handleSettings" text="Settings" />
               </items>
             </Menu>
             <Menu mnemonicParsing="true" styleClass="menuHelp" text="Help">
