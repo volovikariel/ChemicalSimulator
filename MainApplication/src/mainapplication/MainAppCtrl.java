@@ -169,10 +169,12 @@ public class MainAppCtrl implements Initializable {
                         
                         if (solutions.size() <= 2) {
                             System.out.println("No solutions found!!");
+                            
+                            this.cancel();
 
                             Alert alert = new Alert(AlertType.WARNING, "These atoms yielded no solutions!");
                             alert.setTitle("No Solutions Found!!!");
-                            alert.show();
+                            alert.showAndWait();
 
                             loadSubscene(SELECTION_STR);
                             
@@ -242,6 +244,16 @@ public class MainAppCtrl implements Initializable {
                     public void handle(WorkerStateEvent event) {
                         proc.destroyForcibly();
                         proc = null;
+                        
+                        if (solutions.size() <= 2) {
+                            Alert alert = new Alert(AlertType.WARNING, "These atoms yielded no solutions!");
+                            alert.setTitle("No Solutions Found!!!");
+                            alert.showAndWait();
+
+                            loadSubscene(SELECTION_STR);
+                            
+                            groups = null;
+                        }
                     }
                     
                 });
