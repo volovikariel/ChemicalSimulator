@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -10,8 +11,18 @@
    <children>
       <SplitPane dividerPositions="0.5" styleClass="splitPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <items>
-            <Pane fx:id="lewisPane" onMouseDragged="#handleMouseDragLewis" onMousePressed="#handleMouseClickLewis" prefHeight="350.0" prefWidth="186.0" />
-            <StackPane fx:id="bindAnchor" onMouseDragged="#handleMouseDrag" onMousePressed="#handleMouseClick" prefHeight="150.0" prefWidth="200.0" />               
+            <Pane fx:id="lewisPane" onMouseDragged="#handleMouseDragLewis" onMousePressed="#handleMouseClickLewis" prefHeight="350.0" prefWidth="186.0">
+               <children>
+                  <Label fx:id="lblLewis" layoutX="150.0" layoutY="29.0" prefWidth="400.0" text="- Hold LEFT CLICK and drag to move&#10;- SCROLL to zoom" />
+               </children></Pane>
+            <StackPane fx:id="bindAnchor" onMouseDragged="#handleMouseDrag" onMousePressed="#handleMouseClick" prefHeight="150.0" prefWidth="200.0">
+               <children>
+                  <Label fx:id="lbl3D" layoutX="50.0" prefHeight="100.0" prefWidth="400.0" text="- Hold LEFT CLICK and drag to move&#10;- SCROLL to zoom &#10;- Hold RIGHT CLICK to rotate" StackPane.alignment="TOP_CENTER">
+                     <padding>
+                        <Insets bottom="8.0" top="8.0" />
+                     </padding>
+                  </Label>
+               </children></StackPane>               
          </items>
       </SplitPane>
       <Label fx:id="lblScore" styleClass="lblScore" text="Score" />

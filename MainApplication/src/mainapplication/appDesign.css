@@ -16,50 +16,6 @@ and open the template in the editor.
    -fx-border-color: gainsboro;   
 }
 
-.menuFile:hover {
-    -fx-background-color: #ddd;
-}
-
-.menuFile:selected {
-    -fx-background-color: #ccc;
-}
-
-.menuFileExit:hover {
-    -fx-background-color: #ddd;
-}
-
-.menuHelp:hover {
-    -fx-background-color: #ddd;
-}
-
-.menuHelp:selected {
-    -fx-background-color: #ccc;
-}
-
-.menuHelpItem:hover {
-    -fx-background-color: #ddd;
-    }
-
-.menuHelpItem:selected {
-    -fx-background-color: #ccc;
-}
-
-.menuSave:hover {
-    -fx-background-color: #ddd;
-}
-
-.menuSave:selected {
-    -fx-background-color: #ccc;
-}
-
-.menuSaveItem:hover {
-    -fx-background-color: #ddd;
-}
-
-.menuSaveItem:selected {
-    -fx-background-color: #ccc;
-}
-
 .searchTxtBox {
     -fx-padding: 7px;
     -fx-font-size: 13px;
@@ -124,7 +80,16 @@ and open the template in the editor.
     -fx-text-fill: #FF6347;
 }
 
+#lblLewis {
+    -fx-font-size: 20px;
+    -fx-text-fill: #666666;
+}
 
+
+#lbl3D {
+    -fx-font-size: 20px;
+    -fx-text-fill: #666666;
+}
 
 
 

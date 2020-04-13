@@ -63,7 +63,13 @@ public class TabTemplateCtrl implements Initializable {
     
     @FXML
     Label lblScore;
-
+    
+    @FXML
+    Label lblLewis;
+    
+    @FXML
+    Label lbl3D;
+    
     final static int BOND_SIZE = 125;
     final static int LEWIS_BOND_SIZE = 40;
     final static int LEWIS_OFFSET = 20;
@@ -971,10 +977,14 @@ public class TabTemplateCtrl implements Initializable {
         realView.setCamera(camera);
         atoms = MainAppCtrl.getAtoms();
         bindAnchor.getChildren().get(0).requestFocus();
+        
         // Handle the scrolling for 3D
         bindAnchor.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent event) {
+                lblLewis.setStyle("-fx-text-fill: transparent;");
+                lbl3D.setStyle("-fx-text-fill: transparent;");
+                
                 if(event.getDeltaY() > 0) {
                     atomGroup.scaleXProperty().set(atomGroup.getScaleX() * 1.25);
                     atomGroup.scaleYProperty().set(atomGroup.getScaleY() * 1.25);
@@ -991,6 +1001,9 @@ public class TabTemplateCtrl implements Initializable {
         lewisPane.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent event) {
+                lblLewis.setStyle("-fx-text-fill: transparent;");
+                lbl3D.setStyle("-fx-text-fill: transparent;");
+                
                 if(event.getDeltaY() > 0) {
                     lewisGroup.scaleXProperty().set(lewisGroup.getScaleX() * 1.25);
                     lewisGroup.scaleYProperty().set(lewisGroup.getScaleY() * 1.25);
@@ -1012,6 +1025,9 @@ public class TabTemplateCtrl implements Initializable {
      */
     @FXML
     public void handleMouseClick(MouseEvent event) {
+        lblLewis.setStyle("-fx-text-fill: transparent;");
+        lbl3D.setStyle("-fx-text-fill: transparent;");
+        
         if (event.getButton() == MouseButton.PRIMARY) {
             initX = event.getX();
             initY = event.getY();
@@ -1035,6 +1051,9 @@ public class TabTemplateCtrl implements Initializable {
      */
     @FXML
     public void handleMouseDrag(MouseEvent event) {
+        lblLewis.setStyle("-fx-text-fill: transparent;");
+        lbl3D.setStyle("-fx-text-fill: transparent;");
+        
         if (event.getButton() == MouseButton.PRIMARY) {
             movingGroup.translateXProperty().set(event.getX() - initX + startTransX);
             movingGroup.translateYProperty().set(event.getY() - initY + startTransY);
@@ -1053,6 +1072,9 @@ public class TabTemplateCtrl implements Initializable {
     
     @FXML
     public void handleMouseClickLewis(MouseEvent event) {
+        lblLewis.setStyle("-fx-text-fill: transparent;");
+        lbl3D.setStyle("-fx-text-fill: transparent;");
+        
         initX = event.getX();
         initY = event.getY();
         
@@ -1066,6 +1088,9 @@ public class TabTemplateCtrl implements Initializable {
 
     @FXML
     public void handleMouseDragLewis(MouseEvent event) {
+        lblLewis.setStyle("-fx-text-fill: transparent;");
+        lbl3D.setStyle("-fx-text-fill: transparent;");
+        
         movingGroup.translateXProperty().set(event.getX() - initX + startTransX);
         movingGroup.translateYProperty().set(event.getY() - initY + startTransY);
     }
