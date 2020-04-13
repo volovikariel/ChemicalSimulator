@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
@@ -108,10 +109,9 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
             
             controllers.put(i, controller);
         }
-        // Notifying the user that the algorithm has finished its job
-        Notifications.create().title("Chemical Simulator").text("Done!").showInformation();
+        Notifications.create().text("Press ENTER to try another molecule").position(Pos.CENTER).showInformation();
     }
-
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
     }
