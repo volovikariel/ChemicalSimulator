@@ -171,14 +171,6 @@ public class MainAppCtrl implements Initializable {
                             System.out.println("No solutions found!!");
                             
                             this.cancel();
-
-                            Alert alert = new Alert(AlertType.WARNING, "These atoms yielded no solutions!");
-                            alert.setTitle("No Solutions Found!!!");
-                            alert.showAndWait();
-
-                            loadSubscene(SELECTION_STR);
-                            
-                            groups = null;
                             
                             return null;
                         }
@@ -399,12 +391,12 @@ public class MainAppCtrl implements Initializable {
 
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
             
-            readOutput(stdInput);
+            return readOutput(stdInput);
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Did not find \"END\"");
+        //System.out.println("Did not find \"END\"");
         return new LinkedList<>();
     }
     
@@ -434,8 +426,8 @@ public class MainAppCtrl implements Initializable {
 
             else if (s.equals(">>>>")) {
                     if (isReading) {
-                            System.out.println("ERROR, new matrix started without ending last one");
-                            return null;
+                        System.out.println("ERROR, new matrix started without ending last one");
+                        return new LinkedList<>();
                     }
 
                     isReading = true;
