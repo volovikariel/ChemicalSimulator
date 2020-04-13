@@ -626,6 +626,8 @@ public class MainAppCtrl implements Initializable {
         
         returnStr += "<<<<\n";
         
+        returnStr += "END\n";
+        
         return returnStr;
     }
     
