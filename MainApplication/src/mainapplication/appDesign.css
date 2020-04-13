@@ -91,7 +91,28 @@ and open the template in the editor.
     -fx-text-fill: #666666;
 }
 
+.anchorSettings .slider .active{
+    -fx-background-color: red;
+}
 
+.anchorSettings .button {
+    -fx-background-color: lightgrey;
+    -fx-border-style: none;
+    -fx-padding: 5px 8px;
+    -fx-text-alignment: center;
+    -fx-display-caret: inline-block;
+    -fx-font-size: 13px;
+}
+
+.anchorSettings .lblSettings {
+    -fx-font-size: 30px;
+    -fx-text-fill: #666666;
+}
+
+.anchorSettings .lblBondCount {
+    -fx-font-size: 15px;
+    -fx-text-fill: #666666;
+}
 
 
 /* 
