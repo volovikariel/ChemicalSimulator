@@ -686,7 +686,7 @@ public class MainAppCtrl implements Initializable {
     /**
      * Applies the maximum number of bonds given by the user within a range.
      * This limits the amount of possibilities for the algorithm and thus generally shortens computation time.
-     * This method is called by going to the Algorithm -> Settings section in the program.
+     * This method is called by going to the Algorithm - Settings section in the program.
      * @param maxBonds the maximum number of bonds.
      */
     public void applySettings(int maxBonds) {

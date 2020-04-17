@@ -486,7 +486,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     
     /**
      * Method which concentrates the given atom list.
-     * For example: [H,H,O] -> [H,2,O]
+     * For example: [H,H,O] - [H,2,O]
      * @param alName an ArrayList of atoms to be concentrated
      * @return the concentrated version of the ArrayList
      */
@@ -687,7 +687,7 @@ public class SelectionSceneCtrl implements Initializable, SubSceneController {
     /**
      * Method which returns the the atoms individually rather than with the digits.
      * For example:
-     * [C,2,H,4] -> [C,C,H,H,H,H]
+     * [C,2,H,4] - [C,C,H,H,H,H]
      * @param input the input with the digits.
      * @return the re-formatted input.
      */
