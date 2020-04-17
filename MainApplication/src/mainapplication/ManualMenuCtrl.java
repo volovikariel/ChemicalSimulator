@@ -17,6 +17,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -66,6 +67,10 @@ public class ManualMenuCtrl implements Initializable {
                 throw new NumberFormatException();
 
             loaded = true;
+            
+            gridTable.getChildren().clear();
+            gridTable.getColumnConstraints().clear();
+            gridTable.getRowConstraints().clear();
             
             RowConstraints tempRow = new RowConstraints();
             tempRow.setVgrow(Priority.ALWAYS);
@@ -231,15 +236,12 @@ public class ManualMenuCtrl implements Initializable {
     }
     
     @FXML
-    private void handleKeyTyped(KeyEvent keyEvent) {
-        if (keyEvent.getCharacter().charAt(0) == 13) { //ENTER
+    private void handleKeyPressed(KeyEvent keyEvent) {
+        if (keyEvent.getCode() == KeyCode.ENTER) {
             if (loaded)
                 handleEnter(new ActionEvent(loopField, NULL_SOURCE_TARGET));
             else
                 loadTable(new ActionEvent());
         }
-//        else if (keyEvent.getCharacter().charAt(0) == 9) { //TAB
-//            
-//        }
     }
 }
