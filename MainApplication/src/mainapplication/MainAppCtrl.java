@@ -286,6 +286,17 @@ public class MainAppCtrl implements Initializable {
      * @param solutions a List of all the solutions, provided by the algorithm.
      */
     public void loadSols(ArrayList<Pair<Group, Group>> groups, LinkedList<Solution> solutions) {
+        take3DPicture.setDisable(false);
+        takeLewisPicture.setDisable(false);
+        saveMol.setDisable(false);
+        
+        this.solutions = solutions;
+        //save & remove both the atomList and the metalList
+        this.atomList = this.solutions.getFirst().getNames();
+        this.solutions.removeFirst();
+        this.metalList = this.solutions.getFirst().getNames();
+        this.solutions.removeFirst();
+        
         loadSubscene(RESULTS_STR);
 
         ((ResultSceneCtrl) controller).setTabs(groups, solutions);
@@ -340,9 +351,10 @@ public class MainAppCtrl implements Initializable {
     }
     
     private void loadSubscene(String subsceneFile) {
-        take3DPicture.setDisable(true);
-        takeLewisPicture.setDisable(true);
-        saveMol.setDisable(true);
+        boolean isResultScene = subsceneFile.equals(RESULTS_STR);
+        take3DPicture.setDisable(!isResultScene);
+        takeLewisPicture.setDisable(!isResultScene);
+        saveMol.setDisable(!isResultScene);
         isSelectionScene = subsceneFile.equals(SELECTION_STR);
         manualMode.setDisable(!isSelectionScene);
         miLoadMol.setDisable(!isSelectionScene);
@@ -586,15 +598,15 @@ public class MainAppCtrl implements Initializable {
     }
     
     String saveMol(Solution sol) {
-        String returnStr = "+";
+        String returnStr = "+ ";
         
         for (String str : atomList)
-            returnStr += " " + str;
+            returnStr += str + " ";
         
-        returnStr += "\n-";
+        returnStr += "\n- ";
         
         for (String str : metalList)
-            returnStr += " " + str;
+            returnStr += str + " ";
         
         returnStr += "\n>>>>\n";
         
@@ -676,6 +688,7 @@ public class MainAppCtrl implements Initializable {
         SettingMenuCtrl ctrl = (SettingMenuCtrl) loader.getController();
         ctrl.setParams(maxBonds, this);
         Stage settingWindow = new Stage();
+        settingWindow.setResizable(false);
         settingWindow.setTitle("Settings");
         settingWindow.setScene(new Scene(root));
         settingWindow.initOwner((Stage) (parentScene.getWindow()));
@@ -707,7 +720,8 @@ public class MainAppCtrl implements Initializable {
         ManualMenuCtrl ctrl = (ManualMenuCtrl) loader.getController();
         ctrl.setParent(this);
         Stage manualWindow = new Stage();
-        manualWindow.setResizable(false);
+        manualWindow.setMinHeight(400);
+        manualWindow.setMinWidth(600);
         manualWindow.setTitle("Manual Input");
         manualWindow.setScene(new Scene(root));
         manualWindow.initOwner((Stage) (parentScene.getWindow()));

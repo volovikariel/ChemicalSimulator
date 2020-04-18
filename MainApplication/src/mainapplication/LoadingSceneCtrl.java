@@ -49,6 +49,8 @@ public class LoadingSceneCtrl implements Initializable, SubSceneController {
     
     /**
      * Initializes the Loading Scene controller by adding the 3D molecule to the scene and rotating it.
+     * @param url
+     * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {

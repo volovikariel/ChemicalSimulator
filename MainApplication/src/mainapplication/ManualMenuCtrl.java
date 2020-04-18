@@ -63,7 +63,7 @@ public class ManualMenuCtrl implements Initializable {
     void loadTable(ActionEvent event) {
         try {
             int number = Integer.parseInt(txAtoms.getText());
-            if (number <= 0 || number > 20)
+            if (number <= 0)
                 throw new NumberFormatException();
 
             loaded = true;
@@ -130,7 +130,7 @@ public class ManualMenuCtrl implements Initializable {
             Alert help = new Alert(Alert.AlertType.ERROR);
             help.setTitle("Error");
             help.setHeaderText("ERROR");
-            help.setContentText("You must enter a positive whole number which doesn't exceed 20!");
+            help.setContentText("You must enter a positive whole number!");
             help.show();
         }
         

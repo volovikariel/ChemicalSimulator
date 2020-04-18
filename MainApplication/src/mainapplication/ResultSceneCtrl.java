@@ -100,9 +100,7 @@ public class ResultSceneCtrl implements Initializable, SubSceneController {
             Tab newTab = new Tab("" + (i + 1));
             newTab.setContent(root);
             
-            Solution current = list.get(i);
-            
-            controller.setScore(current.getScore());
+            controller.setScore(list.get(i).getScore());
             controller.setNodes(groups.get(i));
             
             resultID.getTabs().add(newTab);

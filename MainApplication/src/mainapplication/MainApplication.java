@@ -1,9 +1,12 @@
 package mainapplication;
 
+import java.net.URL;
+import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
@@ -34,6 +37,7 @@ public class MainApplication extends Application {
         primaryStage.setMinHeight(800);
         primaryStage.setMinWidth(800);
         primaryStage.setTitle("Chemistry Simulator");
+        primaryStage.getIcons().add(new Image(getClass().getResource("Icon.png").toExternalForm()));
         FXMLLoader loader = new FXMLLoader(getClass().getResource("MainApp.fxml"));
         Parent root = loader.load();
         controller = loader.getController();

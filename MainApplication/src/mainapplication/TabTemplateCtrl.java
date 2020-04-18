@@ -620,7 +620,13 @@ public class TabTemplateCtrl implements Initializable {
             temp.setMaterial(new PhongMaterial(Color.web(atom.getColor())));
             temp.setId(atom.getSymbol());
             
-            ion.getChildren().addAll(temp);
+            Label label = new Label("" + atom.getShells());
+            label.setTranslateX(30);
+            label.setTranslateY(-60);
+            label.setTranslateZ(-30);
+            label.setFont(new Font(40));
+            
+            ion.getChildren().addAll(temp, label);
             returnGroup.getChildren().add(ion);
         }
         
@@ -643,7 +649,12 @@ public class TabTemplateCtrl implements Initializable {
             temp.setFont(new Font(40));
             temp.setTextAlignment(TextAlignment.CENTER);
             
-            ion.getChildren().addAll(temp);
+            Label chargelbl = new Label("" + atom.getShells());
+            chargelbl.setTranslateX(30 + 15 * (atom.getSymbol().length() - 1));
+            chargelbl.setTranslateY(0);
+            chargelbl.setFont(new Font(20));
+            
+            ion.getChildren().addAll(temp, chargelbl);
             returnGroup.getChildren().add(ion);
         }
         
