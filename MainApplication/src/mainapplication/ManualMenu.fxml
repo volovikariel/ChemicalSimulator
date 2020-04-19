@@ -10,7 +10,7 @@
 
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#handleKeyPressed" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mainapplication.ManualMenuCtrl">
    <children>
-      <HBox alignment="CENTER" minHeight="45.0" prefHeight="45.0" prefWidth="200.0">
+      <HBox alignment="CENTER" minHeight="45.0" prefHeight="45.0" prefWidth="200.0" maxHeight="45.0">
          <children>
             <Label text="Enter the number of atoms:">
                <padding>
@@ -30,7 +30,7 @@
       </HBox>
       <GridPane fx:id="gridTable" gridLinesVisible="true" prefHeight="350.0" prefWidth="600.0">
       </GridPane>
-      <HBox alignment="CENTER" minHeight="40.0" prefHeight="40.0" prefWidth="200.0">
+      <HBox alignment="CENTER" minHeight="40.0" prefHeight="40.0" prefWidth="200.0" maxHeight="40.0">
          <children>
             <Label text="Loop (optional)">
                <HBox.margin>
@@ -40,7 +40,7 @@
             <TextField fx:id="loopField" prefHeight="25.0" prefWidth="325.0" promptText="Comma seperated column index" />
          </children>
       </HBox>
-      <HBox alignment="CENTER" minHeight="40.0" prefHeight="40.0" prefWidth="200.0">
+      <HBox alignment="CENTER" minHeight="40.0" prefHeight="40.0" prefWidth="200.0" maxHeight="40.0">
          <children>
             <Button mnemonicParsing="false" onAction="#handleEnter" text="Enter" />
          </children>
