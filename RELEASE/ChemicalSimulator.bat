@@ -1,0 +1,1 @@
+@java -jar MainApplication.jar >nul 2>&1
