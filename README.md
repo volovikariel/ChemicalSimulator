@@ -2,14 +2,14 @@
 Our final project in Cegep
 
 ### Video Demo
+https://github.com/volovikariel/ChemicalSimulator/assets/16262535/eac79140-f508-4a55-b8e5-d14c605e7ade
 
+<!-- None of these work.. -->
 ![](https://raw.githubusercontent.com/volovikariel/ChemicalSimulator/master/ChemicalSimulatorDemo.mkv)
 ![](https://raw.githubusercontent.com/volovikariel/ChemicalSimulator/master/ChemicalSimulatorDemo2.mp4)
 ![](ChemicalSimulatorDemo.mkv)
 ![](ChemicalSimulatorDemo2.mp4)
-
-https://github.com/volovikariel/ChemicalSimulator/assets/16262535/eac79140-f508-4a55-b8e5-d14c605e7ade
-
+![](ChemicalSimulatorDemo.mov)
 ### What it's about
 Program which, given a set of atoms will generate molecular structures ordered in terms of likeliness to occur in the real world (not insanely accurately though!). This program can be used as a teaching aid because it allows the user to move the molecule around/ the individual atoms around, compare it to others molecules, as well as to save them in preparation for the class!
 
