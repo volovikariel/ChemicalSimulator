@@ -2,6 +2,12 @@
 Our final project in Cegep
 
 ### Video Demo
+
+![](https://raw.githubusercontent.com/volovikariel/ChemicalSimulator/master/ChemicalSimulatorDemo.mkv)
+![](https://raw.githubusercontent.com/volovikariel/ChemicalSimulator/master/ChemicalSimulatorDemo2.mp4)
+![](ChemicalSimulatorDemo.mkv)
+![](ChemicalSimulatorDemo2.mp4)
+
 https://github.com/volovikariel/ChemicalSimulator/assets/16262535/eac79140-f508-4a55-b8e5-d14c605e7ade
 
 ### What it's about
